@@ -123,7 +123,7 @@ The objects in the domain are:
 
 ## Delivery
 
-The above functionality is available through a simple API:
+The above functionality is available through a simple [API](http://localhost:8080/swagger-ui/index.html):
 
 * `POST /api/link` which creates a short URL from data send by a form.
 * `GET /tiny-{id}` where `id` identifies the short url, deals with redirects, and logs use (i.e. clicks).
