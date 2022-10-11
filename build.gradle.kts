@@ -1,9 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+
 plugins {
     id("org.springframework.boot") version "2.7.3" apply false
     id("io.spring.dependency-management") version "1.0.13.RELEASE" apply false
+    id("io.gitlab.arturbosch.detekt") version("1.22.0-RC1")
+
     kotlin("jvm") version "1.7.10" apply false
     kotlin("plugin.spring") version "1.7.10" apply false
     kotlin("plugin.jpa") version "1.7.10" apply false
@@ -20,6 +25,8 @@ var commonsValidatorVersion = "1.6"
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+
     configure<JavaPluginExtension> {
         sourceCompatibility = JavaVersion.VERSION_11
     }
@@ -40,6 +47,28 @@ subprojects {
         "implementation"("org.springdoc:springdoc-openapi-data-rest:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-ui:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-kotlin:1.6.0")
+    }
+
+    detekt {
+        source = objects.fileCollection().from(
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_SRC_DIR_JAVA,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_TEST_SRC_DIR_JAVA,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_SRC_DIR_KOTLIN,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_TEST_SRC_DIR_KOTLIN,
+        )
+        buildUponDefaultConfig = true
+        baseline = file("$rootDir/config/detekt/baseline.xml")
+    }
+
+    tasks.withType<Detekt>().configureEach {
+        jvmTarget = "1.8"
+        reports {
+            html.required.set(true)
+            md.required.set(true)
+        }
+    }
+    tasks.withType<DetektCreateBaselineTask>().configureEach {
+        jvmTarget = "1.8"
     }
 }
 
