@@ -13,5 +13,9 @@ class UrlShortenerApplication
  * The main entry point.
  */
 fun main(args: Array<String>) {
-    runApplication<UrlShortenerApplication>(*args)
+    var argsStr : String = ""
+    for (arg in args) {
+        argsStr += arg
+    }
+    runApplication<UrlShortenerApplication>(argsStr)
 }

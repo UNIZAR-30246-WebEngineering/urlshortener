@@ -155,3 +155,23 @@ The following guides illustrate how to use some features concretely:
 * [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
 * [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+
+## Detekt
+
+Execute detect without type resolution:
+
+```bash
+./gradlew detekt
+```
+
+Auto generate baseline file:
+
+```bash
+./gradlew detektBaseline
+```
+
+To view more deteckt commands check:
+
+```bash
+./gradlew tasks
+```

@@ -1,6 +1,12 @@
 package es.unizar.urlshortener.core.usecases
 
-import es.unizar.urlshortener.core.*
+import es.unizar.urlshortener.core.ShortUrl
+import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.ShortUrlRepositoryService
+import es.unizar.urlshortener.core.ValidatorService
+import es.unizar.urlshortener.core.HashService
+import es.unizar.urlshortener.core.Redirection
+import es.unizar.urlshortener.core.InvalidUrlException
 
 /**
  * Given an url returns the key that is used to create a short URL.
@@ -16,9 +22,9 @@ interface CreateShortUrlUseCase {
  * Implementation of [CreateShortUrlUseCase].
  */
 class CreateShortUrlUseCaseImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService,
-    private val validatorService: ValidatorService,
-    private val hashService: HashService
+        private val shortUrlRepository: ShortUrlRepositoryService,
+        private val validatorService: ValidatorService,
+        private val hashService: HashService
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
         if (validatorService.isValid(url)) {

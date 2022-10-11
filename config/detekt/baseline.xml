@@ -1,6 +1,12 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues/>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>LongParameterList:Entities.kt$ClickEntity$( @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Long?, val hash: String, val created: OffsetDateTime, val ip: String?, val referrer: String?, val browser: String?, val platform: String?, val country: String? )</ID>
+    <ID>LongParameterList:Entities.kt$ShortUrlEntity$( @Id val hash: String, val target: String, val sponsor: String?, val created: OffsetDateTime, val owner: String?, val mode: Int, val safe: Boolean, val ip: String?, val country: String? )</ID>
+    <ID>NewLineAtEndOfFile:Entities.kt$es.unizar.urlshortener.infrastructure.repositories.Entities.kt</ID>
+    <ID>NewLineAtEndOfFile:Repositories.kt$es.unizar.urlshortener.infrastructure.repositories.Repositories.kt</ID>
+    <ID>WildcardImport:Converters.kt$import es.unizar.urlshortener.core.*</ID>
+    <ID>WildcardImport:Entities.kt$import javax.persistence.*</ID>
   </CurrentIssues>
 </SmellBaseline>
