@@ -22,6 +22,8 @@ interface ShortUrlRepositoryService {
  */
 interface ValidatorService {
     fun isValid(url: String): Boolean
+
+    fun isReachable(url: String): Boolean
 }
 
 /**
