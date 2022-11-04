@@ -13,7 +13,7 @@ fun ClickEntity.toDomain() = Click(
         referrer = referrer,
         browser = browser,
         platform = platform,
-        country = country
+        country = country,
     )
 )
 
@@ -28,7 +28,7 @@ fun Click.toEntity() = ClickEntity(
     referrer = properties.referrer,
     browser = properties.browser,
     platform = properties.platform,
-    country = properties.country
+    country = properties.country,
 )
 
 /**
@@ -46,7 +46,13 @@ fun ShortUrlEntity.toDomain() = ShortUrl(
         owner = owner,
         safe = safe,
         ip = ip,
-        country = country
+        lat = lat,
+        lon = lon,
+        country = country,
+        city = city,
+        state = state,
+        road = road,
+        cp = cp
     )
 )
 
@@ -62,6 +68,12 @@ fun ShortUrl.toEntity() = ShortUrlEntity(
     sponsor = properties.sponsor,
     safe = properties.safe,
     ip = properties.ip,
-    country = properties.country
+    lat = properties.lat,
+    lon = properties.lon,
+    country = properties.country,
+    city = properties.city,
+    state = properties.state,
+    road = properties.road,
+    cp = properties.cp
 )
 

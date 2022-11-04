@@ -23,6 +23,19 @@ data class ShortUrl(
 )
 
 /**
+ * A [LocationData] specifies the information about a location
+ */
+data class LocationData(
+    val lat: Double? = null,
+    val lon: Double? = null,
+    val country: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val road: String? = null,
+    val cp: String? = null,
+)
+
+/**
  * A [Redirection] specifies the [target] and the [status code][mode] of a redirection.
  * By default, the [status code][mode] is 307 TEMPORARY REDIRECT.
  */
@@ -39,7 +52,13 @@ data class ShortUrlProperties(
     val sponsor: String? = null,
     val safe: Boolean = true,
     val owner: String? = null,
-    val country: String? = null
+    val lon: Double? = null,
+    val lat: Double? = null,
+    val country: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val road: String? = null,
+    val cp: String? = null,
 )
 
 /**
@@ -50,5 +69,11 @@ data class ClickProperties(
     val referrer: String? = null,
     val browser: String? = null,
     val platform: String? = null,
-    val country: String? = null
+    val lon: Double? = null,
+    val lat: Double? = null,
+    val country: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val road: String? = null,
+    val cp: String? = null,
 )

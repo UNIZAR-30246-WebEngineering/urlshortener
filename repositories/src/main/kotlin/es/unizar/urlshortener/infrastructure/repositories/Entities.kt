@@ -18,7 +18,7 @@ class ClickEntity(
     val referrer: String?,
     val browser: String?,
     val platform: String?,
-    val country: String?
+    val country: String?,
 )
 
 /**
@@ -36,5 +36,11 @@ class ShortUrlEntity(
     val mode: Int,
     val safe: Boolean,
     val ip: String?,
-    val country: String?
+    val lat : Double?,
+    val lon : Double?,
+    val country: String?,
+    val city: String?,
+    val state: String?,
+    val road: String?,
+    val cp: String?,
 )
