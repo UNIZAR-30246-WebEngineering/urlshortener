@@ -16,6 +16,7 @@ interface QRCodeUseCase {
 /**
  * Implementation of [QRCodeUseCase].
  */
+/*
 class QRCodeUseCaseImpl(
     private val validatorService: ValidatorService,
 ) : CreateShortUrlUseCase  {
@@ -23,11 +24,12 @@ class QRCodeUseCaseImpl(
         if (validatorService.isValid(uri)) {
             //  squareColor     =>  darkColor
             //  backgroundColor =>  brightColor
-            val qrCodeCanvas = QRCode(uri).render(darkColor = Colors.css("#0D1117"), brightColor = Colors.css("#8B949E"))
+            val qrCodeCanvas = QRCode(uri).render(darkColor = Colors.css("#0D1117"),
+                    brightColor = Colors.css("#8B949E"))
             val fileOut = FileOutputStream("$filename.png")
             qrCodeCanvas.writeImage(fileOut)
         } else {
             throw InvalidUrlException(uri)
         }
     }
-}
+}*/
