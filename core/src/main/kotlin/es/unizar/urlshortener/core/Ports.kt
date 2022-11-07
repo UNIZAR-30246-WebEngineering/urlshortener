@@ -27,6 +27,13 @@ interface ValidatorService {
 }
 
 /**
+ * [LocationService] is the port to the service that provides location information.
+ */
+interface LocationService {
+    fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
+}
+
+/**
  * [HashService] is the port to the service that creates a hash from a URL.
  *
  * **Note**: It is a design decision to create this port. It could be part of the core .

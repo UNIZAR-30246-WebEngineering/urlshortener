@@ -115,56 +115,5 @@ class UrlShortenerControllerImpl(
             }
 }
 
-    /**
-     * Get location from lat and lon.
-     * Example of response from openstreetmap api:
-     * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
-     */
-/*
-    @PostMapping("/api/location", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun doGetLocation(@RequestBody data: LocationDataIn, request: HttpServletRequest): ResponseEntity<LocationDataOut> {
-        var response = LocationDataOut()
-        if (!data.lat.equals(360) && !data.lon.equals(360)) {
-            val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.lat}&lon=${data.lon}")
-            val con = url.openConnection() as HttpURLConnection
-            con.requestMethod = "GET"
-
-            if (con.responseCode == 200) {
-                val mapper = ObjectMapper()
-                // Parsear el json devuelto
-                val json = mapper.readTree(con.inputStream)
-
-                response = LocationDataOut(
-                        city = json.get("address").get("city").asText(),
-                        country = json.get("address").get("country").asText()
-                )
-                con.disconnect()
-                return ResponseEntity<LocationDataOut>(response, HttpStatus.OK)
-
-            }
-            con.disconnect()
-        }
-        // Obtenerla via ip
-        val url = URL("https://iplist.cc/api/" + request.remoteAddr)
-        val con = url.openConnection() as HttpURLConnection
-        con.requestMethod = "GET"
-
-        if (con.responseCode == 200) {
-            val mapper = ObjectMapper()
-            val json = mapper.readTree(con.inputStream)
-
-            if (json.get("ip").asText() != "127.0.0.1") {
-                response = LocationDataOut(
-                        city = "",
-                        country = json.get("countryname").asText()
-                )
-            }
-            con.disconnect()
-            return ResponseEntity<LocationDataOut>(response, HttpStatus.OK)
-        }
-        con.disconnect()
-        return ResponseEntity<LocationDataOut>(HttpStatus.SERVICE_UNAVAILABLE)
-    }
-}*/
 
 

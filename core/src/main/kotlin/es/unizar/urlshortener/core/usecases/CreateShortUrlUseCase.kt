@@ -1,17 +1,14 @@
 package es.unizar.urlshortener.core.usecases
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import es.unizar.urlshortener.core.InvalidUrlException
-import es.unizar.urlshortener.core.ValidatorService
-import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
+import es.unizar.urlshortener.core.ValidatorService
 import es.unizar.urlshortener.core.HashService
+import es.unizar.urlshortener.core.LocationService
 import es.unizar.urlshortener.core.LocationData
 import es.unizar.urlshortener.core.Redirection
-import es.unizar.urlshortener.core.InvalidLocationException
-import java.net.HttpURLConnection
-import java.net.URL
+import es.unizar.urlshortener.core.InvalidUrlException
 
 /**
  * Given an url returns the key that is used to create a short URL.
@@ -30,12 +27,12 @@ class CreateShortUrlUseCaseImpl(
         private val shortUrlRepository: ShortUrlRepositoryService,
         private val validatorService: ValidatorService,
         private val hashService: HashService,
-        private val successStatusCode: Int = 200
+        private val locationService: LocationService
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
         if (validatorService.isValid(url) && validatorService.isReachable(url)) {
             // Get the location from the coordinates or the ip
-            val location: LocationData = getLocation(data.lat, data.lon, data.ip)
+            val location: LocationData = locationService.getLocation(data.lat, data.lon, data.ip)
 
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
@@ -58,89 +55,4 @@ class CreateShortUrlUseCaseImpl(
         } else {
             throw InvalidUrlException(url)
         }
-
-    private fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
-        return if (lat != null && lon != null) {
-            // Get the location from the coordinates
-            getLocationByCord(lat, lon)
-        } else if (ip != null) {
-            // Get the location from the ip
-            getLocationByIp(ip)
-        } else {
-            // Throw an exception if the coordinates and the ip are null
-            throw InvalidLocationException()
-        }
-    }
-
-    /**
-     * Get location from lat and lon.
-     * Example of response from openstreetmap api:
-     * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
-     */
-    private fun getLocationByCord(lat: Double, lon: Double): LocationData {
-        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}")
-        val con = url.openConnection() as HttpURLConnection
-        con.requestMethod = "GET"
-
-        if (con.responseCode == successStatusCode) {
-            val mapper = ObjectMapper()
-            // Parsear el json devuelto
-            val json = mapper.readTree(con.inputStream)
-
-            val location = LocationData(
-                    lat = lat,
-                    lon = lon,
-                    country = json.get("address").get("country").asText(),
-                    city = json.get("address").get("city").asText(),
-                    state = json.get("address").get("state").asText(),
-                    road = json.get("address").get("road").asText(),
-                    cp = json.get("address").get("postcode").asText()
-            )
-            con.disconnect()
-            return location
-        } else {
-            // Raise an exception if the response code from the API is not 200
-            con.disconnect()
-            throw InvalidLocationException()
-        }
-    }
-
-    /**
-     * Get location from ip.
-     * Example of response from ip-api.com api:
-     * http://ip-api.com/json/yourPublicIP
-     */
-     private fun getLocationByIp(ip: String): LocationData {
-        val url = URL("http://ip-api.com/json/${ip}")
-        val con = url.openConnection() as HttpURLConnection
-        con.requestMethod = "GET"
-
-        if (con.responseCode == successStatusCode) {
-            val mapper = ObjectMapper()
-            // Parsear el json devuelto
-            val json = mapper.readTree(con.inputStream)
-
-            if (json.get("status").asText() == "success") {
-                val location = LocationData(
-                        lat = json.get("lat").asDouble(),
-                        lon = json.get("lon").asDouble(),
-                        country = json.get("country").asText(),
-                        city = json.get("city").asText(),
-                        state = json.get("regionName").asText(),
-                        road = json.get("isp").asText(),
-                        cp = json.get("zip").asText()
-                )
-                con.disconnect()
-                return location
-            } else {
-                // Raise an exception if the ip is not valid cause the ip is not public
-                con.disconnect()
-                throw InvalidLocationException()
-            }
-        } else {
-            // Raise an exception if the response code from the API is not 200
-            con.disconnect()
-            throw InvalidLocationException()
-        }
-     }
 }
