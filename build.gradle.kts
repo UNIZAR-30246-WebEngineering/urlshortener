@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.7.10" apply false
     kotlin("plugin.spring") version "1.7.10" apply false
     kotlin("plugin.jpa") version "1.7.10" apply false
+    id("io.gitlab.arturbosch.detekt") version("1.21.0") apply true
 }
 
 group = "es.unizar"
@@ -20,6 +21,7 @@ var commonsValidatorVersion = "1.6"
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
     configure<JavaPluginExtension> {
         sourceCompatibility = JavaVersion.VERSION_11
     }
@@ -37,6 +39,14 @@ subprojects {
     }
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+        "implementation"("org.springdoc:springdoc-openapi-data-rest:1.6.0")
+        "implementation"("org.springdoc:springdoc-openapi-ui:1.6.0")
+        "implementation"("org.springdoc:springdoc-openapi-kotlin:1.6.0")
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
+    }
+
+    detekt {
+        autoCorrect = true
     }
 }
 

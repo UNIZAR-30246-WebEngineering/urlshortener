@@ -35,7 +35,6 @@ interface UrlShortenerController {
      * **Note**: Delivery of use case [CreateShortUrlUseCase].
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
-
 }
 
 /**
@@ -53,7 +52,6 @@ data class ShortUrlDataOut(
     val url: URI? = null,
     val properties: Map<String, Any> = emptyMap()
 )
-
 
 /**
  * The implementation of the controller.
