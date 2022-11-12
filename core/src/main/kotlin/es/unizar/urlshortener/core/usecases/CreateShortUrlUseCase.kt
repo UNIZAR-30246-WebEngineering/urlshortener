@@ -3,8 +3,6 @@ package es.unizar.urlshortener.core.usecases
 
 import es.unizar.urlshortener.core.*
 import kotlinx.coroutines.*
-import org.springframework.web.servlet.function.ServerResponse
-import org.springframework.web.servlet.function.ServerResponse.async
 
 /**
  * Given an url returns the key that is used to create a short URL.
