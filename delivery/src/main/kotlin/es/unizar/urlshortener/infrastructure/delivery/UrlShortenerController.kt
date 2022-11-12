@@ -106,13 +106,6 @@ class UrlShortenerControllerImpl(
                 h.location = url
                 val response = ShortUrlDataOut(
                         url = url,
-                        lat = it.properties.lat,
-                        lon = it.properties.lon,
-                        country = it.properties.country,
-                        city = it.properties.city,
-                        state = it.properties.state,
-                        road = it.properties.road,
-                        cp = it.properties.cp,
                         properties = mapOf(
                                 "safe" to it.properties.safe
                         )

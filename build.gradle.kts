@@ -47,6 +47,8 @@ subprojects {
         "implementation"("org.springdoc:springdoc-openapi-data-rest:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-ui:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-kotlin:1.6.0")
+        "implementation"("org.jetbrains.kotlin:kotlin-stdlib")
+        "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
     }
 
     detekt {

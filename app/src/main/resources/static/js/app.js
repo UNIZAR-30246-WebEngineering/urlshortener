@@ -16,30 +16,14 @@ $(document).ready(
                     url: "/api/link",
                     data: $.param(data),
                     success: function (data, status) {
-                        //console.log(data);
-                        //console.log(status);
                         $("#result").html(
                             "<div class='alert alert-success lead'><a target='_blank' href='"
                             + data['url']
                             + "'>"
                             + data['url']
                             + "</a></div>");
-                        $("#location").html(
-                            "<div class='alert alert-success lead'>"
-                            + "Tu ubicación: " + "<br>"
-                            + "Latitud: " + data['lat'] + "<br>"
-                            + "Longitud: " + data['lon'] + "<br>"
-                            + "País: " + data['country'] + "<br>"
-                            + "Ciudad: " + data['city'] + "<br>"
-                            + "Comunidad: " + data['state'] + "<br>"
-                            + "Calle: " + data['road'] + "<br>"
-                            + "CP: " + data ['cp']
-                            + "</div>");
                     },
                     error: function (response, status) {
-                        //console.log(response);
-                        //console.log(response['responseJSON']);
-                        //console.log(status);
                         $("#result").html(
                             "<div class='alert alert-danger lead'>"
                             + "ERROR:" + "<br>"

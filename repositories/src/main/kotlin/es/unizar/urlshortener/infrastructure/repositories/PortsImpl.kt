@@ -1,9 +1,6 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
-import es.unizar.urlshortener.core.Click
-import es.unizar.urlshortener.core.ClickRepositoryService
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.ShortUrlRepositoryService
+import es.unizar.urlshortener.core.*
 
 /**
  * Implementation of the port [ClickRepositoryService].
@@ -23,4 +20,26 @@ class ShortUrlRepositoryServiceImpl(
     override fun findByKey(id: String): ShortUrl? = shortUrlEntityRepository.findByHash(id)?.toDomain()
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
+
+    override fun update(id: String, location: LocationData) {
+        println("Before update:")
+        val shortUrlEntity = shortUrlEntityRepository.findByHash(id)
+        println("Hash: " + shortUrlEntity?.hash + " Lat: " + shortUrlEntity?.lat + " Lon: " + shortUrlEntity?.lon + " Country: " + shortUrlEntity?.country + " City: " + shortUrlEntity?.city + " State: " + shortUrlEntity?.state + " Road: " + shortUrlEntity?.road + " CP: " + shortUrlEntity?.cp)
+
+        shortUrlEntity?.let {
+            it.lat = location.lat
+            it.lon = location.lon
+            it.country = location.country
+            it.city = location.city
+            it.state = location.state
+            it.road = location.road
+            it.cp = location.cp
+            shortUrlEntityRepository.save(it)
+        }
+
+        println("\nAfter update:")
+        val shortUpdated = shortUrlEntityRepository.findByHash(id)
+        println("Hash: " + shortUpdated?.hash + " Lat: " + shortUpdated?.lat + " Lon: " + shortUpdated?.lon + " Country: " + shortUpdated?.country + " City: " + shortUpdated?.city + " State: " + shortUpdated?.state + " Road: " + shortUpdated?.road + " CP: " + shortUpdated?.cp)
+    }
+
 }

@@ -6,8 +6,6 @@ import es.unizar.urlshortener.core.*
 import io.github.g0dkar.qrcode.QRCode
 import io.github.g0dkar.qrcode.render.Colors
 import org.apache.commons.validator.routines.UrlValidator
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -40,7 +38,7 @@ class ValidatorServiceImpl : ValidatorService {
  * Implementation of the port [LocationService].
  */
 class LocationServiceImpl : LocationService {
-    override fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
+    override suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
         return if (lat != null && lon != null) {
             // Get the location from the coordinates
             getLocationByCord(lat, lon)
@@ -69,17 +67,22 @@ class LocationServiceImpl : LocationService {
             // Parsear el json devuelto
             val json = mapper.readTree(con.inputStream)
 
-            val location = LocationData(
-                    lat = lat,
-                    lon = lon,
-                    country = json?.get("address")?.get("country")?.asText(),
-                    city = json?.get("address")?.get("city")?.asText(),
-                    state = json?.get("address")?.get("state")?.asText(),
-                    road = json?.get("address")?.get("road")?.asText(),
-                    cp = json?.get("address")?.get("postcode")?.asText()
-            )
-            con.disconnect()
-            return location
+            if (json.get("error") == null) { // Las coordenadas son válidas
+                val location = LocationData(
+                        lat = lat,
+                        lon = lon,
+                        country = json?.get("address")?.get("country")?.asText(),
+                        city = json?.get("address")?.get("city")?.asText(),
+                        state = json?.get("address")?.get("state")?.asText(),
+                        road = json?.get("address")?.get("road")?.asText(),
+                        cp = json?.get("address")?.get("postcode")?.asText()
+                )
+                con.disconnect()
+                return location
+            } else {
+                con.disconnect()
+                throw InvalidLocationException()
+            }
         } else {
             // Raise an exception if the response code from the API is not 200
             con.disconnect()

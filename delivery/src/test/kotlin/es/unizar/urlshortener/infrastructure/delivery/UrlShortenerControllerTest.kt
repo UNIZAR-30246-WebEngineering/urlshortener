@@ -1,3 +1,4 @@
+@file:Suppress("NoWildcardImports", "WildcardImport", "SpreadOperator")
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.Redirection
@@ -43,9 +44,6 @@ class UrlShortenerControllerTest {
 
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
-
-    @MockBean
-    private lateinit var qrUseCase: QRCodeUseCase
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
