@@ -4,11 +4,15 @@ import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
+import es.unizar.urlshortener.core.usecases.QRCodeUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.IMAGE_PNG
+import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.PostMapping
@@ -36,8 +40,8 @@ interface UrlShortenerController {
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
+    fun qr(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
 }
-
 /**
  * Data required to create a short url.
  */
@@ -45,7 +49,8 @@ data class ShortUrlDataIn(
     val url: String,
     val sponsor: String? = null,
     val lat: Double? = null,
-    val lon: Double? = null
+    val lon: Double? = null,
+    val qr: Boolean? = null
 )
 
 /**
@@ -72,7 +77,8 @@ data class ShortUrlDataOut(
 class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
-    val createShortUrlUseCase: CreateShortUrlUseCase
+    val createShortUrlUseCase: CreateShortUrlUseCase,
+    val qrCodeUseCase: QRCodeUseCase
 ) : UrlShortenerController {
 
     @GetMapping("/tiny-{id:.*}")
@@ -113,6 +119,17 @@ class UrlShortenerControllerImpl(
                 )
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
+
+    @GetMapping("{id:.*}/qr")
+    override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource> {
+        return qrCodeUseCase.generateQRCode(id).let {
+            ResponseEntity
+                .ok()
+                .contentType(IMAGE_PNG)
+                .body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
+        }
+
+    }
 }
 
 

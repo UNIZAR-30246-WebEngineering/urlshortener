@@ -16,6 +16,13 @@ interface ShortUrlRepositoryService {
 }
 
 /**
+ * [QRService] is the port to the repository that generates QR Codes
+ */
+interface QRService {
+    fun generateQRCode(uri: String, filename: String): ShortURLQRCode
+}
+
+/**
  * [ValidatorService] is the port to the service that validates if an url can be shortened.
  *
  * **Note**: It is a design decision to create this port. It could be part of the core .

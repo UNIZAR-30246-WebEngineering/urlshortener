@@ -24,4 +24,3 @@ class ShortUrlRepositoryServiceImpl(
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
 }
-

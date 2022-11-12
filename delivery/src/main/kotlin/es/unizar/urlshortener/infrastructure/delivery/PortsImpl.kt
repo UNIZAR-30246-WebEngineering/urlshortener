@@ -2,12 +2,13 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
-import es.unizar.urlshortener.core.ValidatorService
-import es.unizar.urlshortener.core.LocationService
-import es.unizar.urlshortener.core.LocationData
-import es.unizar.urlshortener.core.InvalidLocationException
-import es.unizar.urlshortener.core.HashService
+import es.unizar.urlshortener.core.*
+import io.github.g0dkar.qrcode.QRCode
+import io.github.g0dkar.qrcode.render.Colors
 import org.apache.commons.validator.routines.UrlValidator
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -21,13 +22,13 @@ class ValidatorServiceImpl : ValidatorService {
     override fun isValid(url: String) = urlValidator.isValid(url)
 
     override fun isReachable(url: String): Boolean {
-        val url = URL("http://www.example.com")
-        val huc: HttpURLConnection = url.openConnection() as HttpURLConnection
-        huc.setInstanceFollowRedirects(false)
+        val urlObj = URL(url)
+        val huc: HttpURLConnection = urlObj.openConnection() as HttpURLConnection
+        huc.instanceFollowRedirects = false
 
-        val responseCode: Int = huc.getResponseCode()
+        val responseCode: Int = huc.responseCode
 
-        return responseCode.equals(HttpURLConnection.HTTP_OK)
+        return responseCode == HttpURLConnection.HTTP_OK
     }
 
     companion object {
@@ -58,6 +59,7 @@ class LocationServiceImpl : LocationService {
      * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
      */
     private fun getLocationByCord(lat: Double, lon: Double): LocationData {
+
         val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}")
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
@@ -70,11 +72,11 @@ class LocationServiceImpl : LocationService {
             val location = LocationData(
                     lat = lat,
                     lon = lon,
-                    country = json.get("address").get("country").asText(),
-                    city = json.get("address").get("city").asText(),
-                    state = json.get("address").get("state").asText(),
-                    road = json.get("address").get("road").asText(),
-                    cp = json.get("address").get("postcode").asText()
+                    country = json?.get("address")?.get("country")?.asText(),
+                    city = json?.get("address")?.get("city")?.asText(),
+                    state = json?.get("address")?.get("state")?.asText(),
+                    road = json?.get("address")?.get("road")?.asText(),
+                    cp = json?.get("address")?.get("postcode")?.asText()
             )
             con.disconnect()
             return location
@@ -131,4 +133,19 @@ class LocationServiceImpl : LocationService {
 @Suppress("UnstableApiUsage")
 class HashServiceImpl : HashService {
     override fun hasUrl(url: String) = Hashing.murmur3_32_fixed().hashString(url, StandardCharsets.UTF_8).toString()
+}
+
+class QRServiceImpl : QRService {
+    override fun generateQRCode(uri: String, filename: String): ShortURLQRCode {
+        val imageOut = ByteArrayOutputStream()
+
+        QRCode(uri).render(
+            darkColor = Colors.css("#0D1117"),
+            brightColor = Colors.css("#8B949E")
+        ).writeImage(imageOut)
+
+        val imageBytes = imageOut.toByteArray()
+
+        return ShortURLQRCode(imageBytes, filename)
+    }
 }
