@@ -81,7 +81,7 @@ class UrlShortenerControllerImpl(
     val qrCodeUseCase: QRCodeUseCase
 ) : UrlShortenerController {
 
-    @GetMapping("/tiny-{id:.*}")
+    @GetMapping("/{id:(?!api|index).*}")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
             redirectUseCase.redirectTo(id).let {
                 logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))

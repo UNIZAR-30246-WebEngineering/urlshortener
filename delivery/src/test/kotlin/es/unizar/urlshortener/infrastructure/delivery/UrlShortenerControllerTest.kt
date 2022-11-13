@@ -49,7 +49,7 @@ class UrlShortenerControllerTest {
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://www.example.com/"))
 
-        mockMvc.perform(get("/tiny-{id}", "key"))
+        mockMvc.perform(get("/{id}", "key"))
             .andExpect(status().isTemporaryRedirect)
             .andExpect(redirectedUrl("http://www.example.com/"))
 
@@ -61,7 +61,7 @@ class UrlShortenerControllerTest {
         given(redirectUseCase.redirectTo("key"))
             .willAnswer { throw RedirectionNotFound("key") }
 
-        mockMvc.perform(get("/tiny-{id}", "key"))
+        mockMvc.perform(get("/{id}", "key"))
             .andDo(print())
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.statusCode").value(404))
@@ -85,8 +85,8 @@ class UrlShortenerControllerTest {
         )
             .andDo(print())
             .andExpect(status().isCreated)
-            .andExpect(redirectedUrl("http://localhost/tiny-f684a3c4"))
-            .andExpect(jsonPath("$.url").value("http://localhost/tiny-f684a3c4"))
+            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
     }
 
     @Test
