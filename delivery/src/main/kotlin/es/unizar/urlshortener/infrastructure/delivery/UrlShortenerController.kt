@@ -46,7 +46,8 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
-    val sponsor: String? = null
+    val sponsor: String? = null,
+    val qr: Boolean
 )
 
 /**
@@ -90,20 +91,28 @@ class UrlShortenerControllerImpl(
             val h = HttpHeaders()
             val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
             h.location = url
+
             val response = ShortUrlDataOut(
                 url = url,
-                properties = mapOf(
-                    "safe" to it.properties.safe
-                )
+                properties = when(data.qr) {
+                    false -> mapOf(
+                        "safe" to it.properties.safe
+                    )
+                    true -> mapOf(
+                        "safe" to it.properties.safe,
+                        "qr" to linkTo<UrlShortenerControllerImpl> { generateQrCode(it.hash, request) }.toUri()
+                    )
+                }
             )
             ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
         }
 
-    @GetMapping("/qrcode")
-    fun generateQrCode(content: String): ResponseEntity<ByteArrayResource> {
+    @GetMapping("/{id:(?!api|index).*}/qr")
+    fun generateQrCode(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource> {
         val imageOut = ByteArrayOutputStream()
+        val url = linkTo<UrlShortenerControllerImpl> { redirectTo(id, request) }.toString()
 
-        QRCode(content).render().writeImage(imageOut)
+        QRCode(url).render().writeImage(imageOut)
 
         val imageBytes = imageOut.toByteArray()
         val resource = ByteArrayResource(imageBytes, IMAGE_PNG_VALUE)
