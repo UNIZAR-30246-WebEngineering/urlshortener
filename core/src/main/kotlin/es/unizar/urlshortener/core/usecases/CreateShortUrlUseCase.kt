@@ -44,7 +44,7 @@ class CreateShortUrlUseCaseImpl(
                 // Update the shortUrl with the location
                 shortUrlRepository.update(id, location)
             }
-
+            println("Valor devuelto: " + shortUrl.hash + " " + shortUrl.redirection)
             return shortUrl
         } else {
             throw InvalidUrlException(url)
