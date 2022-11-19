@@ -13,6 +13,14 @@ interface ClickRepositoryService {
 interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
+    fun update(url: String, location: LocationData)
+}
+
+/**
+ * [QRService] is the port to the repository that generates QR Codes
+ */
+interface QRService {
+    fun generateQRCode(uri: String, filename: String): ShortURLQRCode
 }
 
 /**
@@ -30,7 +38,7 @@ interface ValidatorService {
  * [LocationService] is the port to the service that provides location information.
  */
 interface LocationService {
-    fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
+    suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
 }
 
 /**

@@ -1,14 +1,8 @@
+@file:Suppress("NoWildcardImports", "WildcardImport", "SpreadOperator")
 package es.unizar.urlshortener.core.usecases
 
-import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.ShortUrlRepositoryService
-import es.unizar.urlshortener.core.ValidatorService
-import es.unizar.urlshortener.core.HashService
-import es.unizar.urlshortener.core.LocationService
-import es.unizar.urlshortener.core.LocationData
-import es.unizar.urlshortener.core.Redirection
-import es.unizar.urlshortener.core.InvalidUrlException
+import es.unizar.urlshortener.core.*
+import kotlinx.coroutines.*
 
 /**
  * Given an url returns the key that is used to create a short URL.
@@ -24,35 +18,36 @@ interface CreateShortUrlUseCase {
  * Implementation of [CreateShortUrlUseCase].
  */
 class CreateShortUrlUseCaseImpl(
-        private val shortUrlRepository: ShortUrlRepositoryService,
-        private val validatorService: ValidatorService,
-        private val hashService: HashService,
-        private val locationService: LocationService
+    private val shortUrlRepository: ShortUrlRepositoryService,
+    private val validatorService: ValidatorService,
+    private val hashService: HashService,
+    private val locationService: LocationService,
 ) : CreateShortUrlUseCase {
-    override fun create(url: String, data: ShortUrlProperties): ShortUrl =
+    override fun create(url: String, data: ShortUrlProperties): ShortUrl {
         if (validatorService.isValid(url) && validatorService.isReachable(url)) {
-            // Get the location from the coordinates or the ip
-            val location: LocationData = locationService.getLocation(data.lat, data.lon, data.ip)
-
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
-                hash = id,
-                redirection = Redirection(target = url),
-                properties = ShortUrlProperties(
-                    safe = data.safe,
-                    ip = data.ip,
-                    sponsor = data.sponsor,
-                    lat = location.lat,
-                    lon = location.lon,
-                    country = location.country,
-                    city = location.city,
-                    state = location.state,
-                    road = location.road,
-                    cp = location.cp,
-                )
+                    hash = id,
+                    redirection = Redirection(target = url),
+                    properties = ShortUrlProperties(
+                            safe = data.safe,
+                            ip = data.ip,
+                            sponsor = data.sponsor,
+                    )
             )
-            shortUrlRepository.save(su)
+            val shortUrl = shortUrlRepository.save(su)
+
+            // Start the coroutine to get the location
+            GlobalScope.launch {
+                // Get the location from the coordinates or the ip
+                val location: LocationData = locationService.getLocation(data.lat, data.lon, data.ip)
+                // Update the shortUrl with the location
+                shortUrlRepository.update(id, location)
+            }
+            println("Valor devuelto: " + shortUrl.hash + " " + shortUrl.redirection)
+            return shortUrl
         } else {
             throw InvalidUrlException(url)
         }
+    }
 }

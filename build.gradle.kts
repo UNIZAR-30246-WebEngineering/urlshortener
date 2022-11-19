@@ -47,6 +47,8 @@ subprojects {
         "implementation"("org.springdoc:springdoc-openapi-data-rest:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-ui:1.6.0")
         "implementation"("org.springdoc:springdoc-openapi-kotlin:1.6.0")
+        "implementation"("org.jetbrains.kotlin:kotlin-stdlib")
+        "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
     }
 
     detekt {
@@ -72,12 +74,8 @@ subprojects {
     }
 }
 
-project(":core") {
-    dependencies {
-        "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
-        "implementation"("org.jfree:org.jfree.svg:5.0.3")
-    }
-}
+// No dependencies should be added here
+project(":core") {}
 
 project(":repositories") {
     apply(plugin = "org.springframework.boot")
@@ -103,8 +101,12 @@ project(":delivery") {
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "implementation"("commons-validator:commons-validator:$commonsValidatorVersion")
         "implementation"("com.google.guava:guava:$guavaVersion")
+        "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
+        "implementation"("org.jfree:org.jfree.svg:5.0.3")
+
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
+
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false
