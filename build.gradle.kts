@@ -8,6 +8,7 @@ plugins {
     id("org.springframework.boot") version "2.7.3" apply false
     id("io.spring.dependency-management") version "1.0.13.RELEASE" apply false
     id("io.gitlab.arturbosch.detekt") version("1.22.0-RC1")
+    id("org.sonarqube") version ("3.3")
 
     kotlin("jvm") version "1.7.10" apply false
     kotlin("plugin.spring") version "1.7.10" apply false

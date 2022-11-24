@@ -175,3 +175,61 @@ To view more deteckt commands check:
 ```bash
 ./gradlew tasks
 ```
+
+## Sonarkube
+
+If not installed please install in your computer docker and docker-compose.
+
+Login into your docker hub account:
+
+```bash
+docker login
+```
+
+Go to the root of the project and execute:
+
+```bash
+cd sonarqube/
+docker-compose up -d
+```
+
+To stop the sonarqube server:
+
+```bash
+docker-compose down
+```
+
+To check the sonarqube server go to:
+
+```bash
+http://localhost:9000
+```
+
+And then login with the default credentials:
+
+```bash
+login: admin
+password: admin
+```
+
+To generate a token go to
+    
+```bash
+http://localhost:9000/account/security
+```
+
+And then generate a token with the SONAR_TOKEN name for example.
+
+To run sonarqube analysis:
+
+```bash
+./gradlew sonarqube -Dsonar.host.url=http://localhost:9000 -Dsonar.login=<yourToken>
+```
+
+Nacho's credentials:
+
+```bash
+token: c83f80bec3029cec85ae2b1ce8cafe3dfc2b55cb
+login: admin
+password: pikachu
+```
