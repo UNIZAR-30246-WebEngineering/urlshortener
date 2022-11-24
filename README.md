@@ -229,7 +229,7 @@ To run sonarqube analysis:
 Nacho's credentials:
 
 ```bash
-token: c83f80bec3029cec85ae2b1ce8cafe3dfc2b55cb
+token: b6ec4fede6f51d64fcbc4e530587478c32b2c4bc
 login: admin
 password: pikachu
 ```
