@@ -218,18 +218,10 @@ To generate a token go to
 http://localhost:9000/account/security
 ```
 
-And then generate a token with the SONAR_TOKEN name for example.
+And then generate a token with the SONAR_TOKEN name for example and then put your token in the `gradle.properties` file.
 
 To run sonarqube analysis:
 
 ```bash
-./gradlew sonarqube -Dsonar.host.url=http://localhost:9000 -Dsonar.login=<yourToken>
-```
-
-Nacho's credentials:
-
-```bash
-token: b6ec4fede6f51d64fcbc4e530587478c32b2c4bc
-login: admin
-password: pikachu
+./gradlew sonarqube
 ```
