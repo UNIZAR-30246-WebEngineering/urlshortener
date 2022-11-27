@@ -3,6 +3,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 import es.unizar.urlshortener.core.InvalidLocationException
 import es.unizar.urlshortener.core.InvalidUrlException
 import es.unizar.urlshortener.core.RedirectionNotFound
+import es.unizar.urlshortener.core.UnsafeURIException
 import es.unizar.urlshortener.core.TooManyRedirectionsException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -33,9 +34,14 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     fun invalidLocation(ex: InvalidLocationException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 
     @ResponseBody
+    @ExceptionHandler(value = [UnsafeURIException::class])
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun unsecureURI(ex: UnsafeURIException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+
+    @ResponseBody
     @ExceptionHandler(value = [TooManyRedirectionsException::class])
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    fun invalidLocation(ex: TooManyRedirectionsException) =
+    fun tooManyRedirects(ex: TooManyRedirectionsException) =
         ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message)
 }
 

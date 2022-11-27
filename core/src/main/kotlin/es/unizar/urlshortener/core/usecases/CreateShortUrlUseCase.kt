@@ -25,7 +25,7 @@ class CreateShortUrlUseCaseImpl(
     private val redirectionLimitService: RedirectionLimitService
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
-        if (validatorService.isValid(url) && validatorService.isReachable(url)) {
+        if (validatorService.isValid(url) && validatorService.isReachable(url) && validatorService.isSecure(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
                     hash = id,
