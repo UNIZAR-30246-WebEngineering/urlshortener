@@ -4,9 +4,11 @@
     <ID>LongParameterList:Entities.kt$ClickEntity$( @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Long?, val hash: String, val created: OffsetDateTime, val ip: String?, val referrer: String?, val browser: String?, val platform: String?, val country: String?, )</ID>
     <ID>LongParameterList:Entities.kt$ShortUrlEntity$( @Id val hash: String, val target: String, val sponsor: String?, val created: OffsetDateTime, val owner: String?, val mode: Int, val safe: Boolean, val ip: String?, val lat : Double?, val lon : Double?, val country: String?, val city: String?, val state: String?, val road: String?, val cp: String?, )</ID>
     <ID>WildcardImport</ID>
+    <ID>TooManyFunctions:ApplicationConfiguration.kt$ApplicationConfiguration</ID>
+    <ID>WildcardImport:ApplicationConfiguration.kt$import es.unizar.urlshortener.infrastructure.delivery.*</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>LongParameterList:Entities.kt$ClickEntity$( @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Long?, val hash: String, val created: OffsetDateTime, val ip: String?, val referrer: String?, val browser: String?, val platform: String?, val country: String?, )</ID>
-    <ID>LongParameterList:Entities.kt$ShortUrlEntity$( @Id val hash: String, val target: String, val sponsor: String?, val created: OffsetDateTime, val owner: String?, val mode: Int, val safe: Boolean, val ip: String?, val lat : Double?, val lon : Double?, val country: String?, val city: String?, val state: String?, val road: String?, val cp: String?, )</ID>
+    <ID>TooManyFunctions:ApplicationConfiguration.kt$ApplicationConfiguration</ID>
+    <ID>WildcardImport:ApplicationConfiguration.kt$import es.unizar.urlshortener.infrastructure.delivery.*</ID>
   </CurrentIssues>
 </SmellBaseline>

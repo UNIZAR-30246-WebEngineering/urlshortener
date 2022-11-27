@@ -49,3 +49,12 @@ interface LocationService {
 interface HashService {
     fun hasUrl(url: String): String
 }
+
+/**
+ * [RedirectionLimitService] is the port to the service that limits consecutive redirects
+ */
+interface RedirectionLimitService {
+
+    fun addLimit(hash : String, limit : Int)
+    fun checkLimit(hash : String)
+}

@@ -22,6 +22,7 @@ class CreateShortUrlUseCaseImpl(
     private val validatorService: ValidatorService,
     private val hashService: HashService,
     private val locationService: LocationService,
+    private val redirectionLimitService: RedirectionLimitService
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
         if (validatorService.isValid(url) && validatorService.isReachable(url)) {
@@ -36,6 +37,9 @@ class CreateShortUrlUseCaseImpl(
                     )
             )
             val shortUrl = shortUrlRepository.save(su)
+            if ( data.limit != null ) {
+                redirectionLimitService.addLimit(id, data.limit)
+            }
 
             // Start the coroutine to get the location
             GlobalScope.launch {
@@ -44,7 +48,7 @@ class CreateShortUrlUseCaseImpl(
                 // Update the shortUrl with the location
                 shortUrlRepository.update(id, location)
             }
-            println("Valor devuelto: " + shortUrl.hash + " " + shortUrl.redirection)
+
             return shortUrl
         } else {
             throw InvalidUrlException(url)

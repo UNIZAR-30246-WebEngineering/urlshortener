@@ -1,3 +1,4 @@
+@file:Suppress("WildcardImport")
 package es.unizar.urlshortener.infrastructure.repositories
 
 import es.unizar.urlshortener.core.*
@@ -21,10 +22,17 @@ class ShortUrlRepositoryServiceImpl(
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
 
-    override fun update(id: String, location: LocationData) {
+    override fun update(url: String, location: LocationData) {
         println("Before update:")
-        val shortUrlEntity = shortUrlEntityRepository.findByHash(id)
-        println("Hash: " + shortUrlEntity?.hash + " Lat: " + shortUrlEntity?.lat + " Lon: " + shortUrlEntity?.lon + " Country: " + shortUrlEntity?.country + " City: " + shortUrlEntity?.city + " State: " + shortUrlEntity?.state + " Road: " + shortUrlEntity?.road + " CP: " + shortUrlEntity?.cp)
+        val shortUrlEntity = shortUrlEntityRepository.findByHash(url)
+        println("Hash: " + shortUrlEntity?.hash
+                + " Lat: " + shortUrlEntity?.lat
+                + " Lon: " + shortUrlEntity?.lon
+                + " Country: " + shortUrlEntity?.country
+                + " City: " + shortUrlEntity?.city
+                + " State: " + shortUrlEntity?.state + " Road: "
+                + shortUrlEntity?.road + " CP: "
+                + shortUrlEntity?.cp)
 
         shortUrlEntity?.let {
             it.lat = location.lat
@@ -38,8 +46,14 @@ class ShortUrlRepositoryServiceImpl(
         }
 
         println("\nAfter update:")
-        val shortUpdated = shortUrlEntityRepository.findByHash(id)
-        println("Hash: " + shortUpdated?.hash + " Lat: " + shortUpdated?.lat + " Lon: " + shortUpdated?.lon + " Country: " + shortUpdated?.country + " City: " + shortUpdated?.city + " State: " + shortUpdated?.state + " Road: " + shortUpdated?.road + " CP: " + shortUpdated?.cp)
+        val shortUpdated = shortUrlEntityRepository.findByHash(url)
+        println("Hash: " + shortUpdated?.hash
+                + " Lat: " + shortUpdated?.lat
+                + " Lon: " + shortUpdated?.lon
+                + " Country: " + shortUpdated?.country
+                + " City: " + shortUpdated?.city
+                + " State: " + shortUpdated?.state
+                + " Road: " + shortUpdated?.road
+                + " CP: " + shortUpdated?.cp)
     }
-
 }

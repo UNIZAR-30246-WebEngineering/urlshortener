@@ -1,18 +1,24 @@
+@file:Suppress("WildcardImport")
 package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
 import es.unizar.urlshortener.core.*
+import io.github.bucket4j.Bandwidth
+import io.github.bucket4j.Bucket
+import io.github.bucket4j.Refill
 import io.github.g0dkar.qrcode.QRCode
 import io.github.g0dkar.qrcode.render.Colors
 import org.apache.commons.validator.routines.UrlValidator
+import org.springframework.http.HttpStatus
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 
-const val SUCCESS_STATUS_CODE: Int = 200
-
+const val REFILL_RATE = 60L
 /**
  * Implementation of the port [ValidatorService].
  */
@@ -62,7 +68,7 @@ class LocationServiceImpl : LocationService {
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
 
-        if (con.responseCode == SUCCESS_STATUS_CODE) {
+        if (con.responseCode == HttpStatus.OK.value()) {
             val mapper = ObjectMapper()
             // Parsear el json devuelto
             val json = mapper.readTree(con.inputStream)
@@ -100,7 +106,7 @@ class LocationServiceImpl : LocationService {
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
 
-        if (con.responseCode == SUCCESS_STATUS_CODE) {
+        if (con.responseCode == HttpStatus.OK.value()) {
             val mapper = ObjectMapper()
             // Parsear el json devuelto
             val json = mapper.readTree(con.inputStream)
@@ -150,5 +156,25 @@ class QRServiceImpl : QRService {
         val imageBytes = imageOut.toByteArray()
 
         return ShortURLQRCode(imageBytes, filename)
+    }
+}
+class RedirectionLimitServiceImpl : RedirectionLimitService {
+
+    private val buckets : ConcurrentHashMap<String, Bucket> = ConcurrentHashMap()
+    override fun addLimit(hash: String, limit: Int) {
+        println("Creating bucket with limit $limit for URL with hash $hash")
+        val bLim = Bandwidth.classic(limit.toLong(), Refill.intervally(limit.toLong(), Duration.ofMinutes(REFILL_RATE)))
+        buckets[hash] = Bucket.builder()
+            .addLimit(bLim)
+            .build()
+    }
+    override fun checkLimit(hash: String) {
+        val bucket = buckets[hash]
+        if (bucket != null) {
+            val probe = bucket.tryConsumeAndReturnRemaining(1)
+            if ( !probe.isConsumed ) {
+                throw TooManyRedirectionsException(hash)
+            }
+        }
     }
 }

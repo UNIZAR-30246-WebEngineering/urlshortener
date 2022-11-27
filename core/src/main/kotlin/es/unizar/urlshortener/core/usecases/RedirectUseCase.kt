@@ -1,6 +1,7 @@
 package es.unizar.urlshortener.core.usecases
 
 import es.unizar.urlshortener.core.Redirection
+import es.unizar.urlshortener.core.RedirectionLimitService
 import es.unizar.urlshortener.core.RedirectionNotFound
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
 
@@ -18,11 +19,19 @@ interface RedirectUseCase {
  * Implementation of [RedirectUseCase].
  */
 class RedirectUseCaseImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService
+    private val shortUrlRepository: ShortUrlRepositoryService,
+    private val redirectionLimitService: RedirectionLimitService
 ) : RedirectUseCase {
-    override fun redirectTo(key: String) = shortUrlRepository
-        .findByKey(key)
-        ?.redirection
-        ?: throw RedirectionNotFound(key)
+    override fun redirectTo(key: String) : Redirection {
+        val redirection = shortUrlRepository
+            .findByKey(key)
+            ?.redirection
+            ?: throw RedirectionNotFound(key)
+
+        // This throws only if redirection exists but rate limit has been reached
+        redirectionLimitService.checkLimit(key)
+
+        return redirection
+    }
 }
 

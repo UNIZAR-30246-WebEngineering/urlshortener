@@ -1,9 +1,13 @@
 $(document).ready(
     function () {
+        $("#limit-redirections").hide();
         $("#shortener").submit(
             async function (event) {
                 event.preventDefault();
                 let data = $(this).serializeArray()
+                data[1] = {name: "limit", value : isNaN(parseInt(data[1]['value'])) ? 0 : parseInt(data[1]['value']) }
+
+                console.log("Data : ", data)
 
                 const coords = await getCoords();
                 if (coords !== undefined) {
@@ -32,7 +36,15 @@ $(document).ready(
                     }
                 });
             });
+        $('#limit-checkbox').on('change', function() {
+            if ( $(this).is(':checked') ) {
+                $("#limit-redirections").show();
+            } else {
+                $("#limit-redirections").hide();
+            }
+        });
     });
+
                 // Funcion de FJ
             /*function (event) {
                 event.preventDefault();
