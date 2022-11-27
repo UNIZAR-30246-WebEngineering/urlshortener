@@ -24,7 +24,7 @@ class CreateShortUrlUseCaseImpl(
     private val locationService: LocationService,
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
-        if (validatorService.isValid(url) && validatorService.isReachable(url)) {
+        if (validatorService.isValid(url) && validatorService.isReachable(url) && validatorService.isSecure(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
                     hash = id,

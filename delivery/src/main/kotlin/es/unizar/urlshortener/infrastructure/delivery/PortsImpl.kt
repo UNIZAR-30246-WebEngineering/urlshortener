@@ -1,15 +1,22 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.hash.Hashing
 import es.unizar.urlshortener.core.*
 import io.github.g0dkar.qrcode.QRCode
 import io.github.g0dkar.qrcode.render.Colors
+import net.minidev.json.JSONObject
 import org.apache.commons.validator.routines.UrlValidator
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
+import java.util.*
 
 const val SUCCESS_STATUS_CODE: Int = 200
 
@@ -27,6 +34,46 @@ class ValidatorServiceImpl : ValidatorService {
         val responseCode: Int = huc.responseCode
 
         return responseCode == HttpURLConnection.HTTP_OK
+    }
+
+    override fun isSecure(url: String): Boolean {
+        // create a JSON object
+        val rootObject = JSONObject()
+        val subClient = JSONObject()
+        subClient["clientId"] = "urlshortener-unizar-gh";
+        subClient["clientVersion"] = "1.5.2";
+        rootObject["client"] = subClient
+
+        val threatTypes: Array<String> = arrayOf("THREAT_TYPE_UNSPECIFIED")
+        val platformTypes: Array<String> = arrayOf("PLATFORM_TYPE_UNSPECIFIED")
+        val threatEntryTypes: Array<String> = arrayOf("URL")
+        val subClient2 = JSONObject()
+        val threatEntry = JSONObject()
+        threatEntry["url"] = url
+        val threatEntries: Array<JSONObject> = arrayOf(threatEntry)
+        subClient2["threatTypes"] = threatTypes
+        subClient2["platformTypes"] = platformTypes
+        subClient2["threatEntryTypes"] = threatEntryTypes
+        subClient2["threatEntries"] = threatEntries
+        rootObject["threatInfo"] = subClient2
+
+        val httpClient = HttpClient.newBuilder().build();
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create("https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyCWAthHelYHIebU1PATkYxuiEJVK_QRrHk"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(rootObject.toString()))
+            .build();
+
+        println(rootObject.toString())
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        println("respuesta:" + response.body().toString())
+        println(response.body().toString() == "{}\n")
+
+        if (response.body().toString() == "{}\n") {
+            return true
+        } else {
+            throw UnsafeURIException()
+        }
     }
 
     companion object {

@@ -5,3 +5,5 @@ class InvalidUrlException(val url: String) : Exception("[$url] does not follow a
 class RedirectionNotFound(val key: String) : Exception("[$key] is not known")
 
 class InvalidLocationException : Exception("Could not get a valid location")
+
+class UnsafeURIException : Exception("URI is not safe")
