@@ -24,6 +24,7 @@ class CreateShortUrlUseCaseImpl(
     private val locationService: LocationService,
     private val redirectionLimitService: RedirectionLimitService
 ) : CreateShortUrlUseCase {
+    @DelicateCoroutinesApi
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
         if (validatorService.isValid(url) && validatorService.isReachable(url) && validatorService.isSecure(url)) {
             val id: String = hashService.hasUrl(url)

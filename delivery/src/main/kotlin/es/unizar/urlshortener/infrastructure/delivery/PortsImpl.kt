@@ -112,8 +112,7 @@ class LocationServiceImpl : LocationService {
      * Example of response from openstreetmap api:
      * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
      */
-    private fun getLocationByCord(lat: Double, lon: Double): LocationData {
-
+     private fun getLocationByCord(lat: Double, lon: Double): LocationData {
         val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}")
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"

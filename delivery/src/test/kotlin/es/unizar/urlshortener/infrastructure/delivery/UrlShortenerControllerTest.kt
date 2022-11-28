@@ -1,12 +1,7 @@
 @file:Suppress("NoWildcardImports", "WildcardImport", "SpreadOperator")
 package es.unizar.urlshortener.infrastructure.delivery
 
-import es.unizar.urlshortener.core.Redirection
-import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.RedirectionNotFound
-import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.InvalidUrlException
+import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.usecases.*
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -21,9 +16,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest
 @ContextConfiguration(
@@ -45,8 +38,8 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
 
-    //@MockBean
-    //private lateinit var qrCodeUseCase: QRCodeUseCase
+    @MockBean
+    private lateinit var qrCodeUseCase: QRCodeUseCase
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
