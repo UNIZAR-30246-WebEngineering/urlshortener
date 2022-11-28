@@ -17,6 +17,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 const val SUCCESS_STATUS_CODE: Int = 200
 
@@ -85,8 +86,9 @@ class ValidatorServiceImpl : ValidatorService {
  * Implementation of the port [LocationService].
  */
 class LocationServiceImpl : LocationService {
-    override suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
-        return if (lat != null && lon != null) {
+    //override suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
+    override fun getLocation(lat: Double?, lon: Double?, ip: String?): CompletableFuture<LocationData> {
+        val location = if (lat != null && lon != null) {
             // Get the location from the coordinates
             getLocationByCord(lat, lon)
         } else if (ip != null) {
@@ -96,6 +98,7 @@ class LocationServiceImpl : LocationService {
             // Throw an exception if the coordinates and the ip are null
             throw InvalidLocationException()
         }
+        return CompletableFuture.completedFuture(location)
     }
 
     /**

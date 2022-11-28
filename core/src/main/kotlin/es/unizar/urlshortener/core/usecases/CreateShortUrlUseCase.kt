@@ -39,11 +39,13 @@ class CreateShortUrlUseCaseImpl(
 
             // Start the coroutine to get the location
             GlobalScope.launch {
-                // Get the location from the coordinates or the ip
-                val location: LocationData = locationService.getLocation(data.lat, data.lon, data.ip)
-                // Update the shortUrl with the location
-                shortUrlRepository.update(id, location)
+                val location = locationService.getLocation(data.lat, data.lon, data.ip)
+                location.thenApply {
+                    // Update the shortUrl with the location when completed
+                    shortUrlRepository.update(id, it)
+                }
             }
+
             println("Valor devuelto: " + shortUrl.hash + " " + shortUrl.redirection)
             return shortUrl
         } else {

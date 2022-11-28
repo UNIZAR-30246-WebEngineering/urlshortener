@@ -1,5 +1,8 @@
 package es.unizar.urlshortener.core
 
+import org.springframework.scheduling.annotation.Async
+import java.util.concurrent.CompletableFuture
+
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
@@ -40,7 +43,9 @@ interface ValidatorService {
  * [LocationService] is the port to the service that provides location information.
  */
 interface LocationService {
-    suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
+    @Async
+    fun getLocation(lat: Double?, lon: Double?, ip: String?): CompletableFuture<LocationData>
+    //suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
 }
 
 /**
