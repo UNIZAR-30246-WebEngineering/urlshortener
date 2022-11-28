@@ -50,7 +50,8 @@ data class ShortUrlDataIn(
     val sponsor: String? = null,
     val lat: Double? = null,
     val lon: Double? = null,
-    val qr: Boolean? = null
+    val qr: Boolean? = null,
+    val limit: Int? = null,
 )
 
 /**
@@ -98,8 +99,10 @@ class UrlShortenerControllerImpl(
                             ip = request.remoteAddr,
                             sponsor = data.sponsor,
                             lat = data.lat,
-                            lon = data.lon
-                    )
+                            lon = data.lon,
+                            limit = data.limit
+                    ),
+
             ).let {
                 val h = HttpHeaders()
                 val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
