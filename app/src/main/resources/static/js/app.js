@@ -1,8 +1,18 @@
+let active = false;
+let uri = "";
+
 $(document).ready(
     function () {
-        $("#limit-redirections").hide();
+        $("#server-response-error").hide()
+        $("#server-response").hide()
+        $("#limit-redirections").hide()
+        active = false;
+
         $("#shortener").submit(
             async function (event) {
+                $("#server-response-error").hide()
+                $("#server-response").hide()
+
                 event.preventDefault();
                 let data = $(this).serializeArray()
                 data[1] = {name: "limit", value : isNaN(parseInt(data[1]['value'])) ? 0 : parseInt(data[1]['value']) }
@@ -20,51 +30,61 @@ $(document).ready(
                     url: "/api/link",
                     data: $.param(data),
                     success: function (data, status) {
+                        uri = data['url']
+                        let chunks = data['url'].split('/');
                         $("#result").html(
-                            "<div class='alert alert-success lead'><a target='_blank' href='"
+                            "<a id='result' class='font-semibold text-blue-800' href='"
                             + data['url']
-                            + "'>"
+                            + "' target='_blank' rel='noreferrer'>"
+                            + chunks[3]
+                            + "</a>");
+                        $("#result2").html(
+                            "<p id='result' class='w-72 truncate text-sm text-gray-500'>"
                             + data['url']
-                            + "</a></div>");
+                            + "</p>");
+                        $("#qr").html(
+                            "<button class='group rounded-full bg-gray-100 p-1.5 transition-all duration-75 hover:scale-105 hover:bg-blue-100 active:scale-95' onClick='javascript:window.location=\""
+                            + data['url'] + "/qr" + "\"'>"
+                            + "<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' preserveAspectRatio='xMidYMid meet' viewBox='0 0 32 32' className='text-gray-700 transition-all group-hover:text-blue-800'>"
+                            + "<path fill='currentColor' d='M24 28v-2h2v2zm-6-4v-2h2v2zm0 6h4v-2h-2v-2h-2v4zm8-4v-4h2v4zm2 0h2v4h-4v-2h2v-2zm-2-6v-2h4v4h-2v-2h-2zm-2 0h-2v4h-2v2h4v-6zm-6 0v-2h4v2zM6 22h4v4H6z'></path>"
+                            + "<path fill='currentColor' d='M14 30H2V18h12zM4 28h8v-8H4zM22 6h4v4h-4z'></path>"
+                            + "<path fill='currentColor' d='M30 14H18V2h12zm-10-2h8V4h-8zM6 6h4v4H6z'></path>"
+                            + "<path fill='currentColor' d='M14 14H2V2h12ZM4 12h8V4H4Z'></path>"
+                            + "</svg>"
+                            + "</button>"
+                        );
+
+                        $("#server-response").show()
                     },
                     error: function (response, status) {
-                        $("#result").html(
+                        $("#error").html(
                             "<div class='alert alert-danger lead'>"
                             + "ERROR:" + "<br>"
                             + response['responseJSON']['message']
                             + "</div>");
+                        $("#server-response-error").show()
                     }
                 });
             });
-        $('#limit-checkbox').on('change', function() {
-            if ( $(this).is(':checked') ) {
-                $("#limit-redirections").show();
-            } else {
-                $("#limit-redirections").hide();
-            }
-        });
     });
 
-                // Funcion de FJ
-            /*function (event) {
-                event.preventDefault();
-                $.ajax({
-                    type: "POST",
-                    url: "/api/link",
-                    data: $(this).serialize(),
-                    success: function (msg, status, request) {
-                        $("#result").html(
-                            "<div class='alert alert-success lead'><a target='_blank' href='"
-                            + request.getResponseHeader('Location')
-                            + "'>"
-                            + request.getResponseHeader('Location')
-                            + "</a></div>");
-                    },
-                    error: function () {
-                        $("#result").html(
-                            "<div class='alert alert-danger lead'>ERROR</div>");
-                    }
-                });*/
+function toggleStatus() {
+    if (active) {
+        active = false;
+        $("#limit-redirections").hide()
+    } else {
+        active = true;
+        $("#limit-redirections").show()
+    }
+}
+
+function copy() {
+    // Copy the text inside the text field
+    navigator.clipboard.writeText(uri).then(r => {
+        // Success!
+        console.log("Copied to clipboard");
+    });
+}
 
 const getCoords = async () => {
     const pos = await new Promise((resolve, reject) => {
@@ -81,58 +101,3 @@ const getCoords = async () => {
         }
     }
 }
-
-/*
-async function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(getLocationByCoord, handleError);
-    } else {
-        console.error("Geolocation is not supported by this browser.");
-    }
-}
-
-
-function handleError(error) {
-    let errorStr
-    switch (error.code) {
-        case error.PERMISSION_DENIED:
-            errorStr = 'User denied the request for Geolocation.'
-            break
-        case error.POSITION_UNAVAILABLE:
-            errorStr = 'Location information is unavailable.'
-            break
-        case error.TIMEOUT:
-            errorStr = 'The request to get user location timed out.'
-            break
-        default:
-            errorStr = 'An unknown error occurred.'
-    }
-    console.error('Error occurred: ' + errorStr)
-}
-
-function getLocationByCoord(position) {
-    //data: {"lat":position.coords.latitude, "long":position.coords.longitude},
-    data['lat'] = position.coords.latitude
-    data['lon'] = position.coords.longitude
-}
-*/
-
-/*
-function getLocationByIP() {
-    $.ajax({
-        type: "POST",
-        url: "/api/locationByIP",
-        success: function (data, status) {
-            console.log(data);
-            console.log(status);
-            $("#result").html(
-                "<div class='alert alert-success lead'>"
-                + "Tu ubicación por IP: " + data['city'] + " " + data['country']
-                + "</div>");
-        },
-        error: function () {
-            $("#result").html(
-                "<div class='alert alert-danger lead'>ERROR</div>");
-        }
-    })
-}*/

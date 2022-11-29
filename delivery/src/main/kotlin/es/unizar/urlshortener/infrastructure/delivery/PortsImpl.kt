@@ -2,7 +2,6 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.hash.Hashing
 import es.unizar.urlshortener.core.*
 import io.github.bucket4j.Bandwidth
@@ -21,18 +20,23 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
 const val REFILL_RATE = 60L
+
 /**
  * Implementation of the port [ValidatorService].
  */
 class ValidatorServiceImpl : ValidatorService {
     override fun isValid(url: String) = urlValidator.isValid(url)
 
+    /**
+     * Checks if the URL is reachable.
+     * @param url URL to check.
+     * @return true if the URL is reachable, false otherwise.
+     */
     override fun isReachable(url: String): Boolean {
         val urlObj = URL(url)
         val huc: HttpURLConnection = urlObj.openConnection() as HttpURLConnection
@@ -43,36 +47,47 @@ class ValidatorServiceImpl : ValidatorService {
         return responseCode == HttpURLConnection.HTTP_OK
     }
 
+    /**
+     * Checks if the URL is secure.
+     *
+     * @param url the URL to check.
+     * @return true if the URL is secure, false otherwise.
+     * @throws UnsafeURIException if the URL is not secure.
+     * Example of unsafe URI:
+     * https://www.zipl.in/construction/slider/up/
+     */
     override fun isSecure(url: String): Boolean {
-        // create a JSON object
-        val rootObject = JSONObject()
-        val subClient = JSONObject()
-        subClient["clientId"] = "urlshortener-unizar-gh";
-        subClient["clientVersion"] = "1.5.2";
-        rootObject["client"] = subClient
-
-        val threatTypes: Array<String> = arrayOf("THREAT_TYPE_UNSPECIFIED")
-        val platformTypes: Array<String> = arrayOf("PLATFORM_TYPE_UNSPECIFIED")
+        val threatTypes: Array<String> = arrayOf("THREAT_TYPE_UNSPECIFIED", "MALWARE","SOCIAL_ENGINEERING","UNWANTED_SOFTWARE","MALICIOUS_BINARY","POTENTIALLY_HARMFUL_APPLICATION")
+        val platformTypes: Array<String> = arrayOf("ALL_PLATFORMS")
         val threatEntryTypes: Array<String> = arrayOf("URL")
-        val subClient2 = JSONObject()
+
+        // create a JSON object
+        val json = JSONObject()
+        val client = JSONObject()
+        val threatInfo = JSONObject()
         val threatEntry = JSONObject()
+
+        client["clientId"] = "urlshortener-unizar-gh"
+        client["clientVersion"] = "1.5.2"
+        json["client"] = client
+
         threatEntry["url"] = url
         val threatEntries: Array<JSONObject> = arrayOf(threatEntry)
-        subClient2["threatTypes"] = threatTypes
-        subClient2["platformTypes"] = platformTypes
-        subClient2["threatEntryTypes"] = threatEntryTypes
-        subClient2["threatEntries"] = threatEntries
-        rootObject["threatInfo"] = subClient2
+        threatInfo["threatTypes"] = threatTypes
+        threatInfo["platformTypes"] = platformTypes
+        threatInfo["threatEntryTypes"] = threatEntryTypes
+        threatInfo["threatEntries"] = threatEntries
+        json["threatInfo"] = threatInfo
 
-        val httpClient = HttpClient.newBuilder().build();
+        val httpClient = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
             .uri(URI.create("https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyCWAthHelYHIebU1PATkYxuiEJVK_QRrHk"))
             .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(rootObject.toString()))
-            .build();
+            .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+            .build()
 
-        println(rootObject.toString())
-        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        println(json.toString())
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
         println("respuesta:" + response.body().toString())
         println(response.body().toString() == "{}\n")
 
@@ -92,7 +107,15 @@ class ValidatorServiceImpl : ValidatorService {
  * Implementation of the port [LocationService].
  */
 class LocationServiceImpl : LocationService {
-    //override suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData {
+
+    /**
+     * Gets the location of the URL.
+     * @param lat latitude of the location.
+     * @param lon longitude of the location.
+     * @param ip IP of the user.
+     * @return the location of the URL.
+     * @throws InvalidLocationException if the location of the user is not found.
+     */
     override fun getLocation(lat: Double?, lon: Double?, ip: String?): CompletableFuture<LocationData> {
         val location = if (lat != null && lon != null) {
             // Get the location from the coordinates
@@ -109,6 +132,10 @@ class LocationServiceImpl : LocationService {
 
     /**
      * Get location from lat and lon.
+     * @param lat latitude.
+     * @param lon longitude.
+     * @return location data.
+     * @throws InvalidLocationException if the location is not valid.
      * Example of response from openstreetmap api:
      * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
      */
@@ -147,6 +174,9 @@ class LocationServiceImpl : LocationService {
 
     /**
      * Get location from ip.
+     * @param ip ip.
+     * @return location data.
+     * @throws InvalidLocationException if the location is not valid.
      * Example of response from ip-api.com api:
      * http://ip-api.com/json/yourPublicIP
      */
