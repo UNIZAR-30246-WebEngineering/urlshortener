@@ -8,6 +8,7 @@ import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
+import es.unizar.urlshortener.core.usecases.QrCodeUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -47,6 +48,10 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
 
+    @Suppress("UnusedPrivateMember")
+    @MockBean
+    private lateinit var qrCodeUseCase: QrCodeUseCase
+
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
@@ -83,6 +88,7 @@ class UrlShortenerControllerTest {
         mockMvc.perform(
             post("/api/link")
                 .param("url", "http://example.com/")
+                .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
             .andDo(print())
@@ -103,6 +109,7 @@ class UrlShortenerControllerTest {
         mockMvc.perform(
             post("/api/link")
                 .param("url", "ftp://example.com/")
+                .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
             .andExpect(status().isBadRequest)

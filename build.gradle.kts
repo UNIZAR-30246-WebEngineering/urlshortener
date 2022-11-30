@@ -50,7 +50,11 @@ subprojects {
     }
 }
 
-project(":core") { }
+project(":core") {
+    dependencies {
+        "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
+    }
+}
 
 project(":repositories") {
     apply(plugin = "org.springframework.boot")

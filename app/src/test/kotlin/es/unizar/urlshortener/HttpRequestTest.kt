@@ -111,6 +111,7 @@ class HttpRequestTest {
 
         val data: MultiValueMap<String, String> = LinkedMultiValueMap()
         data["url"] = url
+        data["qr"] = "false"
 
         return restTemplate.postForEntity(
             "http://localhost:$port/api/link",
