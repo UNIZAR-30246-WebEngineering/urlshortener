@@ -23,7 +23,17 @@ function getURL(url, qr){
             } 
             return response.json()
         })
-        .then(response => getQR(response.url, response.qr))
+        .then(response => {
+            if (response.properties.qr) {
+                getQR(response.url, response.properties.qr)
+            }
+            else {
+                document.getElementById('result').innerHTML =
+                    `<div class='alert alert-success lead'>
+                    <a target='_blank' href="${response.url}">${response.url}</a>
+                    </div>`;
+            }
+        })
         .catch(() =>
             document.getElementById('result').innerHTML =
                 `<div class='alert alert-danger lead'>ERROR</div>`

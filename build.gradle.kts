@@ -50,7 +50,11 @@ subprojects {
     }
 }
 
-project(":core") { }
+project(":core") {
+    dependencies {
+        "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
+    }
+}
 
 project(":repositories") {
     apply(plugin = "org.springframework.boot")
@@ -76,7 +80,6 @@ project(":delivery") {
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "implementation"("commons-validator:commons-validator:$commonsValidatorVersion")
         "implementation"("com.google.guava:guava:$guavaVersion")
-        "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
