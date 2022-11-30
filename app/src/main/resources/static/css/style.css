@@ -3701,3 +3701,26 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+#block_container {
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width:900px){
+    .footer-right {
+        margin-right: 2rem;
+    }
+    .footer-left {
+        margin-left: 2rem;
+    }
+
+}
+@media (min-width:900px){
+    .footer-right {
+        margin-right: 10rem;
+    }
+    .footer-left {
+        margin-left: 10rem;
+    }
+}

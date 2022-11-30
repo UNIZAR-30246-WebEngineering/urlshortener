@@ -47,11 +47,12 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
+    val limitActive: Boolean,
     val sponsor: String? = null,
     val lat: Double? = null,
     val lon: Double? = null,
     val qr: Boolean? = null,
-    val limit: Int? = null,
+    val limit: Int,
 )
 
 /**
@@ -95,12 +96,13 @@ class UrlShortenerControllerImpl(
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
             createShortUrlUseCase.create(
                     url = data.url,
+                    limitActive = data.limitActive,
                     data = ShortUrlProperties(
                             ip = request.remoteAddr,
                             sponsor = data.sponsor,
                             lat = data.lat,
                             lon = data.lon,
-                            limit = data.limit
+                            limit = data.limit,
                     ),
 
             ).let {

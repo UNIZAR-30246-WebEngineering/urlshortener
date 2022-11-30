@@ -1,4 +1,4 @@
-let active = false;
+let limitActive = false;
 let uri = "";
 
 $(document).ready(
@@ -6,7 +6,9 @@ $(document).ready(
         $("#server-response-error").hide()
         $("#server-response").hide()
         $("#limit-redirections").hide()
-        active = false;
+        // Uncheck checkbox on load
+        $(':checkbox:checked').prop('checked',false);
+        document.getElementById('shortener').reset()
 
         $("#shortener").submit(
             async function (event) {
@@ -15,9 +17,7 @@ $(document).ready(
 
                 event.preventDefault();
                 let data = $(this).serializeArray()
-                data[1] = {name: "limit", value : isNaN(parseInt(data[1]['value'])) ? 0 : parseInt(data[1]['value']) }
-
-                console.log("Data : ", data)
+                data[data.length] = {name: "limitActive", value: limitActive}
 
                 const coords = await getCoords();
                 if (coords !== undefined) {
@@ -68,16 +68,22 @@ $(document).ready(
             });
     });
 
+/**
+ * Toggle limit redirections checkbox
+ */
 function toggleStatus() {
-    if (active) {
-        active = false;
+    if (limitActive) {
+        limitActive = false;
         $("#limit-redirections").hide()
     } else {
-        active = true;
+        limitActive = true;
         $("#limit-redirections").show()
     }
 }
 
+/**
+ * Copy link to clipboard
+ */
 function copy() {
     // Copy the text inside the text field
     navigator.clipboard.writeText(uri).then(r => {
@@ -86,6 +92,10 @@ function copy() {
     });
 }
 
+/**
+ * Get coordinates of user
+ * @returns {Promise<{lon: number, lat: number}>}
+ */
 const getCoords = async () => {
     const pos = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);

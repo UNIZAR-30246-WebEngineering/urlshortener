@@ -59,7 +59,7 @@ data class ShortUrlProperties(
     val state: String? = null,
     val road: String? = null,
     val cp: String? = null,
-    val limit: Int? = null
+    val limit: Int = 0,
 )
 
 /**
