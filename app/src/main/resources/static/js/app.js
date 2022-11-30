@@ -16,31 +16,32 @@ $(document).ready(
                 $("#server-response").hide()
 
                 event.preventDefault();
-                let data = $(this).serializeArray()
-                data[data.length] = {name: "limitActive", value: limitActive}
+                let formData = $(this).serializeArray()
+                formData[formData.length] = {name: "limitActive", value: limitActive}
 
                 const coords = await getCoords();
                 if (coords !== undefined) {
-                    data.push({name: "lat", value: coords.lat})
-                    data.push({name: "lon", value: coords.lon})
+                    formData.push({name: "lat", value: coords.lat})
+                    formData.push({name: "lon", value: coords.lon})
                 }
 
                 $.ajax({
                     type: "POST",
                     url: "/api/link",
-                    data: $.param(data),
+                    data: $.param(formData),
                     success: function (data, status) {
                         uri = data['url']
                         let chunks = data['url'].split('/');
+                        console.log(chunks)
                         $("#result").html(
                             "<a id='result' class='font-semibold text-blue-800' href='"
                             + data['url']
                             + "' target='_blank' rel='noreferrer'>"
-                            + chunks[3]
+                            + chunks[2] + "/" + chunks[3]
                             + "</a>");
                         $("#result2").html(
-                            "<p id='result' class='w-72 truncate text-sm text-gray-500'>"
-                            + data['url']
+                            "<p id='result' class='w-72 truncate text-sm text-gray-500' style='width: 100%'>"
+                            + formData[0].value
                             + "</p>");
                         $("#qr").html(
                             "<button class='group rounded-full bg-gray-100 p-1.5 transition-all duration-75 hover:scale-105 hover:bg-blue-100 active:scale-95' onClick='javascript:window.location=\""
