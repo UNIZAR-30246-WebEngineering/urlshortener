@@ -8,7 +8,16 @@ $(document).ready(
         $("#limit-redirections").hide()
         // Uncheck checkbox on load
         $(':checkbox:checked').prop('checked',false);
+
+        // Reset url field
         document.getElementById('shortener').reset()
+
+        // Define popup clipboard msj
+        var popup = document.createElement("div");
+        var text = document.createTextNode("Copied to clipboard!");
+        popup.appendChild(text);
+        popup.style.visibility = "hidden";
+        popup.id = "pop";
 
         $("#shortener").submit(
             async function (event) {
@@ -17,12 +26,15 @@ $(document).ready(
 
                 event.preventDefault();
                 let formData = $(this).serializeArray()
-                formData[formData.length] = {name: "limitActive", value: limitActive}
 
                 const coords = await getCoords();
                 if (coords !== undefined) {
                     formData.push({name: "lat", value: coords.lat})
                     formData.push({name: "lon", value: coords.lon})
+                }
+
+                if (!limitActive) {
+                    formData[1].value = 0
                 }
 
                 $.ajax({
@@ -32,7 +44,6 @@ $(document).ready(
                     success: function (data, status) {
                         uri = data['url']
                         let chunks = data['url'].split('/');
-                        console.log(chunks)
                         $("#result").html(
                             "<a id='result' class='font-semibold text-blue-800' href='"
                             + data['url']
@@ -56,6 +67,9 @@ $(document).ready(
                         );
 
                         $("#server-response").show()
+
+                        // Append popup for clipboard msj
+                        document.getElementById("clipboard").appendChild(popup);
                     },
                     error: function (response, status) {
                         $("#error").html(
@@ -86,6 +100,13 @@ function toggleStatus() {
  * Copy link to clipboard
  */
 function copy() {
+    var pop = document.getElementById("pop");
+    pop.style.visibility = "visible";
+    window.setTimeout(
+        function(){
+                    document.getElementById("pop").style.visibility="hidden";
+                },2000);
+
     // Copy the text inside the text field
     navigator.clipboard.writeText(uri).then(r => {
         // Success!

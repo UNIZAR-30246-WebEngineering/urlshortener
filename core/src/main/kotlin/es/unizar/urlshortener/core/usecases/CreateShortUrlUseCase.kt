@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
  * **Note**: This is an example of functionality.
  */
 interface CreateShortUrlUseCase {
-    fun create(url: String, limitActive: Boolean, data: ShortUrlProperties): ShortUrl
+    fun create(url: String, data: ShortUrlProperties): ShortUrl
 }
 
 /**
@@ -25,7 +25,7 @@ class CreateShortUrlUseCaseImpl(
     private val redirectionLimitService: RedirectionLimitService
 ) : CreateShortUrlUseCase {
     @DelicateCoroutinesApi
-    override fun create(url: String, limitActive: Boolean, data: ShortUrlProperties): ShortUrl {
+    override fun create(url: String, data: ShortUrlProperties): ShortUrl {
         if (validatorService.isValid(url) && validatorService.isReachable(url) && validatorService.isSecure(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
@@ -38,7 +38,7 @@ class CreateShortUrlUseCaseImpl(
                     )
             )
             val shortUrl = shortUrlRepository.save(su)
-            if (limitActive) {
+            if (data.limit > 0) {
                 redirectionLimitService.addLimit(id, data.limit)
             }
 

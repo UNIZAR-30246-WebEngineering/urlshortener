@@ -47,7 +47,6 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
-    val limitActive: Boolean,
     val sponsor: String? = null,
     val lat: Double? = null,
     val lon: Double? = null,
@@ -96,7 +95,6 @@ class UrlShortenerControllerImpl(
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
             createShortUrlUseCase.create(
                     url = data.url,
-                    limitActive = data.limitActive,
                     data = ShortUrlProperties(
                             ip = request.remoteAddr,
                             sponsor = data.sponsor,
@@ -126,7 +124,6 @@ class UrlShortenerControllerImpl(
                 .contentType(IMAGE_PNG)
                 .body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
         }
-
     }
 }
 

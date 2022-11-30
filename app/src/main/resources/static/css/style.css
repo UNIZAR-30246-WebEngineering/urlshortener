@@ -3724,3 +3724,17 @@ input:checked + .slider:before {
         margin-left: 10rem;
     }
 }
+
+#pop
+{
+    width: 143px;
+    height: 25px;
+    margin-top: -20px;
+    margin-left: 29px;
+    position: fixed;
+    color: white;
+    background-color: black;
+    border-radius: 20px;
+    padding-top: 2px;
+    font-size: small;
+}

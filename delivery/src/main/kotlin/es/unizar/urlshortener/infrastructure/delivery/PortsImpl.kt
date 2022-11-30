@@ -86,10 +86,7 @@ class ValidatorServiceImpl : ValidatorService {
             .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
             .build()
 
-        println(json.toString())
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-        println("respuesta:" + response.body().toString())
-        println(response.body().toString() == "{}\n")
 
         if (response.body().toString() == "{}\n") {
             return true
