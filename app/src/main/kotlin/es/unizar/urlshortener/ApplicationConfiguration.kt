@@ -48,9 +48,7 @@ class ApplicationConfiguration(
     fun qrService() = QRServiceImpl()
 
     @Bean
-    fun qrCodeUseCase() =
-        //QRCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
-        QRCodeUseCaseImpl(qrService())
+    fun qrCodeUseCase() = QRCodeUseCaseImpl()
 
     @Bean
     fun createShortUrlUseCase() =

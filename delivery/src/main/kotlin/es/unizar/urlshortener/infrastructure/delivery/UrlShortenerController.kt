@@ -69,11 +69,6 @@ data class ShortUrlDataOut(
     val properties: Map<String, Any> = emptyMap()
 )
 
-data class QRCodeDataOut(
-    val properties: Map<String, Any> = emptyMap(),
-    val qr: ByteArrayResource? = null,
-)
-
 /**
  * The implementation of the controller.
  *
@@ -130,19 +125,7 @@ class UrlShortenerControllerImpl(
             h.contentType = IMAGE_PNG
             return ResponseEntity.ok().contentType(IMAGE_PNG).body(ByteArrayResource(qrCode.qrcode, IMAGE_PNG_VALUE))
         }
-        val response = QRCodeDataOut(
-                properties = mapOf(
-                        "error" to "URI de destino no validada todavía"
-                )
-        )
-        return ResponseEntity<Any>(response, h, HttpStatus.NOT_FOUND)
-
-        /*return qrCodeUseCase.getQR(id).let {
-            ResponseEntity
-                    .ok()
-                    .contentType(IMAGE_PNG)
-                    .body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
-        }*/
+        return ResponseEntity<Any>(mapOf("error" to "URI de destino no validada todavía"), h, HttpStatus.NOT_FOUND)
     }
 }
 

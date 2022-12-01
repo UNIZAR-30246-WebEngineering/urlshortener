@@ -56,8 +56,8 @@ class CreateShortUrlUseCaseImpl(
             GlobalScope.launch {
                 val qrCode = qrService.generateQRCode(url, "$id.png")
                 qrCode.thenApply {
-                    // Update the shortUrl with the qr when completed
-                    qrService.qrSave(it)
+                    // Save file when the qr is generated
+                    qrService.saveQR(it)
                 }
             }
             return shortUrl

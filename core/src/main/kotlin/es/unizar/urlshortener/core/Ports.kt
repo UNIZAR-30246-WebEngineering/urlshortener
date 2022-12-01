@@ -24,7 +24,7 @@ interface ShortUrlRepositoryService {
  */
 interface QRService {
     fun generateQRCode(uri: String, filename: String): CompletableFuture<ShortURLQRCode>
-    fun qrSave(qrCode: ShortURLQRCode)
+    fun saveQR(qrCode: ShortURLQRCode)
 }
 
 /**
@@ -62,7 +62,6 @@ interface HashService {
  * [RedirectionLimitService] is the port to the service that limits consecutive redirects
  */
 interface RedirectionLimitService {
-
     fun addLimit(hash : String, limit : Int)
     fun checkLimit(hash : String)
 }

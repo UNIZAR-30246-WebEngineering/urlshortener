@@ -12,6 +12,9 @@ import io.github.g0dkar.qrcode.render.Colors
 import net.minidev.json.JSONObject
 import org.apache.commons.validator.routines.UrlValidator
 import org.springframework.http.HttpStatus
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -23,10 +26,11 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
-import java.util.concurrent.CompletableFuture
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
+
 
 const val REFILL_RATE = 60L
 
@@ -141,7 +145,7 @@ class LocationServiceImpl : LocationService {
      * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
      */
      private fun getLocationByCord(lat: Double, lon: Double): LocationData {
-        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}")
+        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}/")
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
 
@@ -234,18 +238,19 @@ class QRServiceImpl : QRService {
         ).writeImage(imageOut)
 
         val imageBytes = imageOut.toByteArray()
-        
+
         return CompletableFuture.completedFuture(ShortURLQRCode(imageBytes, filename))
     }
 
-    override fun qrSave(qrCode: ShortURLQRCode) {
+    override fun saveQR(qrCode: ShortURLQRCode) {
         val path = Paths.get("src/main/resources/static/qr")
+
         if (path.exists()) {
-            println("Path exists")
-            val file = File(path.toString() + "/" + qrCode.filename)
-            file.writeBytes(qrCode.qrcode)
+            val file = File(path.toFile(), qrCode.filename)
+            if (!file.exists()) {
+                file.writeBytes(qrCode.qrcode)
+            }
         } else {
-            println("Path doesn't exist")
             throw FileNotFoundException()
         }
     }
