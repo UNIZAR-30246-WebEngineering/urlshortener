@@ -34,4 +34,3 @@ class RedirectUseCaseImpl(
         return redirection
     }
 }
-
