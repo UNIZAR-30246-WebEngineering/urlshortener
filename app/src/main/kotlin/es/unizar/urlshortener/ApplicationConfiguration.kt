@@ -49,12 +49,13 @@ class ApplicationConfiguration(
 
     @Bean
     fun qrCodeUseCase() =
-        QRCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
+        //QRCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
+        QRCodeUseCaseImpl(qrService())
 
     @Bean
     fun createShortUrlUseCase() =
         CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(),
-            hashService(), locationService(), redirectionLimitService())
+            hashService(), locationService(), redirectionLimitService(), qrService())
 
     @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService(), redirectionLimitService())

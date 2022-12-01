@@ -18,11 +18,12 @@ interface CreateShortUrlUseCase {
  * Implementation of [CreateShortUrlUseCase].
  */
 class CreateShortUrlUseCaseImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService,
-    private val validatorService: ValidatorService,
-    private val hashService: HashService,
-    private val locationService: LocationService,
-    private val redirectionLimitService: RedirectionLimitService
+        private val shortUrlRepository: ShortUrlRepositoryService,
+        private val validatorService: ValidatorService,
+        private val hashService: HashService,
+        private val locationService: LocationService,
+        private val redirectionLimitService: RedirectionLimitService,
+        private val qrService: QRService
 ) : CreateShortUrlUseCase {
     @DelicateCoroutinesApi
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
@@ -48,6 +49,15 @@ class CreateShortUrlUseCaseImpl(
                 location.thenApply {
                     // Update the shortUrl with the location when completed
                     shortUrlRepository.update(id, it)
+                }
+            }
+
+            // Start the coroutine to generate the qr
+            GlobalScope.launch {
+                val qrCode = qrService.generateQRCode(url, "$id.png")
+                qrCode.thenApply {
+                    // Update the shortUrl with the qr when completed
+                    qrService.qrSave(it)
                 }
             }
             return shortUrl

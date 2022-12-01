@@ -23,7 +23,8 @@ interface ShortUrlRepositoryService {
  * [QRService] is the port to the repository that generates QR Codes
  */
 interface QRService {
-    fun generateQRCode(uri: String, filename: String): ShortURLQRCode
+    fun generateQRCode(uri: String, filename: String): CompletableFuture<ShortURLQRCode>
+    fun qrSave(qrCode: ShortURLQRCode)
 }
 
 /**

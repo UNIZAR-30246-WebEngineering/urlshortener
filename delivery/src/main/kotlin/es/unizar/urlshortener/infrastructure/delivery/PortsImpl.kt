@@ -13,6 +13,8 @@ import net.minidev.json.JSONObject
 import org.apache.commons.validator.routines.UrlValidator
 import org.springframework.http.HttpStatus
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileNotFoundException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -20,9 +22,11 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.exists
 
 const val REFILL_RATE = 60L
 
@@ -221,17 +225,29 @@ class HashServiceImpl : HashService {
 }
 
 class QRServiceImpl : QRService {
-    override fun generateQRCode(uri: String, filename: String): ShortURLQRCode {
+    override fun generateQRCode(uri: String, filename: String): CompletableFuture<ShortURLQRCode> {
         val imageOut = ByteArrayOutputStream()
 
         QRCode(uri).render(
-            darkColor = Colors.css("#0D1117"),
-            brightColor = Colors.css("#8B949E")
+            darkColor = Colors.css("#000000"),
+            brightColor = Colors.css("#FFFFFF")
         ).writeImage(imageOut)
 
         val imageBytes = imageOut.toByteArray()
+        
+        return CompletableFuture.completedFuture(ShortURLQRCode(imageBytes, filename))
+    }
 
-        return ShortURLQRCode(imageBytes, filename)
+    override fun qrSave(qrCode: ShortURLQRCode) {
+        val path = Paths.get("src/main/resources/static/qr")
+        if (path.exists()) {
+            println("Path exists")
+            val file = File(path.toString() + "/" + qrCode.filename)
+            file.writeBytes(qrCode.qrcode)
+        } else {
+            println("Path doesn't exist")
+            throw FileNotFoundException()
+        }
     }
 }
 class RedirectionLimitServiceImpl : RedirectionLimitService {

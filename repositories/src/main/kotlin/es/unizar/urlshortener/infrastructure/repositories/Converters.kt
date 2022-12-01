@@ -78,6 +78,6 @@ fun ShortUrl.toEntity() = ShortUrlEntity(
     city = properties.city,
     state = properties.state,
     road = properties.road,
-    cp = properties.cp
+    cp = properties.cp,
 )
 

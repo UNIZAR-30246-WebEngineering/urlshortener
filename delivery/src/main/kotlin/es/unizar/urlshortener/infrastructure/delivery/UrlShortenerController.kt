@@ -40,7 +40,7 @@ interface UrlShortenerController {
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
-    fun qr(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
+    fun qr(id: String, request: HttpServletRequest): ResponseEntity<Any>
 }
 /**
  * Data required to create a short url.
@@ -67,6 +67,11 @@ data class ShortUrlDataOut(
     val road: String? = null,
     val cp: String? = null,
     val properties: Map<String, Any> = emptyMap()
+)
+
+data class QRCodeDataOut(
+    val properties: Map<String, Any> = emptyMap(),
+    val qr: ByteArrayResource? = null,
 )
 
 /**
@@ -117,13 +122,27 @@ class UrlShortenerControllerImpl(
             }
 
     @GetMapping("{id:.*}/qr")
-    override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource> {
-        return qrCodeUseCase.generateQRCode(id).let {
-            ResponseEntity
-                .ok()
-                .contentType(IMAGE_PNG)
-                .body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
+    override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Any> {
+        val qrCode = qrCodeUseCase.getQR(id)
+
+        val h = HttpHeaders()
+        if (qrCode.qrcode.isNotEmpty()) {
+            h.contentType = IMAGE_PNG
+            return ResponseEntity.ok().contentType(IMAGE_PNG).body(ByteArrayResource(qrCode.qrcode, IMAGE_PNG_VALUE))
         }
+        val response = QRCodeDataOut(
+                properties = mapOf(
+                        "error" to "URI de destino no validada todavía"
+                )
+        )
+        return ResponseEntity<Any>(response, h, HttpStatus.NOT_FOUND)
+
+        /*return qrCodeUseCase.getQR(id).let {
+            ResponseEntity
+                    .ok()
+                    .contentType(IMAGE_PNG)
+                    .body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
+        }*/
     }
 }
 
