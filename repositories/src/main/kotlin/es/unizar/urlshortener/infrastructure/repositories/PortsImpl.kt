@@ -56,4 +56,12 @@ class ShortUrlRepositoryServiceImpl(
                 + " Road: " + shortUpdated?.road
                 + " CP: " + shortUpdated?.cp)
     }
+
+    override fun updateSafe(hash: String, flag: Boolean) {
+        val shortUrlEntity = shortUrlEntityRepository.findByHash(hash)
+        shortUrlEntity?.let {
+            it.safe = flag
+            shortUrlEntityRepository.save(it)
+        }
+    }
 }

@@ -16,7 +16,8 @@ interface ClickRepositoryService {
 interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
-    fun update(url: String, location: LocationData)
+    fun update(hash: String, location: LocationData)
+    fun updateSafe(hash: String, flag: Boolean)
 }
 
 /**
@@ -64,4 +65,15 @@ interface RedirectionLimitService {
 
     fun addLimit(hash : String, limit : Int)
     fun checkLimit(hash : String)
+}
+
+/**
+ * [RabbitMQService] is the port to the service that queues an uri to check if it is secure
+ *
+ * **Note**: It is a design decision to create this port. It could be part of the core.
+ */
+interface RabbitMQService {
+    fun read()
+
+    fun write(message:String)
 }

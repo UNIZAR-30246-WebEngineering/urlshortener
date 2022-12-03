@@ -106,6 +106,7 @@ project(":delivery") {
         "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
         "implementation"("org.jfree:org.jfree.svg:5.0.3")
         "implementation"("com.bucket4j:bucket4j-core:8.1.1")
+        "implementation"("org.springframework.amqp:spring-rabbit:3.0.0")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
