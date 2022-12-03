@@ -23,22 +23,25 @@ class CreateShortUrlUseCaseImpl(
         private val hashService: HashService,
         private val locationService: LocationService,
         private val redirectionLimitService: RedirectionLimitService,
-        private val qrService: QRService
+        private val qrService: QRService,
+        private val rabbit: RabbitMQService
 ) : CreateShortUrlUseCase {
     @DelicateCoroutinesApi
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
-        if (validatorService.isValid(url) && validatorService.isReachable(url) && validatorService.isSecure(url)) {
+        if (validatorService.isValid(url) && validatorService.isReachable(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
                     hash = id,
                     redirection = Redirection(target = url),
                     properties = ShortUrlProperties(
-                            safe = data.safe,
                             ip = data.ip,
                             sponsor = data.sponsor,
                     )
             )
             val shortUrl = shortUrlRepository.save(su)
+
+            rabbit.write(shortUrl.hash + " " + url)
+
             if (data.limit > 0) {
                 redirectionLimitService.addLimit(id, data.limit)
             }

@@ -34,11 +34,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     fun invalidLocation(ex: InvalidLocationException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 
     @ResponseBody
-    @ExceptionHandler(value = [UnsafeURIException::class])
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun unsecureURI(ex: UnsafeURIException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
-
-    @ResponseBody
     @ExceptionHandler(value = [TooManyRedirectionsException::class])
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     fun tooManyRedirects(ex: TooManyRedirectionsException) =

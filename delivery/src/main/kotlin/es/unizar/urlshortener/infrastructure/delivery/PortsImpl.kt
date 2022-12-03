@@ -4,6 +4,8 @@ package es.unizar.urlshortener.infrastructure.delivery
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
 import com.rabbitmq.client.ConnectionFactory
+import com.rabbitmq.client.DeliverCallback
+import com.rabbitmq.client.Delivery
 import es.unizar.urlshortener.core.*
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
@@ -13,9 +15,6 @@ import io.github.g0dkar.qrcode.render.Colors
 import net.minidev.json.JSONObject
 import org.apache.commons.validator.routines.UrlValidator
 import org.springframework.http.HttpStatus
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -31,8 +30,6 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
-import org.springframework.amqp.rabbit.core.RabbitTemplate
-
 
 const val REFILL_RATE = 60L
 
@@ -98,11 +95,7 @@ class ValidatorServiceImpl : ValidatorService {
 
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        if (response.body().toString() == "{}\n") {
-            return true
-        } else {
-            throw UnsafeURIException()
-        }
+        return response.body().toString() == "{}\n"
     }
 
     companion object {
@@ -277,3 +270,35 @@ class RedirectionLimitServiceImpl : RedirectionLimitService {
         }
     }
 }
+
+class RabbitMQServiceImpl(
+    private val shortUrlRepository: ShortUrlRepositoryService,
+    private val validator: ValidatorServiceImpl
+) : RabbitMQService {
+    private val QUEUE_NAME = "hello"
+    private val factory = ConnectionFactory()
+    private val connection = factory.newConnection()
+
+    fun RabbitMQServiceImpl() {
+        factory.setHost("localhost")
+    }
+
+    override fun read() {
+        val channel = connection.createChannel()
+        println("reading: ..........")
+        val deliverCallback = DeliverCallback { consumerTag: String?, delivery: Delivery ->
+            val message = String(delivery.body, StandardCharsets.UTF_8)
+            println(" [x] Received '$message'")
+            val (hash, url) = message.split(" ")
+            shortUrlRepository.updateSafe(hash, validator.isSecure(url))
+        }
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback) { consumerTag: String? -> }
+    }
+    override fun write(message:String) {
+        val channel = connection.createChannel()
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null)
+        channel.basicPublish("", QUEUE_NAME, null, message.toByteArray())
+        System.out.println(" [x] Sent '" + message + "'")
+    }
+}
+
