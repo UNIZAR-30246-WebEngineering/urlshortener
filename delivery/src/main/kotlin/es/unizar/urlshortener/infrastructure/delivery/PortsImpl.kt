@@ -3,6 +3,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
+import com.rabbitmq.client.ConnectionFactory
 import es.unizar.urlshortener.core.*
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
@@ -30,6 +31,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 
 const val REFILL_RATE = 60L
@@ -144,8 +146,8 @@ class LocationServiceImpl : LocationService {
      * Example of response from openstreetmap api:
      * https://nominatim.openstreetmap.org/reverse?format=json&lat=41.641412477417894&lon=-0.8800855922769534
      */
-     private fun getLocationByCord(lat: Double, lon: Double): LocationData {
-        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}/")
+     fun getLocationByCord(lat: Double, lon: Double): LocationData {
+        val url = URL("https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}")
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
 
@@ -185,7 +187,7 @@ class LocationServiceImpl : LocationService {
      * Example of response from ip-api.com api:
      * http://ip-api.com/json/yourPublicIP
      */
-    private fun getLocationByIp(ip: String): LocationData {
+     fun getLocationByIp(ip: String): LocationData {
         val url = URL("http://ip-api.com/json/${ip}")
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
@@ -202,7 +204,7 @@ class LocationServiceImpl : LocationService {
                         country = json.get("country").asText(),
                         city = json.get("city").asText(),
                         state = json.get("regionName").asText(),
-                        road = json.get("isp").asText(),
+                        //road = json.get("isp").asText(),
                         cp = json.get("zip").asText()
                 )
                 con.disconnect()
