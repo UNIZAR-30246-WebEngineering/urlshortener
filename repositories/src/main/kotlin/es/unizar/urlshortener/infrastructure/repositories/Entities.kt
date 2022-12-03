@@ -38,7 +38,7 @@ class ShortUrlEntity(
     val created: OffsetDateTime,
     val owner: String?,
     val mode: Int,
-    var safe: Boolean,
+    var safe: Boolean?,
     val ip: String?,
     var lat: Double?,
     var lon: Double?,

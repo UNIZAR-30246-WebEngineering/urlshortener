@@ -2,6 +2,9 @@ package es.unizar.urlshortener
 
 import es.unizar.urlshortener.core.RabbitMQService
 import es.unizar.urlshortener.infrastructure.delivery.RabbitMQServiceImpl
+import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
+import es.unizar.urlshortener.infrastructure.repositories.ShortUrlRepositoryServiceImpl
+import es.unizar.urlshortener.infrastructure.repositories.ShortUrlEntityRepository
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,7 +22,9 @@ class UrlShortenerApplication
  * The main entry point.
  */
 fun main(vararg args: String) {
-    val rabbit = RabbitMQServiceImpl()
+    val rabbit = RabbitMQServiceImpl(shortUrlRepository = ShortUrlRepositoryServiceImpl(
+        shortUrlEntityRepository = new ShortUrlEntityRepository()
+    ), validator = ValidatorServiceImpl())
     GlobalScope.launch {
         while (true) {
             println("thread: ..........")
