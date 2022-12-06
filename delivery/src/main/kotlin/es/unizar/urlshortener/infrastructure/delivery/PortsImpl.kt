@@ -14,6 +14,8 @@ import io.github.g0dkar.qrcode.QRCode
 import io.github.g0dkar.qrcode.render.Colors
 import net.minidev.json.JSONObject
 import org.apache.commons.validator.routines.UrlValidator
+import org.springframework.amqp.rabbit.core.RabbitTemplate
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -37,6 +39,9 @@ const val REFILL_RATE = 60L
  * Implementation of the port [ValidatorService].
  */
 class ValidatorServiceImpl : ValidatorService {
+    @Autowired
+    private lateinit var template: RabbitTemplate
+
     override fun isValid(url: String) = urlValidator.isValid(url)
 
     /**
@@ -96,6 +101,12 @@ class ValidatorServiceImpl : ValidatorService {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         return response.body().toString() == "{}\n"
+    }
+
+    override fun sendMessage(url: String, hash: String) {
+        println("Sending message to the queue.......")
+        val message = "$url $hash"
+        template.convertAndSend("validator", message)
     }
 
     companion object {
@@ -275,6 +286,7 @@ class RabbitMQServiceImpl(
     private val shortUrlRepository: ShortUrlRepositoryService,
     private val validator: ValidatorServiceImpl
 ) : RabbitMQService {
+
     private val QUEUE_NAME = "hello"
     private val factory = ConnectionFactory()
     private val connection = factory.newConnection()

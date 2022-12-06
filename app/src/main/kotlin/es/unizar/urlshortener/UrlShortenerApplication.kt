@@ -22,7 +22,7 @@ class UrlShortenerApplication
  * The main entry point.
  */
 fun main(vararg args: String) {
-    val rabbit = RabbitMQServiceImpl(shortUrlRepository = ShortUrlRepositoryServiceImpl(
+    /*val rabbit = RabbitMQServiceImpl(shortUrlRepository = ShortUrlRepositoryServiceImpl(
         shortUrlEntityRepository = new ShortUrlEntityRepository()
     ), validator = ValidatorServiceImpl())
     GlobalScope.launch {
@@ -31,6 +31,6 @@ fun main(vararg args: String) {
             rabbit.read()
             Thread.sleep(5000)
         }
-    }
+    }*/
     runApplication<UrlShortenerApplication>(*args)
 }

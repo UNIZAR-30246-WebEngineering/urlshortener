@@ -59,13 +59,6 @@ data class ShortUrlDataIn(
  */
 data class ShortUrlDataOut(
     val url: URI? = null,
-    val lat: Double? = null,
-    val lon: Double? = null,
-    val country: String? = null,
-    val city: String? = null,
-    val state: String? = null,
-    val road: String? = null,
-    val cp: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
 
@@ -91,7 +84,7 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
             }
 
-    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
             createShortUrlUseCase.create(
                     url = data.url,

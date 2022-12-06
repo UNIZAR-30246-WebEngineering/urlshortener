@@ -39,6 +39,8 @@ interface ValidatorService {
     fun isReachable(url: String): Boolean
 
     fun isSecure(url: String): Boolean
+
+    fun sendMessage(url: String, hash: String)
 }
 
 /**
