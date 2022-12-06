@@ -109,6 +109,7 @@ project(":delivery") {
         "implementation"("org.jfree:org.jfree.svg:5.0.3")
         "implementation"("com.bucket4j:bucket4j-core:8.1.1")
         "implementation"("org.springframework.amqp:spring-rabbit:3.0.0")
+        "implementation"("org.springframework.boot:spring-boot-starter-rsocket")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")

@@ -22,15 +22,6 @@ class UrlShortenerApplication
  * The main entry point.
  */
 fun main(vararg args: String) {
-    /*val rabbit = RabbitMQServiceImpl(shortUrlRepository = ShortUrlRepositoryServiceImpl(
-        shortUrlEntityRepository = new ShortUrlEntityRepository()
-    ), validator = ValidatorServiceImpl())
-    GlobalScope.launch {
-        while (true) {
-            println("thread: ..........")
-            rabbit.read()
-            Thread.sleep(5000)
-        }
-    }*/
+    System.setProperty("spring.profiles.active", "rpcserver");
     runApplication<UrlShortenerApplication>(*args)
 }
