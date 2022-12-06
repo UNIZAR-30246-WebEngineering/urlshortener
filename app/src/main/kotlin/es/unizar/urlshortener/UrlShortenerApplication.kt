@@ -1,13 +1,6 @@
 package es.unizar.urlshortener
 
-import es.unizar.urlshortener.core.RabbitMQService
-import es.unizar.urlshortener.infrastructure.delivery.RabbitMQServiceImpl
-import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
-import es.unizar.urlshortener.infrastructure.repositories.ShortUrlRepositoryServiceImpl
-import es.unizar.urlshortener.infrastructure.repositories.ShortUrlEntityRepository
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -22,6 +15,6 @@ class UrlShortenerApplication
  * The main entry point.
  */
 fun main(vararg args: String) {
-    System.setProperty("spring.profiles.active", "rpcserver");
+    System.setProperty("spring.profiles.active", "rpcserver")
     runApplication<UrlShortenerApplication>(*args)
 }

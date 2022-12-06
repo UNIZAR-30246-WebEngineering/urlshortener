@@ -168,3 +168,13 @@ project(":rabbitQueue") {
         "testImplementation"("org.apache.httpcomponents:httpclient")
     }
 }
+
+project(":consoleApp") {
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+    apply(plugin = "org.springframework.boot")
+    apply(plugin = "io.spring.dependency-management")
+    dependencies {
+        "implementation"("org.springframework.boot:spring-boot-starter")
+        "implementation"("org.springframework.boot:spring-boot-starter-rsocket")
+    }
+}
