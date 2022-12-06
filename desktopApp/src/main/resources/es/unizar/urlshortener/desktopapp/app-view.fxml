@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="700.0" prefWidth="800.0" style="-fx-background-color: white;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="es.unizar.urlshortener.desktopapp.Controller">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <Label fx:id="superMargin" text="Short Links With">
+        <font>
+            <Font name="Arial Bold" size="55.0" />
+        </font>
+      <VBox.margin>
+         <Insets />
+      </VBox.margin>
+    </Label>
+    <Label prefHeight="64.0" style="-fx-text-fill: linear-gradient(to right, #FF9E2C, #ff5400, #FF9E2C);" text="Superpowers" textAlignment="CENTER">
+        <font>
+            <Font name="Arial Bold" size="55.0" />
+        </font>
+    </Label>
+    <Label text="UrlShortener is a link management tool for modern" textFill="#4b5563">
+        <VBox.margin>
+            <Insets top="20.0" />
+        </VBox.margin>
+        <font>
+            <Font size="18.0" />
+        </font>
+    </Label>
+    <Label text="marketing teams to create, share, and track short links." textFill="#4b5563">
+        <font>
+            <Font size="18.0" />
+        </font>
+    </Label>
+    <HBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="460.0">
+        <children>
+            <TextField fx:id="urlField" prefHeight="33.0" prefWidth="310.0" promptText="Shorten your link">
+                <HBox.margin>
+                    <Insets bottom="20.0" />
+                </HBox.margin>
+            </TextField>
+            <Button fx:id="shortBtn" disable="true" onAction="#onShortClick" prefHeight="33.0" prefWidth="70.0" text="Short">
+                <HBox.margin>
+                    <Insets left="20.0" />
+                </HBox.margin>
+            </Button>
+        </children>
+        <VBox.margin>
+            <Insets top="20.0" />
+        </VBox.margin>
+    </HBox>
+    <CheckBox fx:id="limit" mnemonicParsing="false" onAction="#onLimitClick" text="Limit number of redirections">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </CheckBox>
+    <Spinner fx:id="redNumber" disable="true" prefHeight="33.0" prefWidth="400.0">
+        <VBox.margin>
+            <Insets top="20.0" />
+        </VBox.margin>
+    </Spinner>
+    <VBox fx:id="urlRes" maxWidth="400.0" prefHeight="52.0" prefWidth="400.0" style="-fx-border-color: rgb(200, 200, 200); -fx-border-radius: 5; -fx-background-color: white;">
+        <children>
+            <HBox prefHeight="28.0" prefWidth="300.0">
+                <children>
+                    <Hyperlink fx:id="shortURL" onAction="#OnLinkClick" text="Hyperlink" textFill="#007aff">
+                        <HBox.margin>
+                            <Insets left="10.0" />
+                        </HBox.margin>
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+                    </Hyperlink>
+                    <Button fx:id="qrBtn" mnemonicParsing="false" prefWidth="50.0" text="qr">
+                        <HBox.margin>
+                            <Insets left="10.0" />
+                        </HBox.margin>
+                    </Button>
+                    <Button fx:id="copyBtn" mnemonicParsing="false" onAction="#onCopyClick" prefWidth="50.0" text="copy">
+                        <HBox.margin>
+                            <Insets left="10.0" />
+                        </HBox.margin>
+                    </Button>
+                </children>
+                <VBox.margin>
+                    <Insets top="10.0" />
+                </VBox.margin>
+            </HBox>
+            <Label fx:id="urlLabel" text="Label">
+                <VBox.margin>
+                    <Insets left="14.0" top="10.0" />
+                </VBox.margin>
+                <padding>
+                    <Insets bottom="10.0" />
+                </padding>
+            <font>
+               <Font name="System Font" size="13.0" />
+            </font>
+            </Label>
+        </children>
+        <VBox.margin>
+            <Insets top="20.0" />
+        </VBox.margin>
+    </VBox>
+   <VBox fx:id="errorBox" layoutX="210.0" layoutY="502.0" maxWidth="400.0" prefHeight="74.0" prefWidth="400.0" style="-fx-border-color: ff726d; -fx-border-radius: 5;">
+      <children>
+         <Label fx:id="errorTxt" alignment="CENTER" prefHeight="73.0" prefWidth="398.0" text="Short Links With" textFill="#ff726d">
+            <font>
+               <Font size="14.0" />
+            </font>
+         </Label>
+      </children>
+      <VBox.margin>
+         <Insets top="20.0" />
+      </VBox.margin>
+   </VBox>
+</VBox>
