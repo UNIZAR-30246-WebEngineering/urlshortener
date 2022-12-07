@@ -225,3 +225,21 @@ To run sonarqube analysis:
 ```bash
 ./gradlew sonarqube
 ```
+
+## How to deplay everithing in just one command
+
+```bash
+./gradlew rabbit sonar app:bootrun
+```
+
+## How to run the tests
+
+```bash
+./gradlew test
+```
+
+## How to stop the containers
+
+```bash
+./gradlew rabbit-stop sonar-stop
+```
