@@ -1,8 +1,5 @@
 package es.unizar.urlshortener.desktopapp;
 
-import com.google.gson.Gson;
-import es.unizar.urlshortener.desktopapp.models.LinkResponse;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -25,7 +22,7 @@ public class HttpClientPostForm {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    public HttpResponse<String> apiLink(String url, String limit, String lat, String lon) {
+    public HttpResponse<String> apiLink(String url, String limit, String lat, String lon) throws IOException, InterruptedException {
 
         // form parameters
         Map<Object, Object> data = new HashMap<>();
@@ -35,15 +32,11 @@ public class HttpClientPostForm {
         data.put("lon", lon);
 
         HttpResponse<String> response = null;
-        try {
-            response = post(data);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return response;
+        return post(data);
     }
 
     private HttpResponse<String> post(Map<Object, Object> data) throws IOException, InterruptedException {
+        System.out.println(ofFormData(data));
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(ofFormData(data))
                 .uri(URI.create(apiUrl))
@@ -52,7 +45,6 @@ public class HttpClientPostForm {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
         return response;
     }
 

@@ -5,18 +5,10 @@ import javafx.scene.image.WritableImage;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.time.Duration;
 
 public class HttpClientGet {
@@ -27,7 +19,7 @@ public class HttpClientGet {
 
     private URL url;
 
-    public HttpClientGet (String url) throws MalformedURLException {
+    public HttpClientGet(String url) throws MalformedURLException {
         this.url = new URL(url);
 
     }

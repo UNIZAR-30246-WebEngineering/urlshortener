@@ -49,7 +49,6 @@ interface ValidatorService {
 interface LocationService {
     @Async
     fun getLocation(lat: Double?, lon: Double?, ip: String?): CompletableFuture<LocationData>
-    //suspend fun getLocation(lat: Double?, lon: Double?, ip: String?): LocationData
 }
 
 /**
@@ -67,15 +66,4 @@ interface HashService {
 interface RedirectionLimitService {
     fun addLimit(hash : String, limit : Int)
     fun checkLimit(hash : String)
-}
-
-/**
- * [RabbitMQService] is the port to the service that queues an uri to check if it is secure
- *
- * **Note**: It is a design decision to create this port. It could be part of the core.
- */
-interface RabbitMQService {
-    fun read()
-
-    fun write(message:String)
 }

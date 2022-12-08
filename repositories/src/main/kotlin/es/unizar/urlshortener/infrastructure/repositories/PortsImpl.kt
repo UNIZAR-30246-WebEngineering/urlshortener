@@ -22,18 +22,8 @@ class ShortUrlRepositoryServiceImpl(
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
 
-    override fun update(url: String, location: LocationData) {
-        println("Before update:")
-        val shortUrlEntity = shortUrlEntityRepository.findByHash(url)
-        println("Hash: " + shortUrlEntity?.hash
-                + " Lat: " + shortUrlEntity?.lat
-                + " Lon: " + shortUrlEntity?.lon
-                + " Country: " + shortUrlEntity?.country
-                + " City: " + shortUrlEntity?.city
-                + " State: " + shortUrlEntity?.state + " Road: "
-                + shortUrlEntity?.road + " CP: "
-                + shortUrlEntity?.cp)
-
+    override fun update(hash: String, location: LocationData) {
+        val shortUrlEntity = shortUrlEntityRepository.findByHash(hash)
         shortUrlEntity?.let {
             it.lat = location.lat
             it.lon = location.lon
@@ -44,17 +34,6 @@ class ShortUrlRepositoryServiceImpl(
             it.cp = location.cp
             shortUrlEntityRepository.save(it)
         }
-
-        println("\nAfter update:")
-        val shortUpdated = shortUrlEntityRepository.findByHash(url)
-        println("Hash: " + shortUpdated?.hash
-                + " Lat: " + shortUpdated?.lat
-                + " Lon: " + shortUpdated?.lon
-                + " Country: " + shortUpdated?.country
-                + " City: " + shortUpdated?.city
-                + " State: " + shortUpdated?.state
-                + " Road: " + shortUpdated?.road
-                + " CP: " + shortUpdated?.cp)
     }
 
     override fun updateSafe(hash: String, flag: Boolean) {

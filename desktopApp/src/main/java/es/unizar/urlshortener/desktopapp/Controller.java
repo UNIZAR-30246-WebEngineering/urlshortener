@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import es.unizar.urlshortener.desktopapp.models.*;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.PixelWriter;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -17,18 +17,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import java.io.FileInputStream;
-
-
-import javax.swing.text.Element;
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
-import java.awt.*;
 import java.net.http.HttpResponse;
 
 public class Controller {
@@ -36,7 +27,7 @@ public class Controller {
     private TextField urlField;
 
     @FXML
-    private Button shortBtn;
+    private Button shortButton;
 
     @FXML
     private CheckBox limit;
@@ -60,12 +51,6 @@ public class Controller {
     private Label urlLabel;
 
     @FXML
-    private VBox vboxParent;
-
-    @FXML
-    private Label superMargin;
-
-    @FXML
     private VBox errorBox;
 
     @FXML
@@ -77,7 +62,7 @@ public class Controller {
         hideResultBoxes();
 
         // Apply some CSS styles to the button
-        shortBtn.setStyle("-fx-font-family: 'Helvetica Neue';" +
+        shortButton.setStyle("-fx-font-family: 'Helvetica Neue';" +
                 "-fx-font-size: 14px;" +
                 "-fx-background-color: #007AFF;" +
                 "-fx-text-fill: white;" +
@@ -110,7 +95,7 @@ public class Controller {
                     Label secondLabel = new Label("URI de destino no validada todavía");
                     secondLabel.setStyle(
                             "-fx-font-size: 14px;" +
-                            "-fx-text-fill: #ff726d;");
+                                    "-fx-text-fill: #ff726d;");
                     secondaryLayout.getChildren().add(secondLabel);
                 }
             } catch (Exception e) {
@@ -163,9 +148,9 @@ public class Controller {
     private void checkButton() {
         if (urlField.getLength() == 0) {
             System.out.println("URL: " + urlField.getText() + "is empty");
-            shortBtn.setDisable(true);
+            shortButton.setDisable(true);
         } else {
-            shortBtn.setDisable(false);
+            shortButton.setDisable(false);
         }
     }
 
@@ -176,21 +161,33 @@ public class Controller {
         if (limit.isSelected()) {
             lim = redNumber.getValue();
         }
-        HttpResponse<String> response = post.apiLink(urlField.getText(), Integer.toString(lim), "", "");
+        try {
+            HttpResponse<String> response = post.apiLink(urlField.getText(), Integer.toString(lim), "", "");
 
-        Gson gson = new Gson();
-        if (response.statusCode() == 201) {
-            LinkResponse linkResponse = gson.fromJson(response.body(), LinkResponse.class);
-            shortURL.setText(linkResponse.getURL());
-            urlLabel.setText(urlField.getText());
-            urlRes.setVisible(true);
-        } else {
-            LinkResponseEroor linkResponseError = gson.fromJson(response.body(), LinkResponseEroor.class);
-            errorTxt.setText(linkResponseError.getMessage());
-            if (errorTxt.getText() == null) {
-                errorTxt.setText("Error desconocido");
-            }
+            if (response != null) {
+                Gson gson = new Gson();
+                if (response.statusCode() == 201) {
+                    LinkResponse linkResponse = gson.fromJson(response.body(), LinkResponse.class);
+                    shortURL.setText(linkResponse.getURL());
+                    urlLabel.setText(urlField.getText());
+                    urlRes.setVisible(true);
+                } else {
+                    LinkResponseEroor linkResponseError = gson.fromJson(response.body(), LinkResponseEroor.class);
+                    errorTxt.setText(linkResponseError.getMessage());
+                    if (errorTxt.getText() == null) {
+                        errorTxt.setText("Error desconocido");
+                    }
+                    errorBox.setVisible(true);
+                }
+                }
+        } catch (IOException e) {
+            errorTxt.setText("Server is nor responding");
             errorBox.setVisible(true);
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            errorTxt.setText("Error desconocido");
+            errorBox.setVisible(true);
+            throw new RuntimeException(e);
         }
     }
 
