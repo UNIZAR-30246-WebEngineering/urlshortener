@@ -68,7 +68,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                es.unizar.urlshortener.desktopapp/es.unizar.urlshortener.desktopapp.HelloApplication
+                                es.unizar.urlshortener.desktopapp/es.unizar.urlshortener.desktopapp.Main
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
