@@ -4,15 +4,6 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
-// Import task types
-//import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-//import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.*
-import com.bmuschko.gradle.docker.tasks.image.*
-
 plugins {
     id("org.springframework.boot") version "2.7.3" apply false
     id("io.spring.dependency-management") version "1.0.13.RELEASE" apply false
@@ -53,21 +44,6 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
-
-/*
-    task startServices(type: Exec) {
-        group = 'Docker Services'
-        description = 'Start docker containers used for development.'
-
-        commandLine '/usr/local/bin/docker-compose', 'up', '-d'
-    }
-
-    task stopServices(type: Exec) {
-        group = 'Docker Services'
-        description = 'Stop docker containers used for development.'
-
-        commandLine '/usr/local/bin/docker-compose', 'down'
-    }*/
 
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

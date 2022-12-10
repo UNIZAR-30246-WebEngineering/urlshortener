@@ -9,7 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
@@ -80,32 +79,30 @@ public class Controller {
                 "-fx-text-fill: white;" +
                 "-fx-border-radius: 10px;");
 
-        // Registrar accion de abrir el stage en el btn del qr
+        // Registrar acción de abrir el stage en el btn del qr
         qrBtn.setOnAction(event -> {
 
             Stage stage = App.getStage();
             StackPane secondaryLayout = new StackPane();
 
-            //get de los bytes
-            WritableImage image = null;
             try {
                 HttpClientGet client = new HttpClientGet(shortURL.getText() + "/qr");
-                image = client.getImage();
-                if (image == null) {
-                    Label secondLabel = new Label("URI de destino no validada todavía");
+                ImageOut imageOut = client.getImage();
+                if (imageOut.getImage() == null) {
+                    Label secondLabel = new Label(imageOut.getMessage());
                     secondLabel.setStyle(
                             "-fx-font-size: 14px;" +
                                     "-fx-text-fill: #ff726d;");
                     secondaryLayout.getChildren().add(secondLabel);
+                } else {
+                    ImageView view = new ImageView(imageOut.getImage());
+                    view.setFitWidth(300);
+                    view.setFitHeight(300);
+                    secondaryLayout.getChildren().add(view);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            ImageView view = new ImageView(image);
-            view.setFitWidth(300);
-            view.setFitHeight(300);
-            secondaryLayout.getChildren().add(view);
 
             Scene secondScene = new Scene(secondaryLayout, 300, 300);
 
@@ -156,6 +153,7 @@ public class Controller {
 
     @FXML
     protected void onShortClick() {
+        hideResultBoxes();
         HttpClientPostForm post = new HttpClientPostForm("http://localhost:8080/api/link");
         int lim = 0;
         if (limit.isSelected()) {

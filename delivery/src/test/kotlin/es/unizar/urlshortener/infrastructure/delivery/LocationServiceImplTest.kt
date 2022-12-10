@@ -35,8 +35,8 @@ class LocationServiceImplTest {
                     "Aragón",
                     "Calle de Francisco Albiñana",
                     "50008"
-                )
             )
+        )
     }
 
     @Test

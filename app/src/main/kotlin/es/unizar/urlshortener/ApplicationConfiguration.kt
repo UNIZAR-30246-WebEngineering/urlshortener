@@ -1,5 +1,6 @@
 package es.unizar.urlshortener
 
+import es.unizar.urlshortener.core.ShortUrlRepositoryService
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCaseImpl
 import es.unizar.urlshortener.core.usecases.LogClickUseCaseImpl
 import es.unizar.urlshortener.core.usecases.QRCodeUseCaseImpl
@@ -57,10 +58,7 @@ class ApplicationConfiguration(
     fun qrService() = QRServiceImpl()
 
     @Bean
-    fun qrCodeUseCase() = QRCodeUseCaseImpl()
-
-    //@Bean
-    //fun rabbitMQService() = RabbitMQServiceImpl(shortUrlRepositoryService(), validatorServiceImpl())
+    fun qrCodeUseCase() = QRCodeUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
     fun createShortUrlUseCase() =

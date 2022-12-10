@@ -23,6 +23,5 @@ class Receiver (
         val url = message.split(" ")[0]
         val hash = message.split(" ")[1]
         shortUrlRepositoryService.updateSafe(hash, validatorService.isSecure(url))
-        //println(shortUrlRepositoryService.findByKey(hash))
     }
 }

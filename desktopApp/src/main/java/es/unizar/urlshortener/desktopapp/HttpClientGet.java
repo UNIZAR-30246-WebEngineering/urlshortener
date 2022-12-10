@@ -1,10 +1,14 @@
 package es.unizar.urlshortener.desktopapp;
 
+import es.unizar.urlshortener.desktopapp.models.ImageOut;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,17 +28,29 @@ public class HttpClientGet {
 
     }
 
-    public WritableImage getImage() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+    public ImageOut getImage() {
+        System.out.println("GET image: " + url);
         BufferedImage image = null;
+        String message = null;
+        ImageOut imageOut = new ImageOut();
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
-        if (connection.getResponseCode() == 200) {
-            image = ImageIO.read(connection.getInputStream());
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {                                // 200 Ok
+                image = ImageIO.read(connection.getInputStream());
+                imageOut.setImage(convertToJavaFXImage(image));
+            } else if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {                  // 403 Error msj
+                message = "Error: " + connection.getResponseCode() + "URI is not safe";
+            } else {                                                                                        // 400 Error msj
+                message = "Error: " + connection.getResponseCode() + " URI has not been validated yet";
+            }
+            connection.disconnect();
+        } catch (Exception e) {
+            e.getMessage();
         }
-        connection.disconnect();
-
-        return convertToJavaFXImage(image);
+        imageOut.setMessage(message);
+        return imageOut;
     }
 
     private WritableImage convertToJavaFXImage(BufferedImage image) {

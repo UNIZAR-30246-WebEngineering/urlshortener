@@ -62,5 +62,5 @@ mkdir ../package/macos
 3- Generar el instalador con este comando en el directorio `out/artifacts/desktopApp_jar`:
 
 ```bash
-Nacho@Nachos-MacBook-Pro desktopApp_jar % jpackage --name UrlShortener --input . --main-jar desktopApp.jar --resource-dir ../../../desktopApp/src/main/resources --type pkg --icon ../../../desktopApp/src/main/resources/images/icon.icns
+jpackage --name UrlShortener --input . --main-jar desktopApp.jar --resource-dir ../../../desktopApp/src/main/resources --type pkg --icon ../../../desktopApp/src/main/resources/images/icon.icns
 ```

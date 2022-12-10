@@ -27,44 +27,60 @@ class CreateShortUrlUseCaseImpl(
 ) : CreateShortUrlUseCase {
     @DelicateCoroutinesApi
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
-        if (validatorService.isValid(url) && validatorService.isReachable(url)) {
-            val id: String = hashService.hasUrl(url)
-            val su = ShortUrl(
+        val id: String = hashService.hasUrl(url)
+
+        shortUrlRepository.findByKey(id)?.let {
+            // Short URL already exists
+            it.properties.safe?.let { safe ->
+                if (!safe) {
+                    // Short URL is not safe
+                    throw UnsafeURIException(url)
+                }
+            }
+            return it
+        } ?: run {
+            // Short URL does not exist
+            if (validatorService.isValid(url) && validatorService.isReachable(url)) {
+                val su = ShortUrl(
                     hash = id,
                     redirection = Redirection(target = url),
                     properties = ShortUrlProperties(
-                            ip = data.ip,
-                            sponsor = data.sponsor,
+                        ip = data.ip,
+                        sponsor = data.sponsor,
                     )
-            )
-            val shortUrl = shortUrlRepository.save(su)
-            validatorService.sendMessage(url, id)
+                )
+                val shortUrl = shortUrlRepository.save(su)
 
-            if (data.limit > 0) {
-                redirectionLimitService.addLimit(id, data.limit)
-            }
+                // Send message to RabbitMQ to check if it's safe
+                validatorService.sendMessage(url, id)
 
-            // Start the coroutine to get the location
-            GlobalScope.launch {
-                val location = locationService.getLocation(data.lat, data.lon, data.ip)
-                location.thenApply {
-                    // Update the shortUrl with the location when completed
-                    shortUrlRepository.update(id, it)
+                // Add limit to redirection
+                if (data.limit > 0) {
+                    redirectionLimitService.addLimit(id, data.limit)
                 }
-            }
 
-            // Start the coroutine to generate the qr
-            GlobalScope.launch {
-                val qrCode = qrService.generateQRCode(url, "$id.png")
-                qrCode.thenApply {
-                    // Save file when the qr is generated
-                    qrService.saveQR(it)
+                // Start the coroutine to get the location
+                GlobalScope.launch {
+                    val location = locationService.getLocation(data.lat, data.lon, data.ip)
+                    location.thenApply {
+                        // Update the shortUrl with the location when completed
+                        shortUrlRepository.update(id, it)
+                    }
                 }
-            }
-            return shortUrl
 
-        } else {
-            throw InvalidUrlException(url)
+                // Start the coroutine to generate the qr
+                GlobalScope.launch {
+                    val qrCode = qrService.generateQRCode(url, "$id.png")
+                    qrCode.thenApply {
+                        // Save file when the qr is generated
+                        qrService.saveQR(it)
+                    }
+                }
+                return shortUrl
+
+            } else {
+                throw InvalidUrlException(url)
+            }
         }
     }
 }

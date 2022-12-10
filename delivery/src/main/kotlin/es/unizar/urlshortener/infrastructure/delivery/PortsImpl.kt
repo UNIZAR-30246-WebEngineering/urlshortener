@@ -3,9 +3,6 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
-import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.DeliverCallback
-import com.rabbitmq.client.Delivery
 import es.unizar.urlshortener.core.*
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
@@ -51,12 +48,14 @@ class ValidatorServiceImpl : ValidatorService {
      */
     override fun isReachable(url: String): Boolean {
         val urlObj = URL(url)
-        val huc: HttpURLConnection = urlObj.openConnection() as HttpURLConnection
-        huc.instanceFollowRedirects = false
-
-        val responseCode: Int = huc.responseCode
-
-        return responseCode == HttpURLConnection.HTTP_OK
+        return try {
+            val huc: HttpURLConnection = urlObj.openConnection() as HttpURLConnection
+            huc.instanceFollowRedirects = false
+            val responseCode: Int = huc.responseCode
+            responseCode == HttpURLConnection.HTTP_OK
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**
@@ -104,7 +103,7 @@ class ValidatorServiceImpl : ValidatorService {
     }
 
     override fun sendMessage(url: String, hash: String) {
-        println("Sending message to the queue.......")
+        // Sending message to the queue
         val message = "$url $hash"
         template.convertAndSend("validator", message)
     }
@@ -229,7 +228,6 @@ class LocationServiceImpl : LocationService {
 /**
  * Implementation of the port [HashService].
  */
-@Suppress("UnstableApiUsage")
 class HashServiceImpl : HashService {
     override fun hasUrl(url: String) = Hashing.murmur3_32_fixed().hashString(url, StandardCharsets.UTF_8).toString()
 }
@@ -265,7 +263,7 @@ class RedirectionLimitServiceImpl : RedirectionLimitService {
 
     private val buckets : ConcurrentHashMap<String, Bucket> = ConcurrentHashMap()
     override fun addLimit(hash: String, limit: Int) {
-        println("Creating bucket with limit $limit for URL with hash $hash")
+        // Creating bucket with limit $limit for URL with hash $hash
         val bLim = Bandwidth.classic(limit.toLong(), Refill.intervally(limit.toLong(), Duration.ofMinutes(REFILL_RATE)))
         buckets[hash] = Bucket.builder()
             .addLimit(bLim)
@@ -281,48 +279,3 @@ class RedirectionLimitServiceImpl : RedirectionLimitService {
         }
     }
 }
-
-/**
- * Implementation of the port [RabbitMQService].
- */
-/*
-class RabbitMQServiceImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService,
-    private val validator: ValidatorServiceImpl
-) : RabbitMQService {
-
-    private val queueName = "hello"
-    private val factory = ConnectionFactory()
-    private val connection = factory.newConnection()
-
-    fun RabbitMQServiceImpl() {
-        factory.host = "localhost"
-    }
-
-    /**
-     * Consume a message from the queue and check if the URI is safe.
-     * The message has he format "hash uri".
-     */
-    override fun read() {
-        val channel = connection.createChannel()
-        val deliverCallback = DeliverCallback {
-                consumerTag: String?, delivery: Delivery ->
-                    val message = String(delivery.body, StandardCharsets.UTF_8)
-                    println(" [x] Received '$message'")
-                    val (hash, url) = message.split(" ")
-                    shortUrlRepository.updateSafe(hash, validator.isSecure(url))
-        }
-        channel.basicConsume(queueName, true, deliverCallback) { consumerTag: String? -> }
-    }
-
-    /**
-     * Send a message to the queue. Message has the format "hash uri".
-     */
-    override fun write(message:String) {
-        val channel = connection.createChannel()
-        channel.queueDeclare(queueName, false, false, false, null)
-        channel.basicPublish("", queueName, null, message.toByteArray())
-        println(" [x] Sent '$message'")
-    }
-}*/
-

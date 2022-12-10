@@ -12,15 +12,15 @@ schemes:
   - http
 # will be prefixed to all paths
 basePath: /v1
-produces:
-  - application/json
+#produces:
+#  - application/json
 paths:
   /api/link:
     post:
       operationId: postlink
       summary: create a shortened URL
       description: Allows a user to create a shortened URL
-      parameters: 
+      parameters:
         - in: body
           name: URI
           description: The uri to short
@@ -44,7 +44,7 @@ paths:
             Location:
               type: string 
               description: Absolute path to the created trimmed URI
-          schema: 
+          schema:
             type: object
             $ref: '#/definitions/shorturl'
         "400":
@@ -214,39 +214,6 @@ definitions:
         type: boolean
         description: ""
         example: ""
-      ip:
-        type: string
-        description: ""
-        example: ""
-      lat :
-        type: number
-        description: ""
-        example: ""
-      lon :
-        type: number
-        description: ""
-        example: ""
-      country:
-        type: string
-        description: ""
-        example: ""
-      city:
-        type: string
-        description: ""
-        example: ""
-      state:
-        type: string
-        description: ""
-        example: ""
-      road:
-        type: string
-        description: ""
-        example: ""
-      cp:
-        type: string
-        description: ""
-        example: ""
-
   click:
     properties:
       id: 

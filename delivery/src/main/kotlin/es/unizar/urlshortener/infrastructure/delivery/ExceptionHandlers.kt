@@ -1,10 +1,6 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import es.unizar.urlshortener.core.InvalidLocationException
-import es.unizar.urlshortener.core.InvalidUrlException
-import es.unizar.urlshortener.core.RedirectionNotFound
-import es.unizar.urlshortener.core.UnsafeURIException
-import es.unizar.urlshortener.core.TooManyRedirectionsException
+import es.unizar.urlshortener.core.*
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -38,6 +34,30 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     fun tooManyRedirects(ex: TooManyRedirectionsException) =
         ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [UnsafeURIException::class])
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun unsafeURI(ex: UnsafeURIException) =
+        ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [RedirectUnsafeException::class])
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun redirectUnsafe(ex: RedirectUnsafeException) =
+        ErrorMessage(HttpStatus.FORBIDDEN.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [RedirectionNotValidatedException::class])
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun redirectionNotValidated(ex: RedirectionNotValidatedException) =
+        ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [QrCodeNotFoundException::class])
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun qrCodeNotFound(ex: QrCodeNotFoundException) =
+        ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 }
 
 data class ErrorMessage(
