@@ -2,7 +2,10 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.*
-import es.unizar.urlshortener.core.usecases.*
+import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
+import es.unizar.urlshortener.core.usecases.LogClickUseCase
+import es.unizar.urlshortener.core.usecases.QRCodeUseCase
+import es.unizar.urlshortener.core.usecases.RedirectUseCase
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.never
@@ -43,11 +46,11 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
-        given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://www.example.com/"))
+        given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
 
         mockMvc.perform(get("/{id}", "key"))
             .andExpect(status().isTemporaryRedirect)
-            .andExpect(redirectedUrl("http://www.example.com/"))
+            .andExpect(redirectedUrl("http://example.com/"))
 
         verify(logClickUseCase).logClick("key", ClickProperties(ip = "127.0.0.1"))
     }
@@ -67,36 +70,43 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `creates returns a basic redirect if it can compute a hash`() {
+
         given(
             createShortUrlUseCase.create(
                 url = "http://www.example.com/",
-                data = ShortUrlProperties(ip = "127.0.0.1")
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    lat = 42.223,
+                    lon = 1.223
+                )
             )
-        ).willReturn(ShortUrl("f684a3c4", Redirection("http:/www.example.com/")))
+        ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
 
         mockMvc.perform(
             post("/api/link")
                 .param("url", "http://www.example.com/")
+                .param("lat", "42.223")
+                .param("lon", "1.223")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
-            .andDo(print())
-            .andExpect(status().isCreated)
-            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
-            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+        .andDo(print())
+        .andExpect(status().isCreated)
+        .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+        .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
     }
 
     @Test
     fun `creates returns bad request if it can compute a hash`() {
         given(
             createShortUrlUseCase.create(
-                url = "ftp://www.example.com/",
+                url = "ftp://example.com/",
                 data = ShortUrlProperties(ip = "127.0.0.1")
             )
-        ).willAnswer { throw InvalidUrlException("ftp://www.example.com/") }
+        ).willAnswer { throw InvalidUrlException("ftp://example.com/") }
 
         mockMvc.perform(
             post("/api/link")
-                .param("url", "ftp://www.example.com/")
+                .param("url", "ftp://example.com/")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
             .andExpect(status().isBadRequest)

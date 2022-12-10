@@ -274,7 +274,7 @@ class RedirectionLimitServiceImpl : RedirectionLimitService {
         if (bucket != null) {
             val probe = bucket.tryConsumeAndReturnRemaining(1)
             if ( !probe.isConsumed ) {
-                throw TooManyRedirectionsException(hash)
+                throw TooManyRedirectionsException(hash, Duration.ofNanos(probe.nanosToWaitForRefill).toSeconds() )
             }
         }
     }

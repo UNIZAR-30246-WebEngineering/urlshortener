@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -55,7 +52,7 @@ data class ShortUrlDataIn(
     val lat: Double? = null,
     val lon: Double? = null,
     val qr: Boolean? = null,
-    val limit: Int,
+    val limit: Int? = null,
 )
 
 /**
@@ -98,7 +95,7 @@ class UrlShortenerControllerImpl(
                             sponsor = data.sponsor,
                             lat = data.lat,
                             lon = data.lon,
-                            limit = data.limit
+                            limit = data.limit?:0
                     ),
 
             ).let {

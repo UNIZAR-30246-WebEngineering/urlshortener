@@ -1,7 +1,9 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.*
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
@@ -30,12 +32,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     fun invalidLocation(ex: InvalidLocationException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 
     @ResponseBody
-    @ExceptionHandler(value = [TooManyRedirectionsException::class])
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    fun tooManyRedirects(ex: TooManyRedirectionsException) =
-        ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message)
-
-    @ResponseBody
     @ExceptionHandler(value = [UnsafeURIException::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun unsafeURI(ex: UnsafeURIException) =
@@ -58,6 +54,19 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun qrCodeNotFound(ex: QrCodeNotFoundException) =
         ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [TooManyRedirectionsException::class])
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    fun tooManyRedirects(ex: TooManyRedirectionsException) : ResponseEntity<ErrorMessage> {
+        val h = HttpHeaders()
+        h.set("Retry-After", ex.refillTime.toString())
+        return ResponseEntity<ErrorMessage>(
+            ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message),
+            h,
+            HttpStatus.TOO_MANY_REQUESTS
+        )
+    }
 }
 
 data class ErrorMessage(
