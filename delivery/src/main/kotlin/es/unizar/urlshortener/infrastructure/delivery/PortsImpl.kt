@@ -3,9 +3,6 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.hash.Hashing
-import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.DeliverCallback
-import com.rabbitmq.client.Delivery
 import es.unizar.urlshortener.core.*
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
@@ -276,7 +273,7 @@ class RedirectionLimitServiceImpl : RedirectionLimitService {
         if (bucket != null) {
             val probe = bucket.tryConsumeAndReturnRemaining(1)
             if ( !probe.isConsumed ) {
-                throw TooManyRedirectionsException(hash)
+                throw TooManyRedirectionsException(hash, Duration.ofNanos(probe.nanosToWaitForRefill).toSeconds() )
             }
         }
     }

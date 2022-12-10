@@ -3,9 +3,11 @@ package es.unizar.urlshortener.infrastructure.delivery
 import es.unizar.urlshortener.core.InvalidLocationException
 import es.unizar.urlshortener.core.InvalidUrlException
 import es.unizar.urlshortener.core.RedirectionNotFound
-import es.unizar.urlshortener.core.UnsafeURIException
 import es.unizar.urlshortener.core.TooManyRedirectionsException
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
@@ -36,8 +38,15 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseBody
     @ExceptionHandler(value = [TooManyRedirectionsException::class])
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    fun tooManyRedirects(ex: TooManyRedirectionsException) =
-        ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message)
+    fun tooManyRedirects(ex: TooManyRedirectionsException) : ResponseEntity<ErrorMessage> {
+        val h = HttpHeaders()
+        h.set("Retry-After", ex.refillTime.toString())
+        return ResponseEntity<ErrorMessage>(
+            ErrorMessage(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message),
+            h,
+            HttpStatus.TOO_MANY_REQUESTS
+        )
+    }
 }
 
 data class ErrorMessage(

@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -55,7 +52,7 @@ data class ShortUrlDataIn(
     val lat: Double? = null,
     val lon: Double? = null,
     val qr: Boolean? = null,
-    val limit: Int,
+    val limit: Int? = null,
 )
 
 /**
@@ -88,25 +85,25 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
             }
 
-    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
-    override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-            createShortUrlUseCase.create(
-                    url = data.url,
-                    data = ShortUrlProperties(
-                            ip = request.remoteAddr,
-                            sponsor = data.sponsor,
-                            lat = data.lat,
-                            lon = data.lon,
-                            limit = data.limit,
-                    ),
-
-            ).let {
-                val h = HttpHeaders()
-                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-                h.location = url
-                val response = ShortUrlDataOut(url = url)
-                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-            }
+    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> {
+        return createShortUrlUseCase.create(
+            url = data.url,
+            data = ShortUrlProperties(
+                ip = request.remoteAddr,
+                sponsor = data.sponsor,
+                lat = data.lat,
+                lon = data.lon,
+                limit = data.limit?:0,
+            ),
+        ).let {
+            val h = HttpHeaders()
+            val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+            h.location = url
+            val response = ShortUrlDataOut(url = url)
+            ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+        }
+    }
 
     @GetMapping("{id:.*}/qr")
     override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Any> {

@@ -27,6 +27,7 @@ class CreateShortUrlUseCaseImpl(
 ) : CreateShortUrlUseCase {
     @DelicateCoroutinesApi
     override fun create(url: String, data: ShortUrlProperties): ShortUrl {
+        println("creating url::: ")
         if (validatorService.isValid(url) && validatorService.isReachable(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
