@@ -2,9 +2,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.*
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -36,6 +34,7 @@ interface UrlShortenerController {
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
+    fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut>
 }
 
 /**
@@ -54,6 +53,12 @@ data class ShortUrlDataOut(
     val properties: Map<String, Any> = emptyMap()
 )
 
+/**
+ * Data returned after the creation of a ranking.
+ */
+data class RankingDataOut(
+    val list: List<UrlSum> = emptyList()
+)
 
 /**
  * The implementation of the controller.
@@ -62,9 +67,10 @@ data class ShortUrlDataOut(
  */
 @RestController
 class UrlShortenerControllerImpl(
-    val redirectUseCase: RedirectUseCase,
-    val logClickUseCase: LogClickUseCase,
-    val createShortUrlUseCase: CreateShortUrlUseCase
+        val redirectUseCase: RedirectUseCase,
+        val logClickUseCase: LogClickUseCase,
+        val rankingUseCase: RankingUseCase,
+        val createShortUrlUseCase: CreateShortUrlUseCase
 ) : UrlShortenerController {
 
     @GetMapping("/{id:(?!api|index).*}")
@@ -95,5 +101,14 @@ class UrlShortenerControllerImpl(
                 )
             )
             ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+        }
+
+    @GetMapping("/api/link")
+    override fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut> =
+        rankingUseCase.ranking().let{
+            val response = RankingDataOut(
+                    list = it
+            )
+            ResponseEntity<RankingDataOut>(response, HttpStatus.OK)
         }
 }

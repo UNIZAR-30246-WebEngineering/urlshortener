@@ -21,4 +21,26 @@ $(document).ready(
                     }
                 });
             });
+
+            $("#ranking").submit(
+                function (event) {
+                    event.preventDefault();
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/link",
+                        data: $(this).serialize(),
+                        success: function (msg, status, request) {
+                            $("#list").html(
+                                "<div class='alert alert-success lead'><a target='_blank' href='"
+                                + request.getResponseHeader('Location')
+                                + "'>"
+                                + request.getResponseHeader('Location')
+                                + "</a></div>");
+                        },
+                        error: function () {
+                            $("#list").html(
+                                "<div class='alert alert-danger lead'>ERROR</div>");
+                        }
+                    });
+                });
     });

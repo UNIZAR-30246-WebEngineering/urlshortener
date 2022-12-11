@@ -1,10 +1,14 @@
 package es.unizar.urlshortener.core
 
+import es.unizar.urlshortener.core.usecases.ClickSum
+import es.unizar.urlshortener.core.usecases.UserClicks
+
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
 interface ClickRepositoryService {
     fun save(cl: Click): Click
+    fun computeClickSum(): List<ClickSum>
 }
 
 /**
@@ -13,6 +17,7 @@ interface ClickRepositoryService {
 interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
+    fun computeUserClicks(): List<UserClicks>
 }
 
 /**
