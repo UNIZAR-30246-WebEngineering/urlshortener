@@ -18,6 +18,7 @@ interface ReachableWebUseCase {
 /**
  * Implementation of [ReachableWebUseCase].
  */
+@Suppress("TooGenericExceptionCaught", "SwallowedException")
 class ReachableWebUseCaseImpl : ReachableWebUseCase {
     override fun reachable(url: String) {
         val client = HttpClient.newBuilder()
@@ -29,8 +30,14 @@ class ReachableWebUseCaseImpl : ReachableWebUseCase {
             .method("HEAD", BodyPublishers.noBody())
             .build()
 
-        val result = client.send(request, BodyHandlers.discarding())
+        try {
+            val response = client.send(request, BodyHandlers.discarding())
 
-        takeIf { result.statusCode().equals(HttpStatus.OK.value()) } ?: throw WebUnreachable(url)
+            if (response.statusCode() >= HttpStatus.BAD_REQUEST.value()) {
+                throw WebUnreachable(url)
+            }
+        } catch (cause: Throwable) {
+            throw WebUnreachable(url)
+        }
     }
 }
