@@ -200,6 +200,7 @@ project(":consoleApp") {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
     dependencies {
+        "implementation"("org.springframework.boot:spring-boot-starter-hateoas")
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"("org.springframework.boot:spring-boot-starter-rsocket")
     }

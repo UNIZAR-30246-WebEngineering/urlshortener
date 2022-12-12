@@ -127,10 +127,4 @@ class UrlShortenerControllerImpl(
             h.contentType = IMAGE_PNG
             return ResponseEntity.ok().contentType(IMAGE_PNG).body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
         }
-
-    @MessageMapping("greetings.{lang}")
-    fun greet(@DestinationVariable("lang") lang: Locale, @Payload name: String): String {
-        println("locale: " + lang.language)
-        return "Hello, $name!"
-    }
 }

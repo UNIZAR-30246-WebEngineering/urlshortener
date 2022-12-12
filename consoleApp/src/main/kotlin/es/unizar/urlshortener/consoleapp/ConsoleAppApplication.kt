@@ -1,33 +1,47 @@
-package bootiful.rpc.client
+package es.unizar.urlshortener.consoleapp
 
+import org.slf4j.LoggerFactory
+import org.springframework.boot.CommandLineRunner
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
-import org.springframework.messaging.rsocket.RSocketRequester;
-import java.util.Locale;
-
-fun main(args: Array<String>) {
-	System.setProperty("spring.profiles.active", "rpcclient")
-	runApplication<BootifulApplication>(*args)
-}
+import org.springframework.context.annotation.Bean
+import org.springframework.messaging.rsocket.RSocketRequester
+import org.springframework.messaging.rsocket.retrieveMono
+import reactor.core.publisher.Mono
 
 @SpringBootApplication
-class BootifulApplication {
+class Application : CommandLineRunner {
+	private val log = LoggerFactory.getLogger(Application::class.java)
+
 	@Bean
-	fun rSocketRequester(builder: RSocketRequester.Builder): RSocketRequester {
+	fun rSocketRequester(builder: RSocketRequester.Builder): RSocketRequester? {
 		return builder.tcp("localhost", 8888)
 	}
 
-	@Bean
-	fun ready(rSocketRequester: RSocketRequester): ApplicationListener<ApplicationReadyEvent> {
-		return ApplicationListener<ApplicationReadyEvent> { event: ApplicationReadyEvent? ->
-			rSocketRequester //
-				.route("greetings.{lang}", Locale.ENGLISH) //
-				.data("World").retrieveMono<String>(String::class.java) //
-				.subscribe { greetings -> println("got: $greetings") }
+	override fun run(vararg args: String?) {
+		log.info("run")
+		var sb = StringBuilder()
+		for (option in args) {
+			sb.append(" ").append(option)
+			log.info("OPTION: {}", option)
 		}
+		sb = if (sb.length == 0) sb.append("No Options Specified") else sb
+		log.info(String.format("WAR launched with following options: %s", sb.toString()))
+
+		val requester = RSocketRequester.builder().tcp("localhost", 8888)
+
+		val result = requester.route("redirect")
+			.data("77e54268")
+			.retrieveMono<String>()
+			.onErrorResume{throwable -> Mono.just(throwable.toString())}
+			.block()
+
+
+		println("Got : $result")
+		Thread.sleep(5000)
 	}
+}
+
+fun main(args: Array<String>) {
+	SpringApplication.run(Application::class.java, *args)
 }
