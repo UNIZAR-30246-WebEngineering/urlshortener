@@ -6,6 +6,7 @@ import es.unizar.urlshortener.core.usecases.QrCodeUseCaseImpl
 import es.unizar.urlshortener.core.usecases.ReachableWebUseCaseImpl
 import es.unizar.urlshortener.core.usecases.RedirectUseCaseImpl
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
+import es.unizar.urlshortener.infrastructure.delivery.QrServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
 import es.unizar.urlshortener.infrastructure.repositories.ClickEntityRepository
 import es.unizar.urlshortener.infrastructure.repositories.ClickRepositoryServiceImpl
@@ -38,6 +39,9 @@ class ApplicationConfiguration(
     fun hashService() = HashServiceImpl()
 
     @Bean
+    fun qrService() = QrServiceImpl()
+
+    @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
@@ -49,6 +53,7 @@ class ApplicationConfiguration(
 
     @Bean
     fun qrCodeUseCase() =
+        QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
         QrCodeUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
