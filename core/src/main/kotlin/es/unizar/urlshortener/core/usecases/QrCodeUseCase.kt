@@ -1,30 +1,23 @@
 package es.unizar.urlshortener.core.usecases
 
+import es.unizar.urlshortener.core.QrService
 import es.unizar.urlshortener.core.RedirectionNotFound
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
-import io.github.g0dkar.qrcode.QRCode
-import java.io.ByteArrayOutputStream
+import org.springframework.core.io.ByteArrayResource
 
 interface QrCodeUseCase {
-    fun generateQR(id: String, url: String): ByteArray
+    fun generateQR(id: String, url: String): ByteArrayResource
 }
 
 /**
  * Implementation of [QrCodeUseCase].
  */
 class QrCodeUseCaseImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService
+    private val shortUrlRepository: ShortUrlRepositoryService,
+    private val qrService: QrService
 ) : QrCodeUseCase {
-    override fun generateQR(id: String, url: String): ByteArray {
-        shortUrlRepository
-            .findByKey(id)
-            ?.redirection
-            ?: throw RedirectionNotFound(id)
-
-        val imageOut = ByteArrayOutputStream()
-
-        QRCode(url).render().writeImage(imageOut)
-
-        return imageOut.toByteArray()
-    }
+    override fun generateQR(id: String, url: String): ByteArrayResource =
+        shortUrlRepository.findByKey(id)?.let {
+            qrService.getQr(url)
+        } ?: throw RedirectionNotFound(id)
 }

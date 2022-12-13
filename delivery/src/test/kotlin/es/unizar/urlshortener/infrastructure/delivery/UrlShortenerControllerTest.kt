@@ -17,12 +17,14 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -48,7 +50,6 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
 
-    @Suppress("UnusedPrivateMember")
     @MockBean
     private lateinit var qrCodeUseCase: QrCodeUseCase
 
@@ -114,5 +115,24 @@ class UrlShortenerControllerTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.statusCode").value(400))
+    }
+
+    @Test
+    fun `qr returns an image when the key exists`() {
+        given(qrCodeUseCase.generateQR("key", "url")).willReturn(ByteArrayResource("Hello".toByteArray()))
+
+        mockMvc.perform(get("/{id}/qr", "key"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.IMAGE_PNG))
+            .andDo(print())
+    }
+
+    @Test
+    fun `qr returns a not found when the key does not exist`() {
+        given(qrCodeUseCase.generateQR("key", "url"))
+            .willAnswer { throw RedirectionNotFound("key") }
+
+        mockMvc.perform(get("/{id}/qr", "key"))
+            .andDo(print())
     }
 }

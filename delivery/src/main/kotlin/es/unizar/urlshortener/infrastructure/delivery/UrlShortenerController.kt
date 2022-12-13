@@ -11,7 +11,6 @@ import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -119,8 +118,8 @@ class UrlShortenerControllerImpl(
             id,
             linkTo<UrlShortenerControllerImpl> { redirectTo(id, request) }.toString()
         ).let {
-            ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .body(ByteArrayResource(it, IMAGE_PNG_VALUE))
+            val headers = HttpHeaders()
+            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE)
+            ResponseEntity<ByteArrayResource>(it, headers, HttpStatus.OK)
         }
 }

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -82,6 +84,20 @@ class HttpRequestTest {
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
         assertThat(response.body?.url).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
+        assertThat(response.body?.properties?.get("qr")).isNull()
+
+        assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "shorturl")).isEqualTo(1)
+        assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
+    }
+
+    @Test
+    fun `creates returns a basic redirect if it can compute a hash with qr`() {
+        val response = shortUrlQR("http://example.com/")
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+        assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
+        assertThat(response.body?.url).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
+        assertThat(response.body?.properties?.get("qr")).isEqualTo("http://localhost:$port/f684a3c4/qr")
 
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "shorturl")).isEqualTo(1)
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
@@ -105,6 +121,22 @@ class HttpRequestTest {
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
     }
 
+    @Test
+    fun `qr returns an image when the key exists`() {
+        shortUrl("http://example.com/")
+
+        val response = callQR("http://localhost:$port/f684a3c4/qr")
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(response.body).isNotNull
+    }
+
+    @Test
+    fun `qr returns a not found when the key does not exist`() {
+
+        val response = callQR("http://localhost:$port/f684a3c4/qr")
+        assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
     private fun shortUrl(url: String): ResponseEntity<ShortUrlDataOut> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
@@ -117,5 +149,23 @@ class HttpRequestTest {
             "http://localhost:$port/api/link",
             HttpEntity(data, headers), ShortUrlDataOut::class.java
         )
+    }
+
+    private fun shortUrlQR(url: String): ResponseEntity<ShortUrlDataOut> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
+
+        val data: MultiValueMap<String, String> = LinkedMultiValueMap()
+        data["url"] = url
+        data["qr"] = "true"
+
+        return restTemplate.postForEntity(
+            "http://localhost:$port/api/link",
+            HttpEntity(data, headers), ShortUrlDataOut::class.java
+        )
+    }
+
+    private fun callQR(url: String): ResponseEntity<ByteArrayResource> {
+        return restTemplate.getForEntity(url, HttpHeaders(), ByteArrayResource::class.java)
     }
 }
