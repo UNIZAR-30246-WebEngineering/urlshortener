@@ -105,7 +105,8 @@ class UrlShortenerControllerImpl(
 
     @GetMapping("/api/link")
     override fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut> =
-        rankingUseCase.ranking().let{
+        rankingUseCase.ranking(
+        ).let{
             val response = RankingDataOut(
                     list = it
             )

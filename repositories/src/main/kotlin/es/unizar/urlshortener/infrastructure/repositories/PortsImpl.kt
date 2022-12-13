@@ -4,7 +4,7 @@ import es.unizar.urlshortener.core.Click
 import es.unizar.urlshortener.core.ClickRepositoryService
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
-import es.unizar.urlshortener.core.usecases.UrlSum
+import es.unizar.urlshortener.core.usecases.ClickSum
 import es.unizar.urlshortener.core.usecases.UserSum
 
 /**
@@ -15,7 +15,7 @@ class ClickRepositoryServiceImpl(
 ) : ClickRepositoryService {
     override fun save(cl: Click): Click = clickEntityRepository.save(cl.toEntity()).toDomain()
 
-    override fun computeClickSum(): List<UrlSum> = clickEntityRepository.computeClickSum()
+    override fun computeClickSum(): List<ClickSum> = clickEntityRepository.computeClickSum()
 }
 
 /**

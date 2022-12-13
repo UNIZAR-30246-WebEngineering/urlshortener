@@ -1,5 +1,6 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
+import es.unizar.urlshortener.core.usecases.ClickSum
 import es.unizar.urlshortener.core.usecases.UrlSum
 import es.unizar.urlshortener.core.usecases.UserSum
 import org.springframework.data.jpa.repository.JpaRepository
@@ -22,7 +23,6 @@ interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
  * **Note**: Spring Boot is able to discover this [JpaRepository] without further configuration.
  */
 interface ClickEntityRepository : JpaRepository<ClickEntity, Long> {
-    /*@Query("SELECT id, COUNT FROM ClickEntity GROUP BY id ORDER BY id DESC")*/
-    @Query("SELECT id AS hash, COUNT(id) AS sum FROM ClickEntity GROUP BY id ORDER BY id DESC")
-    fun computeClickSum(): List<UrlSum>
+    @Query("SELECT hash AS hash, COUNT(hash) AS sum FROM ClickEntity GROUP BY hash ORDER BY hash DESC")
+    fun computeClickSum(): List<ClickSum>
 }

@@ -1,5 +1,6 @@
 package es.unizar.urlshortener.core
 
+import es.unizar.urlshortener.core.usecases.ClickSum
 import es.unizar.urlshortener.core.usecases.UrlSum
 import es.unizar.urlshortener.core.usecases.UserSum
 
@@ -8,7 +9,7 @@ import es.unizar.urlshortener.core.usecases.UserSum
  */
 interface ClickRepositoryService {
     fun save(cl: Click): Click
-    fun computeClickSum(): List<UrlSum>
+    fun computeClickSum(): List<ClickSum>
 }
 
 /**
