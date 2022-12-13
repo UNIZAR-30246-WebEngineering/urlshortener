@@ -54,7 +54,6 @@ class ApplicationConfiguration(
     @Bean
     fun qrCodeUseCase() =
         QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
-        QrCodeUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
     fun reachableWebUseCase() = ReachableWebUseCaseImpl()
