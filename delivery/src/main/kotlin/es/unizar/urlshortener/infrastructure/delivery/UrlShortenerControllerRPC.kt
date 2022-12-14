@@ -1,26 +1,16 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.QRCodeUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.hateoas.server.mvc.linkTo
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.MediaType.IMAGE_PNG
-import org.springframework.http.MediaType.IMAGE_PNG_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 import java.util.*
-import javax.servlet.http.HttpServletRequest
 
 /**
  * The specification of the controller.
@@ -39,12 +29,10 @@ interface UrlShortenerControllerRPC {
      *
      * **Note**: Delivery of use case [CreateShortUrlUseCase].
      */
-//    fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+    fun shortener(@Payload data: String): String
 
 //    fun qr(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
 }
-
-
 /**
  * The implementation of the controller.
  *
@@ -65,42 +53,23 @@ class UrlShortenerControllerRPCImpl (
         }
     }
 
-//    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
-//    override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-//            createShortUrlUseCase.create(
-//                    url = data.url,
-//                    data = ShortUrlProperties(
-//                            ip = request.remoteAddr,
-//                            sponsor = data.sponsor,
-//                            lat = data.lat,
-//                            lon = data.lon,
-//                            limit = data.limit?:0
-//                    ),
-//
-//            ).let {
-//                val h = HttpHeaders()
-//                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-//                h.location = url
-//
-//                it.properties.safe?.let {
-//                    // Not null nula y safe (it) es true si no se lanza una excepción en create
-//                    val response = ShortUrlDataOut(
-//                        url = url,
-//                    )
-//                    return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-//
-//                // Es null no ha sido validada todavía
-//                } ?: run {
-//                    val response = ShortUrlDataOut(
-//                        url = url,
-//                        properties = mapOf("error" to "URI de destino no validada todavía")
-//                    )
-//                    return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-//                }
-//            }
+    @MessageMapping("create")
+    override fun shortener(@Payload data: String): String =
+        createShortUrlUseCase.create(
+            url = data,
+            data = ShortUrlProperties(limit = 0),
+        ).let {
+//            val url = linkTo<UrlShortenerControllerRPCImpl> { redirectTo(it.hash) }.toUri()
+//            println(url)
+            when (it.properties.safe) {
+                true  -> return "http://localhost:8080/${it.hash}"
+                false -> return "URI de destino no segura"
+                else  -> return "URI de destino no validada todavía"
+            }
+        }
 
-//    @GetMapping("{id:.*}/qr")
-//    override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource> =
+//    @MessageMapping("qr")
+//    override fun qr(@Payload id: String): String =
 //        qrCodeUseCase.getQR(id).let {
 //            val h = HttpHeaders()
 //            h.contentType = IMAGE_PNG

@@ -30,8 +30,8 @@ class Application : CommandLineRunner {
 
 		val requester = RSocketRequester.builder().tcp("localhost", 8888)
 
-		val result = requester.route("redirect")
-			.data("77e54268")
+		val result = requester.route("create")
+			.data("https://www.google.com")
 			.retrieveMono<String>()
 			.onErrorResume{throwable -> Mono.just(throwable.toString())}
 			.block()
