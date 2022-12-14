@@ -31,7 +31,7 @@ interface UrlShortenerControllerRPC {
      */
     fun shortener(@Payload data: String): String
 
-//    fun qr(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
+    fun qr(@Payload id: String): String
 }
 /**
  * The implementation of the controller.
@@ -59,8 +59,6 @@ class UrlShortenerControllerRPCImpl (
             url = data,
             data = ShortUrlProperties(limit = 0),
         ).let {
-//            val url = linkTo<UrlShortenerControllerRPCImpl> { redirectTo(it.hash) }.toUri()
-//            println(url)
             when (it.properties.safe) {
                 true  -> return "http://localhost:8080/${it.hash}"
                 false -> return "URI de destino no segura"
@@ -68,13 +66,10 @@ class UrlShortenerControllerRPCImpl (
             }
         }
 
-//    @MessageMapping("qr")
-//    override fun qr(@Payload id: String): String =
-//        qrCodeUseCase.getQR(id).let {
-//            val h = HttpHeaders()
-//            h.contentType = IMAGE_PNG
-//            return ResponseEntity.ok().contentType(IMAGE_PNG).body(ByteArrayResource(it.qrcode, IMAGE_PNG_VALUE))
-//        }
+    @MessageMapping("qr")
+    override fun qr(@Payload id: String): String {
+        return "http://localhost:8080/$id/qr"
+    }
 
     @MessageMapping("greetings.{lang}")
     fun greet(@DestinationVariable("lang") lang: Locale, @Payload name: String): String {

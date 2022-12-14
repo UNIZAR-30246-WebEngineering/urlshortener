@@ -19,25 +19,39 @@ class Application : CommandLineRunner {
 	}
 
 	override fun run(vararg args: String?) {
-		log.info("run")
-		var sb = StringBuilder()
-		for (option in args) {
-			sb.append(" ").append(option)
-			log.info("OPTION: {}", option)
-		}
-		sb = if (sb.length == 0) sb.append("No Options Specified") else sb
-		log.info(String.format("WAR launched with following options: %s", sb.toString()))
-
 		val requester = RSocketRequester.builder().tcp("localhost", 8888)
+		if (args[0].toString() == "redirect") {
+			// Required a Hash
+			val result = requester.route("redirect")
+				.data(args[1].toString())
+				.retrieveMono<String>()
+				.onErrorResume{throwable -> Mono.just(throwable.toString())}
+				.block()
+			println("Got : $result")
+		} else if (args[0].toString() == "short") {
+			// Required a URI <https://www.google.com
+			val result = requester.route("create")
+				.data(args[1].toString())
+				.retrieveMono<String>()
+				.onErrorResume{throwable -> Mono.just(throwable.toString())}
+				.block()
+			println("Got : $result")
+		} else if (args[0].toString() == "qr") {
+			// Required a Hash
+			val result = requester.route("qr")
+				.data(args[1].toString())
+				.retrieveMono<String>()
+				.onErrorResume{throwable -> Mono.just(throwable.toString())}
+				.block()
+			println("Got : $result")
+		} else {
+			println("Opción invaldia, prueba alguna de estas otras:")
+			println("redirect <hash>")
+			println("short <https://www.google.com>")
+			println("qr <hash>")
+		}
 
-		val result = requester.route("create")
-			.data("https://www.google.com")
-			.retrieveMono<String>()
-			.onErrorResume{throwable -> Mono.just(throwable.toString())}
-			.block()
 
-
-		println("Got : $result")
 		Thread.sleep(5000)
 	}
 }
