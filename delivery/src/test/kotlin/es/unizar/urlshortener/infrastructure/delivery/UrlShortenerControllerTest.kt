@@ -13,7 +13,9 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -70,7 +72,6 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `creates returns a basic redirect if it can compute a hash`() {
-
         given(
             createShortUrlUseCase.create(
                 url = "http://www.example.com/",
@@ -111,5 +112,53 @@ class UrlShortenerControllerTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.statusCode").value(400))
+    }
+
+    @Test
+    fun `getQr throws a bad request if the hash doesnt exist`() {
+        given(
+            qrCodeUseCase.getQR(
+                hash = "qwerty"
+            )
+        ).willAnswer { throw RedirectionNotValidatedException() }
+    }
+
+    @Test
+    fun `getQr returns a valid QR if the hash exists` () {
+        given(
+            createShortUrlUseCase.create(
+                url = "http://www.example.com/",
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    lat = 42.223,
+                    lon = 1.223
+                )
+            )
+        ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
+
+        given(
+            qrCodeUseCase.getQR(
+                hash = "f684a3c4"
+            )
+        ).willReturn(ShortURLQRCode(ByteArray(0), "f684a3c4.png"))
+
+        mockMvc.perform(
+            post("/api/link")
+                .param("url", "http://www.example.com/")
+                .param("lat", "42.223")
+                .param("lon", "1.223")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        )
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+
+        mockMvc.perform(
+            get("http://localhost/{hash}/qr", "f684a3c4")
+        )
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.IMAGE_PNG_VALUE))
     }
 }
