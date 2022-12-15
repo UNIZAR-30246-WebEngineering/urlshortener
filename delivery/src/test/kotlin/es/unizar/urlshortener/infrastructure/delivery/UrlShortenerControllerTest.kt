@@ -157,12 +157,59 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    fun `getQr throws a bad request if the hash doesnt exist`() {
+    fun `getQr throws a bad request if the uri not secure`() {
+        val unsafeUri = "https://www.faturamaga.com/"
+        val unsafeHash = "ea9a3b86"
+
+        given(
+            createShortUrlUseCase.create(
+                url = unsafeUri,
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    lat = 42.223,
+                    lon = 1.223
+                )
+            )
+        ).willReturn(ShortUrl(unsafeHash, Redirection(unsafeUri)))
+
+        given(
+            qrCodeUseCase.getQR(
+                hash = unsafeHash
+            )
+        ).willAnswer { throw RedirectUnsafeException() }
+
+        mockMvc.perform(
+            post("/api/link")
+                .param("url", unsafeUri)
+                .param("lat", "42.223")
+                .param("lon", "1.223")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        )
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(redirectedUrl("http://localhost/$unsafeHash"))
+            .andExpect(jsonPath("$.url").value("http://localhost/$unsafeHash"))
+
+        mockMvc.perform(
+            get("http://localhost/{hash}/qr", unsafeHash)
+        )
+            .andDo(print())
+            .andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `getQr throws forbidden if the uri is not safe`() {
         given(
             qrCodeUseCase.getQR(
                 hash = "qwerty"
             )
         ).willAnswer { throw RedirectionNotValidatedException() }
+
+        mockMvc.perform(
+            get("http://localhost/{hash}/qr", "qwerty")
+        )
+            .andDo(print())
+            .andExpect(status().isBadRequest)
     }
 
     @Test
