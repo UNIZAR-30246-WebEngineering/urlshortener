@@ -262,4 +262,19 @@ class UrlShortenerControllerTest {
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.IMAGE_PNG_VALUE))
     }
+
+    @Test
+    fun `getQr returns bad request if the qr can't be found` () {
+        given(
+            qrCodeUseCase.getQR(
+                hash = "f684a3c4"
+            )
+        ).willAnswer { throw QrCodeNotFoundException() }
+
+        mockMvc.perform(
+            get("http://localhost/{hash}/qr", "f684a3c4")
+        )
+        .andDo(print())
+        .andExpect(status().isBadRequest)
+    }
 }
