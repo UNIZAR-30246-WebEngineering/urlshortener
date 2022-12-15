@@ -10,7 +10,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.web.bind.annotation.*
+import java.nio.file.Paths
 import java.util.*
+import kotlin.io.path.exists
 
 /**
  * The specification of the controller.
@@ -54,10 +56,15 @@ class UrlShortenerControllerRPCImpl (
     }
 
     @MessageMapping("create")
-    override fun shortener(@Payload data: String): String =
+    override fun shortener(@Payload data: String): String {
+        var data = data.split(" ")
+
         createShortUrlUseCase.create(
-            url = data,
-            data = ShortUrlProperties(limit = 0),
+            url = data[0],
+            data = ShortUrlProperties(
+                limit = if (data[2] == "0") 0 else data[2].toInt(),
+                qr = data[1] == "qr"
+            )
         ).let {
             when (it.properties.safe) {
                 true  -> return "http://localhost:8080/${it.hash}"
@@ -65,15 +72,16 @@ class UrlShortenerControllerRPCImpl (
                 else  -> return "URI de destino no validada todavía"
             }
         }
+    }
+
 
     @MessageMapping("qr")
     override fun qr(@Payload id: String): String {
-        return "http://localhost:8080/$id/qr"
-    }
-
-    @MessageMapping("greetings.{lang}")
-    fun greet(@DestinationVariable("lang") lang: Locale, @Payload name: String): String {
-        println("locale: " + lang.language)
-        return "Hello, $name!"
+        val path = Paths.get("src/main/resources/static/qr/$id.png")
+        if (path.exists()) {
+            return "http://localhost:8080/$id/qr"
+        } else {
+            return "No existe ningún qr con ese hash: $id"
+        }
     }
 }

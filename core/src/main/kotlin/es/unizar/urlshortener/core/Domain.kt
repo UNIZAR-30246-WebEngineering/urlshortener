@@ -60,6 +60,7 @@ data class ShortUrlProperties(
     val road: String? = null,
     val cp: String? = null,
     val limit: Int = 0,
+    val qr: Boolean? = false
 )
 
 /**

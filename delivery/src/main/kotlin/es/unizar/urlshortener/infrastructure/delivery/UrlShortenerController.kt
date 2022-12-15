@@ -92,6 +92,7 @@ class UrlShortenerControllerImpl(
                     url = data.url,
                     data = ShortUrlProperties(
                             ip = request.remoteAddr,
+                            qr = data.qr,
                             sponsor = data.sponsor,
                             lat = data.lat,
                             lon = data.lon,

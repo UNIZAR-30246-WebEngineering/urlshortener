@@ -69,11 +69,13 @@ class CreateShortUrlUseCaseImpl(
                 }
 
                 // Start the coroutine to generate the qr
-                GlobalScope.launch {
-                    val qrCode = qrService.generateQRCode(url, "$id.png")
-                    qrCode.thenApply {
-                        // Save file when the qr is generated
-                        qrService.saveQR(it)
+                if (data.qr == true) {
+                    GlobalScope.launch {
+                        val qrCode = qrService.generateQRCode(url, "$id.png")
+                        qrCode.thenApply {
+                            // Save file when the qr is generated
+                            qrService.saveQR(it)
+                        }
                     }
                 }
                 return shortUrl

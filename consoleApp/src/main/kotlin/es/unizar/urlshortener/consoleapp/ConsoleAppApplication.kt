@@ -29,9 +29,12 @@ class Application : CommandLineRunner {
 				.block()
 			println("Got : $result")
 		} else if (args[0].toString() == "short") {
+			var newReq = args[1].toString() + " " + args[2]?.toString()?:"xx"
+			newReq = newReq + " " + args[3]?.toString()?:"0"
+
 			// Required a URI <https://www.google.com
 			val result = requester.route("create")
-				.data(args[1].toString())
+				.data(newReq)
 				.retrieveMono<String>()
 				.onErrorResume{throwable -> Mono.just(throwable.toString())}
 				.block()
@@ -50,7 +53,6 @@ class Application : CommandLineRunner {
 			println("short <https://www.google.com>")
 			println("qr <hash>")
 		}
-
 
 		Thread.sleep(5000)
 	}
