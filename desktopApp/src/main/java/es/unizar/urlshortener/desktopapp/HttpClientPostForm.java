@@ -30,6 +30,7 @@ public class HttpClientPostForm {
         data.put("limit", limit);
         data.put("lat", lat);
         data.put("lon", lon);
+        data.put("qr", "true");
 
         HttpResponse<String> response = null;
         return post(data);

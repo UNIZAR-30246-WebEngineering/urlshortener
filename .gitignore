@@ -49,3 +49,4 @@ out/
 ### VS Code ###
 .vscode/
 
+app/src/main/resources/static/qr/

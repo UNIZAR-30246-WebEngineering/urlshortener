@@ -34,8 +34,10 @@ $(document).ready(
                 }
 
                 if (!limitActive) {
-                    formData[1].value = 0
+                    formData.get("limit").value = 0
                 }
+
+                formData.push({name: "qr", value: "true"})
 
                 $.ajax({
                     type: "POST",
