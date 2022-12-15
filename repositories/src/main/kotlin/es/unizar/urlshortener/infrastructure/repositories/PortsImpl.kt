@@ -4,6 +4,8 @@ import es.unizar.urlshortener.core.Click
 import es.unizar.urlshortener.core.ClickRepositoryService
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
+import org.springframework.http.HttpStatus
+import java.util.concurrent.CountDownLatch
 
 /**
  * Implementation of the port [ClickRepositoryService].
@@ -20,7 +22,52 @@ class ClickRepositoryServiceImpl(
 class ShortUrlRepositoryServiceImpl(
     private val shortUrlEntityRepository: ShortUrlEntityRepository
 ) : ShortUrlRepositoryService {
+
+    private var latch: CountDownLatch = CountDownLatch(1)
+
     override fun findByKey(id: String): ShortUrl? = shortUrlEntityRepository.findByHash(id)?.toDomain()
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
+
+    /**
+     * Change the security of the url associate with id to true
+     */
+    override fun updateSecuritySecure(id:String){
+        val su = findByKey(id)
+        su?.properties?.safe = true
+
+        if (su != null) {
+            shortUrlEntityRepository.save(su.toEntity())
+        }
+        latch.countDown()
+    }
+
+    /**
+     * Change the security and the mode of the url associate with id to false and 403
+     */
+    override fun changeSecurityGoogle(id: String) {
+        val su = findByKey(id)
+        su?.properties?.safe = false
+        su?.redirection?.mode = HttpStatus.FORBIDDEN.value()
+
+        if (su != null) {
+            shortUrlEntityRepository.save(su.toEntity())
+        }
+        latch.countDown()
+
+    }
+
+    /**
+     * Return the latch
+     */
+    override fun getLatchFunction(): CountDownLatch {
+        return latch
+    }
+
+    /**
+     * Rewrite latch to 1
+     */
+    override fun latchUp() {
+        latch = CountDownLatch(1)
+    }
 }

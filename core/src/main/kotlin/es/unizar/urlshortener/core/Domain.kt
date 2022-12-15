@@ -28,7 +28,7 @@ data class ShortUrl(
  */
 data class Redirection(
     val target: String,
-    val mode: Int = 307
+    var mode: Int = 307
 )
 
 /**
@@ -37,7 +37,7 @@ data class Redirection(
 data class ShortUrlProperties(
     val ip: String? = null,
     val sponsor: String? = null,
-    val safe: Boolean = true,
+    var safe: Boolean = true,
     val owner: String? = null,
     val country: String? = null
 )

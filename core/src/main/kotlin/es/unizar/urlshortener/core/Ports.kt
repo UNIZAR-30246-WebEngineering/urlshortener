@@ -1,5 +1,7 @@
 package es.unizar.urlshortener.core
 
+import java.util.concurrent.CountDownLatch
+
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
@@ -13,6 +15,12 @@ interface ClickRepositoryService {
 interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
+    fun updateSecuritySecure(id:String)
+    fun changeSecurityGoogle(id: String)
+
+    fun getLatchFunction(): CountDownLatch
+
+    fun latchUp()
 }
 
 /**
@@ -22,6 +30,9 @@ interface ShortUrlRepositoryService {
  */
 interface ValidatorService {
     fun isValid(url: String): Boolean
+
+    fun sendToRabbit(url:String, id: String)
+
 }
 
 /**
