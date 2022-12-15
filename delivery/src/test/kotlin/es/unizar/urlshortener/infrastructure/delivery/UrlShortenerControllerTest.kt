@@ -109,7 +109,49 @@ class UrlShortenerControllerTest {
                 .param("url", "ftp://example.com/")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.statusCode").value(400))
+        .andExpect(status().isBadRequest)
+        .andExpect(jsonPath("$.statusCode").value(400))
+    }
+
+    @Test
+    fun `redirectTo returns too many requests when limit is reached`() {
+
+        given(
+            createShortUrlUseCase.create(
+                url = "http://www.example.com/",
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    lat = 42.223,
+                    lon = 1.223,
+                    limit = 1
+                )
+            )
+        ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
+
+        given(
+            redirectUseCase.redirectTo("f684a3c4")
+        ).willReturn(Redirection("http://www.example.com/")
+        ).willAnswer { throw TooManyRedirectionsException("key", 100L) }
+
+        mockMvc.perform(
+            post("/api/link")
+                .param("url", "http://www.example.com/")
+                .param("lat", "42.223")
+                .param("lon", "1.223")
+                .param("limit", "1")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        )
+        .andDo(print())
+        .andExpect(status().isCreated)
+        .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+        .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+
+        mockMvc.perform(get("/{id}", "f684a3c4"))
+            .andExpect(status().isTemporaryRedirect)
+            .andExpect(redirectedUrl("http://www.example.com/"))
+
+        mockMvc.perform(get("/{id}", "f684a3c4"))
+            .andExpect(status().isTooManyRequests)
+            .andExpect(header().exists("Retry-After"))
     }
 }
