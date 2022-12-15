@@ -51,8 +51,8 @@ data class ShortUrlDataIn(
     val sponsor: String? = null,
     val lat: Double? = null,
     val lon: Double? = null,
-    val qr: Boolean? = null,
     val limit: Int? = null,
+    val qr: Boolean? = null,
 )
 
 /**
@@ -92,11 +92,11 @@ class UrlShortenerControllerImpl(
                     url = data.url,
                     data = ShortUrlProperties(
                             ip = request.remoteAddr,
-                            qr = data.qr,
                             sponsor = data.sponsor,
                             lat = data.lat,
                             lon = data.lon,
-                            limit = data.limit?:0
+                            limit = data.limit?:0,
+                            qr = data.qr
                     ),
 
             ).let {

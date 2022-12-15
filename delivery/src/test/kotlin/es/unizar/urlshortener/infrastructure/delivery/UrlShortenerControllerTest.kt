@@ -78,7 +78,8 @@ class UrlShortenerControllerTest {
                 data = ShortUrlProperties(
                     ip = "127.0.0.1",
                     lat = 42.223,
-                    lon = 1.223
+                    lon = 1.223,
+                    qr = false
                 )
             )
         ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
@@ -88,6 +89,7 @@ class UrlShortenerControllerTest {
                 .param("url", "http://www.example.com/")
                 .param("lat", "42.223")
                 .param("lon", "1.223")
+                .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
         .andDo(print())
@@ -101,13 +103,17 @@ class UrlShortenerControllerTest {
         given(
             createShortUrlUseCase.create(
                 url = "ftp://example.com/",
-                data = ShortUrlProperties(ip = "127.0.0.1")
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    qr = false
+                )
             )
         ).willAnswer { throw InvalidUrlException("ftp://example.com/") }
 
         mockMvc.perform(
             post("/api/link")
                 .param("url", "ftp://example.com/")
+                .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
         .andExpect(status().isBadRequest)
@@ -124,7 +130,8 @@ class UrlShortenerControllerTest {
                     ip = "127.0.0.1",
                     lat = 42.223,
                     lon = 1.223,
-                    limit = 1
+                    limit = 1,
+                    qr = false
                 )
             )
         ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
@@ -140,6 +147,7 @@ class UrlShortenerControllerTest {
                 .param("lat", "42.223")
                 .param("lon", "1.223")
                 .param("limit", "1")
+                .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
         .andDo(print())
@@ -167,7 +175,8 @@ class UrlShortenerControllerTest {
                 data = ShortUrlProperties(
                     ip = "127.0.0.1",
                     lat = 42.223,
-                    lon = 1.223
+                    lon = 1.223,
+                    qr = true
                 )
             )
         ).willReturn(ShortUrl(unsafeHash, Redirection(unsafeUri)))
@@ -183,6 +192,7 @@ class UrlShortenerControllerTest {
                 .param("url", unsafeUri)
                 .param("lat", "42.223")
                 .param("lon", "1.223")
+                .param("qr", "true")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
             .andDo(print())
@@ -220,7 +230,8 @@ class UrlShortenerControllerTest {
                 data = ShortUrlProperties(
                     ip = "127.0.0.1",
                     lat = 42.223,
-                    lon = 1.223
+                    lon = 1.223,
+                    qr = true
                 )
             )
         ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
@@ -236,6 +247,7 @@ class UrlShortenerControllerTest {
                 .param("url", "http://www.example.com/")
                 .param("lat", "42.223")
                 .param("lon", "1.223")
+                .param("qr", "true")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
             .andDo(print())
