@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package es.unizar.urlshortener.consoleapp
 
 import org.slf4j.LoggerFactory
@@ -9,17 +11,20 @@ import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.messaging.rsocket.retrieveMono
 import reactor.core.publisher.Mono
 
+const val SRV_PORT : Int = 8888
+
 @SpringBootApplication
-class Application : CommandLineRunner {
-	private val log = LoggerFactory.getLogger(Application::class.java)
+class ConsoleAppApplication : CommandLineRunner {
+
+	//private val log = LoggerFactory.getLogger(ConsoleAppApplication::class.java)
 
 	@Bean
 	fun rSocketRequester(builder: RSocketRequester.Builder): RSocketRequester? {
-		return builder.tcp("localhost", 8888)
+		return builder.tcp("localhost", SRV_PORT)
 	}
 
 	override fun run(vararg args: String?) {
-		val requester = RSocketRequester.builder().tcp("localhost", 8888)
+		val requester = RSocketRequester.builder().tcp("localhost", SRV_PORT)
 		if (args[0].toString() == "redirect") {
 			// Required a Hash
 			val result = requester.route("redirect")
@@ -53,11 +58,9 @@ class Application : CommandLineRunner {
 			println("short <https://www.google.com>")
 			println("qr <hash>")
 		}
-
-		Thread.sleep(5000)
 	}
 }
 
-fun main(args: Array<String>) {
-	SpringApplication.run(Application::class.java, *args)
+fun main(vararg args: String) {
+	SpringApplication.run(ConsoleAppApplication::class.java, *args)
 }
