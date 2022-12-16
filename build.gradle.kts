@@ -90,6 +90,7 @@ project(":repositories") {
         "implementation"(project(":core"))
         "implementation"("org.springframework.boot:spring-boot-starter-data-jpa")
     }
+
     tasks.getByName<BootJar>("bootJar") {
         enabled = false
     }
