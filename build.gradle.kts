@@ -50,7 +50,11 @@ subprojects {
     }
 }
 
-project(":core") {}
+project(":core") {
+    dependencies{
+        "implementation"("io.github.microutils:kotlin-logging-jvm:2.0.11")
+    }
+}
 
 project(":repositories") {
     apply(plugin = "org.springframework.boot")
