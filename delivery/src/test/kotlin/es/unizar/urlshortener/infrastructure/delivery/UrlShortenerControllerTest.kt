@@ -13,9 +13,7 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -92,10 +90,10 @@ class UrlShortenerControllerTest {
                 .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
-        .andDo(print())
-        .andExpect(status().isCreated)
-        .andExpect(redirectedUrl("http://localhost/f684a3c4"))
-        .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
     }
 
     @Test
@@ -116,8 +114,8 @@ class UrlShortenerControllerTest {
                 .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
-        .andExpect(status().isBadRequest)
-        .andExpect(jsonPath("$.statusCode").value(400))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.statusCode").value(400))
     }
 
     @Test
@@ -138,7 +136,8 @@ class UrlShortenerControllerTest {
 
         given(
             redirectUseCase.redirectTo("f684a3c4")
-        ).willReturn(Redirection("http://www.example.com/")
+        ).willReturn(
+            Redirection("http://www.example.com/")
         ).willAnswer { throw TooManyRedirectionsException("key", 100L) }
 
         mockMvc.perform(
@@ -150,10 +149,10 @@ class UrlShortenerControllerTest {
                 .param("qr", "false")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         )
-        .andDo(print())
-        .andExpect(status().isCreated)
-        .andExpect(redirectedUrl("http://localhost/f684a3c4"))
-        .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
 
         mockMvc.perform(get("/{id}", "f684a3c4"))
             .andExpect(status().isTemporaryRedirect)
@@ -223,7 +222,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    fun `getQr returns a valid QR if the hash exists` () {
+    fun `getQr returns a valid QR if the hash exists`() {
         given(
             createShortUrlUseCase.create(
                 url = "http://www.example.com/",
@@ -264,7 +263,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    fun `getQr returns bad request if the qr can't be found` () {
+    fun `getQr returns bad request if the qr can't be found`() {
         given(
             qrCodeUseCase.getQR(
                 hash = "f684a3c4"
@@ -274,7 +273,7 @@ class UrlShortenerControllerTest {
         mockMvc.perform(
             get("http://localhost/{hash}/qr", "f684a3c4")
         )
-        .andDo(print())
-        .andExpect(status().isBadRequest)
+            .andDo(print())
+            .andExpect(status().isBadRequest)
     }
 }

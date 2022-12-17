@@ -40,7 +40,7 @@ interface UrlShortenerController {
      */
     fun shortenerJson(@RequestBody data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
-    fun shortenerUnderCoded(form: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+    fun shortenerUnderCoded(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
     fun shortFun(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
@@ -90,11 +90,13 @@ class UrlShortenerControllerImpl(
     }
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    override fun shortenerJson(@RequestBody data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+    override fun shortenerJson(@RequestBody data: ShortUrlDataIn, request: HttpServletRequest):
+            ResponseEntity<ShortUrlDataOut> =
         shortFun(data, request)
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    override fun shortenerUnderCoded(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+    override fun shortenerUnderCoded(data: ShortUrlDataIn, request: HttpServletRequest):
+            ResponseEntity<ShortUrlDataOut> =
         shortFun(data, request)
 
     override fun shortFun(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =

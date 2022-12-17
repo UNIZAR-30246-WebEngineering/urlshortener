@@ -61,7 +61,6 @@ subprojects {
 
     jacoco {
         toolVersion = "0.8.8"
-        println("BUILD DIR -> $buildDir")
         reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
     }
 

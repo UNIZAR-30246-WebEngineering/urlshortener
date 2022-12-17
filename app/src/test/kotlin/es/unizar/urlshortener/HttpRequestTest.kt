@@ -54,12 +54,16 @@ class HttpRequestTest {
     fun `main page works`() {
         val response = restTemplate.getForEntity("http://localhost:$port/", String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("A front-end example page for the project")
+        assertThat(response.body).contains("UrlShortener is a link management tool for")
     }
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
-        val target = shortUrl("http://example.com/").headers.location
+        val target = shortUrl(
+            url = "http://example.com/",
+            limit = 0,
+            qr = false
+        ).headers.location
         require(target != null)
         val response = restTemplate.getForEntity(target, String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
@@ -78,7 +82,11 @@ class HttpRequestTest {
 
     @Test
     fun `creates returns a basic redirect if it can compute a hash`() {
-        val response = shortUrl("http://example.com/")
+        val response = shortUrl(
+            url = "http://example.com/",
+            limit = 0,
+            qr = true
+        )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
@@ -107,12 +115,14 @@ class HttpRequestTest {
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
     }
 
-    private fun shortUrl(url: String): ResponseEntity<ShortUrlDataOut> {
+    private fun shortUrl(url: String, limit: Int, qr: Boolean): ResponseEntity<ShortUrlDataOut> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
         val data: MultiValueMap<String, String> = LinkedMultiValueMap()
         data["url"] = url
+        data["limit"] = limit.toString()
+        data["qr"] = qr.toString()
 
         return restTemplate.postForEntity(
             "http://localhost:$port/api/link",

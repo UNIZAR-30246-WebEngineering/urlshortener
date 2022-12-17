@@ -243,3 +243,11 @@ To run sonarqube analysis:
 ```bash
 ./gradlew rabbit-stop sonar-stop
 ```
+
+## How to run the tests with coverage
+
+```bash
+./gradlew build
+./gradlew test jacocoTestReport
+```
+In app/build/reports/jacoco/test/html/index.html you can see the coverage report.
