@@ -15,9 +15,6 @@ const val SRV_PORT : Int = 8888
 
 @SpringBootApplication
 class ConsoleAppApplication : CommandLineRunner {
-
-	//private val log = LoggerFactory.getLogger(ConsoleAppApplication::class.java)
-
 	@Bean
 	fun rSocketRequester(builder: RSocketRequester.Builder): RSocketRequester? {
 		return builder.tcp("localhost", SRV_PORT)

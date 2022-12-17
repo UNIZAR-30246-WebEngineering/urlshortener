@@ -4,6 +4,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.UnsafeURIException
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.QRCodeUseCase
@@ -37,7 +38,11 @@ interface UrlShortenerController {
      *
      * **Note**: Delivery of use case [CreateShortUrlUseCase].
      */
-    fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+    fun shortenerJson(@RequestBody data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+
+    fun shortenerUnderCoded(form: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+
+    fun shortFun(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
     fun qr(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
 }
@@ -84,41 +89,47 @@ class UrlShortenerControllerImpl(
         }
     }
 
-    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-        MediaType.APPLICATION_JSON_VALUE])
-    override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-            createShortUrlUseCase.create(
-                    url = data.url,
-                    data = ShortUrlProperties(
-                            ip = request.remoteAddr,
-                            sponsor = data.sponsor,
-                            lat = data.lat,
-                            lon = data.lon,
-                            limit = data.limit?:0,
-                            qr = data.qr
-                    ),
+    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    override fun shortenerJson(@RequestBody data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+        shortFun(data, request)
+
+    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    override fun shortenerUnderCoded(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+        shortFun(data, request)
+
+    override fun shortFun(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+        createShortUrlUseCase.create(
+            url = data.url,
+            data = ShortUrlProperties(
+                ip = request.remoteAddr,
+                sponsor = data.sponsor,
+                lat = data.lat,
+                lon = data.lon,
+                limit = data.limit ?: 0,
+                qr = data.qr
+            ),
 
             ).let {
-                val h = HttpHeaders()
-                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-                h.location = url
+            val h = HttpHeaders()
+            val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+            h.location = url
 
-                it.properties.safe?.let {
-                    // Not null nula y safe (it) es true si no se lanza una excepción en create
-                    val response = ShortUrlDataOut(
-                        url = url,
-                    )
-                    return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+            it.properties.safe?.let {
+                // Not null nula y safe (it) es true si no se lanza una excepción en create
+                val response = ShortUrlDataOut(
+                    url = url,
+                )
+                return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
 
                 // Es null no ha sido validada todavía
-                } ?: run {
-                    val response = ShortUrlDataOut(
-                        url = url,
-                        properties = mapOf("error" to "URI de destino no validada todavía")
-                    )
-                    return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-                }
+            } ?: run {
+                val response = ShortUrlDataOut(
+                    url = url,
+                    properties = mapOf("error" to "URI de destino no validada todavía")
+                )
+                return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
+        }
 
     @GetMapping("{id:.*}/qr")
     override fun qr(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource> =
