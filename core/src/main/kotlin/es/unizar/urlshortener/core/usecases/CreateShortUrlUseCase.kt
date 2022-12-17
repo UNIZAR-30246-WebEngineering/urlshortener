@@ -32,6 +32,7 @@ class CreateShortUrlUseCaseImpl(
         shortUrlRepository.findByKey(id)?.let {
             // Short URL already exists
             it.properties.safe?.let { safe ->
+                println("La tenemos guardada como como $safe")
                 if (!safe) {
                     // Short URL is not safe
                     throw UnsafeURIException(url)
@@ -39,6 +40,7 @@ class CreateShortUrlUseCaseImpl(
             }
             return it
         } ?: run {
+            println("No existe")
             // Short URL does not exist
             if (validatorService.isValid(url) && validatorService.isReachable(url)) {
                 val su = ShortUrl(

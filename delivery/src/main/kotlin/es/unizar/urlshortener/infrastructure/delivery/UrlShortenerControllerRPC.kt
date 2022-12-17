@@ -1,3 +1,5 @@
+@file:Suppress("ReturnCount", "WildcardImport")
+
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ShortUrlProperties
@@ -5,13 +7,10 @@ import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.QRCodeUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
-import org.springframework.hateoas.server.mvc.linkTo
-import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.web.bind.annotation.*
 import java.nio.file.Paths
-import java.util.*
 import kotlin.io.path.exists
 
 /**

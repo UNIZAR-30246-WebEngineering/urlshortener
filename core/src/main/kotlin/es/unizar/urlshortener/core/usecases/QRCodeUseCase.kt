@@ -1,3 +1,5 @@
+@file:Suppress("WildcardImport", "NestedBlockDepth")
+
 package es.unizar.urlshortener.core.usecases
 
 import es.unizar.urlshortener.core.*

@@ -1,3 +1,5 @@
+@file:Suppress("WildcardImport")
+
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ClickProperties
@@ -14,12 +16,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.MediaType.IMAGE_PNG
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.http.ResponseEntity
-import org.springframework.messaging.handler.annotation.DestinationVariable
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.web.bind.annotation.*
 import java.net.URI
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -86,7 +84,8 @@ class UrlShortenerControllerImpl(
         }
     }
 
-    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+        MediaType.APPLICATION_JSON_VALUE])
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
             createShortUrlUseCase.create(
                     url = data.url,

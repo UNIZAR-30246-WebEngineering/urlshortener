@@ -22,6 +22,8 @@ class Receiver (
         println("Received <$message>")
         val url = message.split(" ")[0]
         val hash = message.split(" ")[1]
-        shortUrlRepositoryService.updateSafe(hash, validatorService.isSecure(url))
+        val secure = validatorService.isSecure(url)
+        println("Es segura: $secure")
+        shortUrlRepositoryService.updateSafe(hash, secure)
     }
 }

@@ -166,8 +166,8 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `getQr throws a bad request if the uri not secure`() {
-        val unsafeUri = "https://www.faturamaga.com/"
-        val unsafeHash = "ea9a3b86"
+        val unsafeUri = "https://testsafebrowsing.appspot.com/s/phishing.html"
+        val unsafeHash = "e1d75a01"
 
         given(
             createShortUrlUseCase.create(

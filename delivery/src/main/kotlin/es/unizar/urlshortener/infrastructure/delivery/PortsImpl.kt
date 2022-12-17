@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -53,9 +54,11 @@ class ValidatorServiceImpl : ValidatorService {
             huc.instanceFollowRedirects = false
             val responseCode: Int = huc.responseCode
             responseCode == HttpURLConnection.HTTP_OK
-        } catch (e: Exception) {
+        } catch (e: IOException) {
+            println(e.message)
             false
         }
+
     }
 
     /**
@@ -68,7 +71,8 @@ class ValidatorServiceImpl : ValidatorService {
      * https://www.zipl.in/construction/slider/up/
      */
     override fun isSecure(url: String): Boolean {
-        val threatTypes: Array<String> = arrayOf("THREAT_TYPE_UNSPECIFIED", "MALWARE","SOCIAL_ENGINEERING","UNWANTED_SOFTWARE","MALICIOUS_BINARY","POTENTIALLY_HARMFUL_APPLICATION")
+        val threatTypes: Array<String> = arrayOf("THREAT_TYPE_UNSPECIFIED", "MALWARE","SOCIAL_ENGINEERING",
+            "UNWANTED_SOFTWARE","MALICIOUS_BINARY","POTENTIALLY_HARMFUL_APPLICATION")
         val platformTypes: Array<String> = arrayOf("ALL_PLATFORMS")
         val threatEntryTypes: Array<String> = arrayOf("URL")
 
@@ -92,7 +96,9 @@ class ValidatorServiceImpl : ValidatorService {
 
         val httpClient = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyCWAthHelYHIebU1PATkYxuiEJVK_QRrHk"))
+            .uri(URI.create(
+                "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyCWAthHelYHIebU1PATkYxuiEJVK_QRrHk")
+            )
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
             .build()
