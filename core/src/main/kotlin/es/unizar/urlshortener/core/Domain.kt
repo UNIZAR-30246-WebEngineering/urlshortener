@@ -19,7 +19,9 @@ data class ShortUrl(
     val hash: String,
     val redirection: Redirection,
     val created: OffsetDateTime = OffsetDateTime.now(),
-    val properties: ShortUrlProperties = ShortUrlProperties()
+    val properties: ShortUrlProperties = ShortUrlProperties(),
+    val qrCode: ByteArray? = null,
+    val reachable: Boolean? = false
 )
 
 /**
@@ -39,7 +41,8 @@ data class ShortUrlProperties(
     val sponsor: String? = null,
     val safe: Boolean = true,
     val owner: String? = null,
-    val country: String? = null
+    val country: String? = null,
+    val qr: Boolean? = false
 )
 
 /**

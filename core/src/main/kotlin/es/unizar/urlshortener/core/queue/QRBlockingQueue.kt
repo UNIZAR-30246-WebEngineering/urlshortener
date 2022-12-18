@@ -1,7 +1,6 @@
 package es.unizar.urlshortener.core.queue
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
+import es.unizar.urlshortener.core.usecases.QrCodeUseCase
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -9,19 +8,18 @@ import java.util.concurrent.BlockingQueue
 
 @Suppress("TooGenericExceptionCaught", "UnusedPrivateMember", "EmptyTryBlock")
 @Component
-open class QRBlockingQueue {
-
-    @Qualifier("qrqueue")
-    @Autowired
-    private val qrQueue: BlockingQueue<String>? = null
-
+open class QRBlockingQueue(
+    private val qrQueue: BlockingQueue<Pair<String, String>>,
+    private val qrCodeUseCase: QrCodeUseCase
+) {
     @Async("executorConfig")
-    @Scheduled(fixedDelay = 200L)
+    @Scheduled(fixedDelay = 500L)
     open
     fun executor() {
-        try {
-        } catch (e: Exception) {
-            println(e.toString())
+        if (!qrQueue.isEmpty()) {
+            val result = qrQueue.take()
+            qrCodeUseCase.generateQR(result.first, result.second)
+            println(result)
         }
     }
 }
