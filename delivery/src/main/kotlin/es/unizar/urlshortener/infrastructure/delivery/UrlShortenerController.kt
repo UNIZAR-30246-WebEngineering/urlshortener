@@ -5,10 +5,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.UnsafeURIException
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.QRCodeUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.*
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
@@ -32,6 +29,8 @@ interface UrlShortenerController {
      * **Note**: Delivery of use cases [RedirectUseCase] and [LogClickUseCase].
      */
     fun redirectTo(id: String, request: HttpServletRequest): ResponseEntity<Void>
+
+    fun information(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<URLData>
 
     /**
      * Creates a short url from details provided in [data].
@@ -76,6 +75,7 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
+    val infoUseCase: InfoUseCase,
     val qrCodeUseCase: QRCodeUseCase
 ) : UrlShortenerController {
 
@@ -87,6 +87,16 @@ class UrlShortenerControllerImpl(
             h.location = URI.create(it.target)
             return ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
         }
+    }
+
+    @GetMapping("/api/link/{id}")
+    override fun information(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<URLData> {
+        val h = HttpHeaders()
+        val url = linkTo<UrlShortenerControllerImpl> { redirectTo(id, request) }.toUri()
+        h.location = url
+
+        val response = infoUseCase.getInfo(id)
+        return ResponseEntity<URLData>(response, h, HttpStatus.OK)
     }
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_JSON_VALUE])

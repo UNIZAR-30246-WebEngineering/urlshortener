@@ -1,10 +1,7 @@
 package es.unizar.urlshortener
 
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCaseImpl
-import es.unizar.urlshortener.core.usecases.LogClickUseCaseImpl
-import es.unizar.urlshortener.core.usecases.QRCodeUseCaseImpl
-import es.unizar.urlshortener.core.usecases.RedirectUseCaseImpl
+import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.*
 import es.unizar.urlshortener.infrastructure.repositories.ClickEntityRepository
 import es.unizar.urlshortener.infrastructure.repositories.ClickRepositoryServiceImpl
@@ -59,6 +56,9 @@ class ApplicationConfiguration(
 
     @Bean
     fun qrCodeUseCase() = QRCodeUseCaseImpl(shortUrlRepositoryService())
+
+    @Bean
+    fun InfoUseCase() = InfoUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
     fun createShortUrlUseCase() =

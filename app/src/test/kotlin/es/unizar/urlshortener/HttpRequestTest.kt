@@ -122,7 +122,7 @@ class HttpRequestTest {
         val data: MultiValueMap<String, String> = LinkedMultiValueMap()
         data["url"] = url
         data["limit"] = limit.toString()
-        data["qr"] = qr.toString()
+        data["static/qr"] = qr.toString()
 
         return restTemplate.postForEntity(
             "http://localhost:$port/api/link",
