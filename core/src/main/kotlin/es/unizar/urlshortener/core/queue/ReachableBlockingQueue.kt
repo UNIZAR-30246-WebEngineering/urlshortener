@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.BlockingQueue
 
-@Suppress("TooGenericExceptionCaught", "UnusedPrivateMember", "EmptyTryBlock")
 @Component
 open class ReachableBlockingQueue(
     private val reachableQueue: BlockingQueue<String>,
@@ -18,8 +17,7 @@ open class ReachableBlockingQueue(
     fun executor() {
         if (!reachableQueue.isEmpty()) {
             val result = reachableQueue.take()
-            reachableWebUseCase.reachable(result)
-            println(result)
+            reachableWebUseCase.reach(result)
         }
     }
 }

@@ -22,6 +22,8 @@ import java.net.URI
 import java.util.concurrent.BlockingQueue
 import javax.servlet.http.HttpServletRequest
 
+private const val RETRY_AFTER_DELAY = 500L
+
 /**
  * The specification of the controller.
  */
@@ -79,14 +81,22 @@ class UrlShortenerControllerImpl(
 ) : UrlShortenerController {
 
     @GetMapping("/{id:(?!api|index).*}")
-    override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
+    override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> {
 
         redirectUseCase.redirectTo(id).let { redirect ->
-            logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
-            val h = HttpHeaders()
-            h.location = URI.create(redirect.target)
-            ResponseEntity<Void>(h, HttpStatus.valueOf(redirect.mode))
+            if (reachableWebUseCase.isReachable(redirect.target)) {
+                logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
+                val h = HttpHeaders()
+                h.location = URI.create(redirect.target)
+                return ResponseEntity<Void>(h, HttpStatus.valueOf(redirect.mode))
+            } else {
+                val h = HttpHeaders()
+                h.location = URI.create(redirect.target)
+                h.set(HttpHeaders.RETRY_AFTER, RETRY_AFTER_DELAY.toString())
+                return ResponseEntity<Void>(h, HttpStatus.BAD_REQUEST)
+            }
         }
+    }
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =

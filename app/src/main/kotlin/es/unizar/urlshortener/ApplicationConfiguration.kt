@@ -60,7 +60,7 @@ class ApplicationConfiguration(
         QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService(), qrMap())
 
     @Bean
-    fun reachableWebUseCase() = ReachableWebUseCaseImpl()
+    fun reachableWebUseCase() = ReachableWebUseCaseImpl(reachableMap(), reachableQueue())
 
     @Bean
     fun qrQueue(): BlockingQueue<Pair<String, String>> = LinkedBlockingQueue()

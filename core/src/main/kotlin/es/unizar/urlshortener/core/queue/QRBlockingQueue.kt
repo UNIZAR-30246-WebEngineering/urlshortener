@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.BlockingQueue
 
-@Suppress("TooGenericExceptionCaught", "UnusedPrivateMember", "EmptyTryBlock")
 @Component
 open class QRBlockingQueue(
     private val qrQueue: BlockingQueue<Pair<String, String>>,

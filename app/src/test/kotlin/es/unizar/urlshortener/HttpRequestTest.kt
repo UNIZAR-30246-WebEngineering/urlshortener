@@ -63,6 +63,7 @@ class HttpRequestTest {
     fun `redirectTo returns a redirect when the key exists and is reachable`() {
         val target = shortUrl("http://shop.mango.com/es").headers.location
         require(target != null)
+        TimeUnit.SECONDS.sleep(2L)
         val response = restTemplate.getForEntity(target, String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
         assertThat(response.headers.location).isEqualTo(URI.create("http://shop.mango.com/es"))

@@ -70,7 +70,7 @@ class UrlShortenerControllerTest {
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
-
+        given(reachableWebUseCase.isReachable("http://example.com/")).willReturn(true)
         mockMvc.perform(get("/{id}", "key"))
             .andExpect(status().isTemporaryRedirect)
             .andExpect(redirectedUrl("http://example.com/"))
@@ -83,7 +83,7 @@ class UrlShortenerControllerTest {
     fun `redirectTo returns a bad request when the key exists and the website is unreachable`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/health"))
         given(
-            reachableWebUseCase.reachable("http://example.com/health")
+            reachableWebUseCase.reach("http://example.com/health")
         ).willAnswer { throw WebUnreachable("http://example.com/healt") }
 
         mockMvc.perform(get("/{id}", "key"))
