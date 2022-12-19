@@ -35,6 +35,8 @@ interface UrlShortenerController {
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
     fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut>
+
+    fun users(request: HttpServletRequest): ResponseEntity<UserDataOut>
 }
 
 /**
@@ -58,6 +60,10 @@ data class ShortUrlDataOut(
  */
 data class RankingDataOut(
     val list: List<UrlSum> = emptyList()
+)
+
+data class UserDataOut(
+        val list: List<UserSum> = emptyList()
 )
 
 /**
@@ -105,11 +111,19 @@ class UrlShortenerControllerImpl(
 
     @GetMapping("/api/link")
     override fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut> =
-        rankingUseCase.ranking(
-        ).let{
+        rankingUseCase.ranking().let{
             val response = RankingDataOut(
                     list = it
             )
             ResponseEntity<RankingDataOut>(response, HttpStatus.OK)
+        }
+
+    @GetMapping("/api/link/{id}")
+    override fun users(request: HttpServletRequest): ResponseEntity<UserDataOut> =
+        rankingUseCase.user().let{
+            val response = UserDataOut(
+                    list = it
+            )
+            ResponseEntity<UserDataOut>(response, HttpStatus.OK)
         }
 }

@@ -1,6 +1,7 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
 import es.unizar.urlshortener.core.usecases.ClickSum
+import es.unizar.urlshortener.core.usecases.ClickUserSum
 import es.unizar.urlshortener.core.usecases.UrlSum
 import es.unizar.urlshortener.core.usecases.UserSum
 import org.springframework.data.jpa.repository.JpaRepository
@@ -13,8 +14,9 @@ import org.springframework.data.jpa.repository.Query
  */
 interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
     fun findByHash(hash: String): ShortUrlEntity?
-    @Query("SELECT owner AS user, COUNT(owner) AS sum FROM ShortUrlEntity GROUP BY owner ORDER BY owner DESC")
-    fun computeUserClicks(): List<UserSum>
+
+    @Query("SELECT ip AS ip, COUNT(ip) AS sum FROM ShortUrlEntity GROUP BY ip ORDER BY ip DESC")
+    fun computeUserClicks(): List<ClickUserSum>
 }
 
 /**

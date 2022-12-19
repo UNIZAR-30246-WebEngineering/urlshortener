@@ -7,19 +7,24 @@ interface ClickSum {
     fun getSum(): Int
 }
 
+interface ClickUserSum {
+    fun getIp(): String
+    fun getSum(): Int
+}
+
 data class UrlSum(
-    var hash: String,
+    var hash: String = "",
     var sum: Int
 )
 
 data class UserSum(
-    var name: String,
+    var ip: String,
     var sum: Int
 )
 
 interface RankingUseCase {
     fun ranking(): List<UrlSum>
-    fun userRanking(): List<UserSum>
+    fun user(): List<UserSum>
 }
 
 /**
@@ -31,21 +36,32 @@ class RankingUseCaseImpl(
 ) : RankingUseCase {
     override fun ranking(): List<UrlSum> {
         val mylist  =
-                clickRepositoryService.computeClickSum().map { case ->
-                    shortUrlRepositoryService.findByKey(case.getHash()).let { shortUrl ->
-                        if (shortUrl != null) {
-                            UrlSum(shortUrl.hash, case.getSum())
-                        }
-                        else null
+            clickRepositoryService.computeClickSum().map { case ->
+                shortUrlRepositoryService.findByKey(case.getHash()).let { shortUrl ->
+                    if (shortUrl != null) {
+                        UrlSum(shortUrl.hash, case.getSum())
                     }
-                }.filterNotNull()
+                    else null
+                }
+            }.filterNotNull()
 
         System.out.println("RankingUseCaseImpl.ranking():")
         System.out.println(mylist)
         return mylist
     }
 
-    override fun userRanking(): List<UserSum> =
-                shortUrlRepositoryService.computeUserClicks()
+    override fun user(): List<UserSum> {
+        val mylist =
+                shortUrlRepositoryService.computeUserClicks().map { case ->
+                shortUrlRepositoryService.findByKey(case.getIp()).let { shortUrl ->
+                    if (shortUrl != null) {
+                        UserSum(case.getIp(), case.getSum())
+                    } else null
+                }
+            }.filterNotNull()
+        System.out.println("RankingUseCaseImpl.user():")
+        System.out.println(mylist)
+        return mylist
+    }
 
 }
