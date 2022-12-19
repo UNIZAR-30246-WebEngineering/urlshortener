@@ -67,13 +67,47 @@ paths:
       x-codeSamples:
         - lang: 'Curl'
           source: |
-            bash
+            curl "http://localhost:8080/api/link" \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"url":"http://www.google.com","limit": 4,"lat":41.5421788,"lon":-0.991461,"qr":true}'
         - lang: 'JavaScript'
           source: |
-            javascript
+            uri = "http://localhost:8080/api/link"
+
+            headers = new Headers()
+            headers.append("Content-Type", "application/json");
+            
+            payload = {
+              "url": "http://www.google.com",
+              "limit": 4,
+              "lat": 41.5421788,
+              "lon": -0.991461,
+              "qr": true
+            }
+            
+            fetch(uri, {
+              method: "POST",
+              headers,
+              body: JSON.stringify(payload)
+            }).then(res => res.json())
         - lang: 'Python'
           source: |
-            javascript
+            import requests
+
+            uri = "http://localhost:8080/api/link"
+            
+            headers = {"Content-Type": "application/json"}
+            
+            payload = {
+              "url": "http://www.google.com",
+              "limit": 4,
+              "lat": 41.5421788,
+              "lon": -0.991461,
+              "qr": True
+            }
+            
+            response = requests.post(uri, headers=headers, json=payload)
   /api/link/{id}:
     get:
       operationId: getlink
@@ -119,13 +153,21 @@ paths:
       x-codeSamples:
         - lang: 'Curl'
           source: |
-            bash
+            curl "http://localhost:8080/api/link/4170157c"
         - lang: 'JavaScript'
           source: |
-            javascript
+            id = "4170157c"
+            uri = `http://localhost:8080/api/link/${id}`
+            
+            fetch(uri).then(res => res.json())
         - lang: 'Python'
           source: |
-            javascript
+            import requests
+
+            id = "4170157c"
+            uri = f"http://localhost:8080/api/link/{id}"
+            
+            response = requests.get(uri)
   /{id}:
     get:
       operationId: redirect
@@ -172,13 +214,21 @@ paths:
       x-codeSamples:
         - lang: 'Curl'
           source: |
-            bash
+            curl "http://localhost:8080/4170157c"
         - lang: 'JavaScript'
           source: |
-            javascript
+            id = '4170157c'
+            uri = `http://localhost:8080/${id}`
+            
+            fetch(uri).then(res => res.json())
         - lang: 'Python'
           source: |
-            javascript
+            import requests
+
+            id = '4170157c'
+            uri = f"http://localhost:8080/{id}"
+            
+            response = requests.get(uri)
   /{id}/qr:
     get:
       operationId: qr
@@ -230,13 +280,21 @@ paths:
       x-codeSamples:
         - lang: 'Curl'
           source: |
-            bash
+            curl "http://localhost:8080/4170157c/qr"
         - lang: 'JavaScript'
           source: |
-            javascript
+            id = '4170157c'
+            uri = `http://localhost:8080/${id}/qr`
+            
+            fetch(uri).then(res => res.json())
         - lang: 'Python'
           source: |
-            javascript
+            import requests
+
+            id = '4170157c'
+            uri = f"http://localhost:8080/{id}/qr"
+            
+            response = requests.get(uri)
 definitions:
   shorturl:
     properties:
