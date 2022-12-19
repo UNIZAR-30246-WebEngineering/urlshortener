@@ -264,7 +264,7 @@ paths:
             type: object
             $ref: '#/definitions/Error'
         "403":
-          description: Trimmed URI exists and cannot be used for spam redirects
+          description: Trimmed URI exists and cannot be used for redirections
           schema: 
             type: object
             $ref: '#/definitions/Error'
