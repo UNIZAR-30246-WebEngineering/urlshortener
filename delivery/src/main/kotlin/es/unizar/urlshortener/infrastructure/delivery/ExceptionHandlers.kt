@@ -48,8 +48,15 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseBody
     @ExceptionHandler(value = [RedirectionNotValidatedException::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun redirectionNotValidated(ex: RedirectionNotValidatedException) =
-        ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+    fun redirectionNotValidated(ex: RedirectionNotValidatedException) : ResponseEntity<ErrorMessage> {
+        val h = HttpHeaders()
+        h.set("Retry-After", ex.refillTime.toString())
+        return ResponseEntity<ErrorMessage>(
+            ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message),
+            h,
+            HttpStatus.TOO_MANY_REQUESTS
+        )
+    }
 
     @ResponseBody
     @ExceptionHandler(value = [QrCodeNotFoundException::class])

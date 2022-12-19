@@ -15,6 +15,8 @@ class UnsafeURIException(val url: String) : Exception("[$url] is not safe")
 
 class RedirectUnsafeException : Exception("URI is not safe")
 
-class RedirectionNotValidatedException : Exception("URI has not been validated yet")
+class RedirectionNotValidatedException(refillTime: Long): Exception("URI has not been validated yet") {
+    val refillTime : Long = refillTime
+}
 
 class QrCodeNotFoundException : Exception("QR code has not been generated yet")

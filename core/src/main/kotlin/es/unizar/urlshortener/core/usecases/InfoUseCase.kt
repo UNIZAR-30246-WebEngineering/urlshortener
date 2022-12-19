@@ -27,20 +27,24 @@ data class URLData(
  */
 class InfoUseCaseImpl(
     private val shortUrlRepository: ShortUrlRepositoryService,
+    private val redirectionLimitService: RedirectionLimitService
 ) : InfoUseCase {
 
     override fun getInfo(hash: String): URLData {
         shortUrlRepository.findByKey(hash)?.let {
+            // This throws 429 only if redirection exists but rate limit has been reached
+            redirectionLimitService.checkLimit(hash)
 
-            if (it.properties.qr == true)
-                println("pito" + it.properties.qr)
-            else {
-                println("pato" + it.properties.qr)
-            }
+            // Been validated but it's not safe
+            it.properties.safe?.let { safe ->
+                if (!safe) {
+                    throw RedirectUnsafeException() // Throw 403 exists but cant be used for redirections
+                }
+            }?: throw RedirectionNotValidatedException(5) // Throw 400 URI exists but not confirmed whether it's safe or not
 
             return URLData(
-                url = it.redirection.target,
-                target = "http://localhost:8080/$hash",
+                url = "http://localhost:8080/$hash",
+                target = it.redirection.target,
                 lat = it.properties.lat,
                 lon = it.properties.lon,
                 qr = if (it.properties.qr == true) "http://localhost:8080/$hash/qr" else null,

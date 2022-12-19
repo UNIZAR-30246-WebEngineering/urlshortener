@@ -212,7 +212,7 @@ class UrlShortenerControllerTest {
             qrCodeUseCase.getQR(
                 hash = "qwerty"
             )
-        ).willAnswer { throw RedirectionNotValidatedException() }
+        ).willAnswer { throw RedirectionNotValidatedException(5) }
 
         mockMvc.perform(
             get("http://localhost/{hash}/qr", "qwerty")

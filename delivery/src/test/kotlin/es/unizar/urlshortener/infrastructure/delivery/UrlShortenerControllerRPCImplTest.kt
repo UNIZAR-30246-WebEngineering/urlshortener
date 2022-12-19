@@ -54,12 +54,12 @@ class UrlShortenerControllerRPCImplTest {
 
     @Test
     fun `getRedirectUseCase returns a redirect when the key exist`() {
-        /*val result: Mono<String> = requester
+        val result: Mono<String> = requester
             .route("create")
             .data("http://example.com/ qr 0")
-            .retrieveMono(String::class.java)*/
+            .retrieveMono(String::class.java)
 
-        /*
+
         StepVerifier
             .create(result)
             .consumeNextWith { message ->
@@ -67,15 +67,15 @@ class UrlShortenerControllerRPCImplTest {
                 AssertionErrors.assertEquals("El mensaje", message.toString(), "http://localhost:8080/f684a3c4")
             }
             .verifyComplete()
-         */
 
+/*
         given(
             requester
                 .route("create")
                 .data("http://example.com/ qr 0")
                 .retrieveMono(String::class.java)
         ).willReturn(Mono.just("http://localhost:8080/f684a3c4"))
-
+*/
 
     }
 /*

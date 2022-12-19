@@ -62,6 +62,11 @@ data class ShortUrlDataIn(
  */
 data class ShortUrlDataOut(
     val url: URI? = null,
+    val target: String? = null,
+    val limit: Int? = null,
+    val lat : Double? = null,
+    val lon : Double? = null,
+    val qr: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
 
@@ -121,22 +126,32 @@ class UrlShortenerControllerImpl(
                 qr = data.qr
             ),
 
-            ).let {
-            val h = HttpHeaders()
-            val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-            h.location = url
+            ).let {shortUrl ->
+                val h = HttpHeaders()
+                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(shortUrl.hash, request) }.toUri()
+                h.location = url
 
-            it.properties.safe?.let {
-                // Not null nula y safe (it) es true si no se lanza una excepción en create
-                val response = ShortUrlDataOut(
-                    url = url,
-                )
-                return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+            shortUrl.properties.safe?.let {
+                    // Not null nula y safe (it) es true si no se lanza una excepción en create
+                    val response = ShortUrlDataOut(
+                        url = url,
+                        target = data.url,
+                        limit = data.limit,
+                        lat = shortUrl.properties.lat,
+                        lon = shortUrl.properties.lon,
+                        qr = "http://localhost/${shortUrl.hash}/qr",
+                    )
+                    return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
 
-                // Es null no ha sido validada todavía
+            // Es null no ha sido validada todavía
             } ?: run {
                 val response = ShortUrlDataOut(
                     url = url,
+                    target = data.url,
+                    limit = data.limit,
+                    lat = shortUrl.properties.lat,
+                    lon = shortUrl.properties.lon,
+                    qr = "http://localhost/${shortUrl.hash}/qr",
                     properties = mapOf("error" to "URI de destino no validada todavía")
                 )
                 return ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)

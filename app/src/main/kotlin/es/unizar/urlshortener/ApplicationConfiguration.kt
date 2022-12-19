@@ -58,7 +58,7 @@ class ApplicationConfiguration(
     fun qrCodeUseCase() = QRCodeUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
-    fun InfoUseCase() = InfoUseCaseImpl(shortUrlRepositoryService())
+    fun InfoUseCase() = InfoUseCaseImpl(shortUrlRepositoryService(), redirectionLimitService())
 
     @Bean
     fun createShortUrlUseCase() =

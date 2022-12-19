@@ -40,7 +40,7 @@ class RedirectUseCaseImpl(
                 }
             } else {
                 // No ha sido validada aun
-                throw RedirectionNotValidatedException()
+                throw RedirectionNotValidatedException(5)
             }
         }
 

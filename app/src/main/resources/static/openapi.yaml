@@ -47,6 +47,7 @@ paths:
               qr:
                 type: boolean
                 example: true
+
       tags: 
         - Uniform Resource Identifier
       responses:  
@@ -58,12 +59,37 @@ paths:
               description: Absolute path to the created trimmed URI
           schema:
             type: object
-            $ref: '#/definitions/shorturl'
+            required:
+              - url
+            properties:
+              url:
+                type: string
+                description: "URL to short begining with [\"http://www.\"]"
+                example: https://www.google.com
+              limit:
+                type: integer
+                description: "Maximum number of redirections of the ShortURL"
+                example: 4
+              lat:
+                type: number
+                description: "Latitude of the user that created the shortURL"
+                example: 41.5421788
+              lon:
+                type: number
+                description: "Latitude of the user that created the shortURL"
+                example: -0.991461
+              qr:
+                type: boolean
+                description: "Whether a QR has to be created or not"
+                example: true
+              properties:
+                type: json
+                example: {"error": "URI de destino no validada todavía"}
         "400":
           description: URI cannot be created
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error400'
       x-codeSamples:
         - lang: 'Curl'
           source: |
@@ -135,12 +161,12 @@ paths:
               description: Time in second to wait until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error400-not-validated'
         "403":
           description: Trimmed URI exists and cannot be used for redirections
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error403'
         "429":
           description: Shortened URI exists and too many requests have been sent during a given amount of time
           headers:
@@ -149,7 +175,7 @@ paths:
               description: Time in second to wait until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error429'
       x-codeSamples:
         - lang: 'Curl'
           source: |
@@ -300,32 +326,90 @@ definitions:
     properties:
       url:
         type: string
-        description: ""
-        example: "http://www.google.com"
+        description: "Shortened URL"
+        example: "http://localhost:8080/4170157c"
       target:
         type: string
-        description: ""
-        example: "http://localhost:8080/4170157c"
+        description: "Target URL"
+        example: "http://www.google.com"
       lat:
         type: number
-        description: ""
+        description: "Latitude of the user that created the shortURL"
         example: 41.5421788
         x-nullable: true
       lon:
         type: number
-        description: ""
+        description: "Longitude of the user that created the shortURL"
         example: -0.991461
         x-nullable: true
       qr:
         type: string
-        description: ""
+        description: "Link to the QR endpoint"
         example: "http://localhost:8080/4170157c/qr"
         x-nullable: true
       safe:
         type: boolean
-        description: ""
+        description: "Whether the uri is safe or not"
         example: true
   Error:
     properties:
       message:
         type: string
+  Error400:
+    properties:
+      statusCode:
+        type: integer
+        description: "Http status"
+        example: "400"
+      message:
+        type: string
+        description: "Description of the error"
+        example: "[https://ww.google.com] does not follow a supported schema"
+      timestamp:
+        type: string
+        description: "Timestamp of the request"
+        example: "2022-12-19T23:58:57.70665+01:00"
+  Error400-not-validated:
+    properties:
+      statusCode:
+        type: integer
+        description: "Http status"
+        example: "400"
+      message:
+        type: string
+        description: "Description of the error"
+        example: "URI has not been validated yet"
+      timestamp:
+        type: string
+        description: "Timestamp of the request"
+        example: "2022-12-19T23:58:57.70665+01:00"
+  Error403:
+    properties:
+      statusCode:
+        type: integer
+        description: "Http status"
+        example: "403"
+      message:
+        type: string
+        description: "Description of the error"
+        example: "URI is not safe"
+      timestamp:
+        type: string
+        description: "Timestamp of the request"
+        example: "2022-12-19T23:58:57.70665+01:00"
+  Error429:
+    properties:
+      statusCode:
+        type: integer
+        description: "Http status"
+        example: "429"
+      message:
+        type: string
+        description: "Description of the error"
+        example: "Too many redirections for URL [https://ww.google.com]"
+      timestamp:
+        type: string
+        description: "Timestamp of the request"
+        example: "2022-12-19T23:58:57.70665+01:00"
+  
+
