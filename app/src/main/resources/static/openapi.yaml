@@ -11,9 +11,12 @@ host: localhost:8080
 schemes:
   - http
 # will be prefixed to all paths
-basePath: /v1
-#produces:
-#  - application/json
+basePath: /
+consumes: 
+  - application/json
+  - application/x-www-form-urlencoded
+produces:
+ - application/json
 paths:
   /api/link:
     post:
@@ -21,20 +24,29 @@ paths:
       summary: create a shortened URL
       description: Allows a user to create a shortened URL
       parameters:
-        - in: body
-          name: URI
+        - name: request
+          in: body
           description: The uri to short
           schema:
             type: object
             required:
-              - uri
+              - url
             properties:
-              uri:
+              url:
                 type: string
-                example: "https://google.com"
+                example: https://www.google.com
+              limit:
+                type: integer
+                example: 4
+              lat:
+                type: number
+                example: 41.5421788
+              lon:
+                type: number
+                example: -0.991461
               qr:
                 type: boolean
-                example: "true"
+                example: true
       tags: 
         - Uniform Resource Identifier
       responses:  
@@ -52,6 +64,16 @@ paths:
           schema: 
             type: object
             $ref: '#/definitions/Error'
+      x-codeSamples:
+        - lang: 'Curl'
+          source: |
+            bash
+        - lang: 'JavaScript'
+          source: |
+            javascript
+        - lang: 'Python'
+          source: |
+            javascript
   /api/link/{id}:
     get:
       operationId: getlink
@@ -73,6 +95,10 @@ paths:
             $ref: '#/definitions/shorturl'
         "400":
           description: Trimmed URI exists and it has not yet been confirmed whether or not the redirection can be made
+          headers: 
+            Retry-After:
+              type: number 
+              description: Time in second to wait until next request
           schema: 
             type: object
             $ref: '#/definitions/Error'
@@ -90,7 +116,17 @@ paths:
           schema: 
             type: object
             $ref: '#/definitions/Error'
-  /api/{id}:
+      x-codeSamples:
+        - lang: 'Curl'
+          source: |
+            bash
+        - lang: 'JavaScript'
+          source: |
+            javascript
+        - lang: 'Python'
+          source: |
+            javascript
+  /{id}:
     get:
       operationId: redirect
       summary: Get redirect
@@ -103,23 +139,19 @@ paths:
           type: string
       tags: 
         - Uniform Resource Identifier
-      responses:  
-        "200":
-          description: Advertising
-          schema:
-            type: object
-            $ref: '#/definitions/Error'
+      responses:
         "307":
           description: Trimmed URI exists and it has been confirmed that the redirection can be performed
-          schema: 
-            type: object
-            $ref: '#/definitions/Error'
+          headers:
+            Location: 
+              type: string
+              description: Absolute path to the created trimmed URI
         "400":
           description: Trimmed URI exists and it has not yet been confirmed whether or not the redirection can be made
           headers: 
             Retry-After:
               type: string 
-              description: time in seconds until next attempt
+              description: time in seconds until next request
           schema: 
             type: object
             $ref: '#/definitions/Error'
@@ -137,7 +169,17 @@ paths:
           schema: 
             type: object
             $ref: '#/definitions/Error'
-  /api/{id}/qr:
+      x-codeSamples:
+        - lang: 'Curl'
+          source: |
+            bash
+        - lang: 'JavaScript'
+          source: |
+            javascript
+        - lang: 'Python'
+          source: |
+            javascript
+  /{id}/qr:
     get:
       operationId: qr
       summary: Get QR
@@ -155,8 +197,10 @@ paths:
           description: Trimmed URI exists and it has been confirmed that the redirection can be performed
           headers: 
             Content-Type:
-              type: string 
-              description: The format used by the QR code must be PNG, SVG or PDF
+              type: string
+              enum: 
+                - image/png
+              description: The format used by the QR code is PNG
           schema:
             type: object
             $ref: '#/definitions/Error' 
@@ -165,7 +209,7 @@ paths:
           headers: 
             Retry-After:
               type: string 
-              description: Time in seconds until next attempt
+              description: Time in seconds until next request
           schema: 
             type: object
             $ref: '#/definitions/Error'
@@ -183,77 +227,47 @@ paths:
           schema: 
             type: object
             $ref: '#/definitions/Error'
+      x-codeSamples:
+        - lang: 'Curl'
+          source: |
+            bash
+        - lang: 'JavaScript'
+          source: |
+            javascript
+        - lang: 'Python'
+          source: |
+            javascript
 definitions:
   shorturl:
     properties:
-      hash:
+      url:
         type: string
         description: ""
-        example: ""
+        example: "http://www.google.com"
       target:
         type: string
         description: ""
-        example: ""
-      sponsor:
+        example: "http://localhost:8080/4170157c"
+      lat:
+        type: number
+        description: ""
+        example: 41.5421788
+        x-nullable: true
+      lon:
+        type: number
+        description: ""
+        example: -0.991461
+        x-nullable: true
+      qr:
         type: string
         description: ""
-        example: ""
-      created:
-        type: string
-        description: ""
-        example: ""
-      owner:
-        type: string
-        description: ""
-        example: ""
-      mode:
-        type: integer
-        description: ""
-        example: ""
+        example: "http://localhost:8080/4170157c/qr"
+        x-nullable: true
       safe:
         type: boolean
         description: ""
-        example: ""
-  click:
-    properties:
-      id: 
-        type: number
-        description: ""
-        example: ""
-      hash: 
-        type: string
-        description: ""
-        example: ""
-      created: 
-        type: string
-        description: ""
-        example: ""      
-      ip: 
-        type: string
-        description: ""
-        example: ""
-      referrer: 
-        type: string
-        description: ""
-        example: ""
-      browser: 
-        type: string
-        description: ""
-        example: ""
-      platform: 
-        type: string
-        description: ""
-        example: ""
-      country: 
-        type: string
-        description: ""
-        example: ""
+        example: true
   Error:
     properties:
-      code:
-        type: integer
-        format: int32
       message:
-        type: string
-      fields:
         type: string
