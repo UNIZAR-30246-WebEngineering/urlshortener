@@ -42,9 +42,7 @@ interface UrlShortenerControllerRPC {
 @RestController
 class UrlShortenerControllerRPCImpl (
     val redirectUseCase: RedirectUseCase,
-    val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
-    val qrCodeUseCase: QRCodeUseCase
 ) : UrlShortenerControllerRPC {
 
     @MessageMapping("redirect")

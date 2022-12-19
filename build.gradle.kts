@@ -73,6 +73,7 @@ subprojects {
         "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
         "implementation"("com.squareup.retrofit2:retrofit:2.9.0")
         "implementation"("com.squareup.retrofit2:converter-gson:2.9.0")
+        "implementation"("io.projectreactor:reactor-core:3.5.1")
     }
 
     detekt {
@@ -155,7 +156,7 @@ project(":delivery") {
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
-
+        "testImplementation"("io.projectreactor:reactor-test:3.1.0.RELEASE")
     }
 
     tasks.getByName<BootJar>("bootJar") {

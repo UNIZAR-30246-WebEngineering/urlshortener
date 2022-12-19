@@ -1,12 +1,12 @@
 package es.unizar.urlshortener
 
-import es.unizar.urlshortener.core.ShortUrlRepositoryService
 import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.*
 import es.unizar.urlshortener.infrastructure.repositories.ClickEntityRepository
 import es.unizar.urlshortener.infrastructure.repositories.ClickRepositoryServiceImpl
 import es.unizar.urlshortener.infrastructure.repositories.ShortUrlEntityRepository
 import es.unizar.urlshortener.infrastructure.repositories.ShortUrlRepositoryServiceImpl
+import es.unizar.urlshortener.rabbitqueue.Receiver
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer
@@ -14,8 +14,8 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.messaging.rsocket.RSocketRequester
 
-import es.unizar.urlshortener.rabbitqueue.Receiver
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
@@ -90,4 +90,9 @@ class ApplicationConfiguration(
         return MessageListenerAdapter(receiver, "receiveMessage")
     }
 
+    @Bean
+    fun rsocketRequester(): RSocketRequester {
+        val builder = RSocketRequester.builder()
+        return builder.tcp("localhost", 8888)
+    }
 }
