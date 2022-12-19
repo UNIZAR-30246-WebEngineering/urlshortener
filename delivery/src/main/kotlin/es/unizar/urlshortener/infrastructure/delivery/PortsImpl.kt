@@ -6,8 +6,6 @@ import es.unizar.urlshortener.core.QrService
 import es.unizar.urlshortener.core.ValidatorService
 import io.github.g0dkar.qrcode.QRCode
 import org.apache.commons.validator.routines.UrlValidator
-import org.springframework.core.io.ByteArrayResource
-import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 
@@ -31,9 +29,9 @@ class HashServiceImpl : HashService {
 }
 
 class QrServiceImpl : QrService {
-    override fun getQr(url: String): ByteArrayResource =
+    override fun getQr(url: String): ByteArray =
         ByteArrayOutputStream().let {
             QRCode(url).render().writeImage(it)
-            ByteArrayResource(it.toByteArray(), IMAGE_PNG_VALUE)
+            it.toByteArray()
         }
 }

@@ -24,6 +24,7 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class HttpRequestTest {
@@ -123,8 +124,8 @@ class HttpRequestTest {
 
     @Test
     fun `qr returns an image when the key exists`() {
-        shortUrl("http://shop.mango.com/es")
-
+        shortUrlQR("http://shop.mango.com/es")
+        TimeUnit.SECONDS.sleep(2L)
         val response = callQR("http://localhost:$port/f9e0870d/qr")
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.body).isNotNull

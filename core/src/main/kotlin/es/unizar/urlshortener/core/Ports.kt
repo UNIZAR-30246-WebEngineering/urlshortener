@@ -1,7 +1,5 @@
 package es.unizar.urlshortener.core
 
-import org.springframework.core.io.ByteArrayResource
-
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
@@ -36,5 +34,5 @@ interface HashService {
 }
 
 interface QrService {
-    fun getQr(url: String): ByteArrayResource
+    fun getQr(url: String): ByteArray
 }

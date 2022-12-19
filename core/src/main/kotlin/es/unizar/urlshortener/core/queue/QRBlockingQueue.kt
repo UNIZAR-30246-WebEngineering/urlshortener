@@ -19,7 +19,6 @@ open class QRBlockingQueue(
         if (!qrQueue.isEmpty()) {
             val result = qrQueue.take()
             qrCodeUseCase.generateQR(result.first, result.second)
-            println(result)
         }
     }
 }

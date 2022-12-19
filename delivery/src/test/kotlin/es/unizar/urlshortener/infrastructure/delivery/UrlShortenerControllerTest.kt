@@ -20,7 +20,6 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
@@ -146,17 +145,17 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `qr returns an image when the key exists`() {
-        given(qrCodeUseCase.generateQR("key", "url")).willReturn(ByteArrayResource("Hello".toByteArray()))
+        given(qrCodeUseCase.getQR("key")).willReturn("Hello".toByteArray())
 
         mockMvc.perform(get("/{id}/qr", "key"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.IMAGE_PNG))
-            .andDo(print())
+            .andExpect(content().bytes("Hello".toByteArray()))
     }
 
     @Test
     fun `qr returns a not found when the key does not exist`() {
-        given(qrCodeUseCase.generateQR("key", "url"))
+        given(qrCodeUseCase.getQR("key"))
             .willAnswer { throw RedirectionNotFound("key") }
 
         mockMvc.perform(get("/{id}/qr", "key"))

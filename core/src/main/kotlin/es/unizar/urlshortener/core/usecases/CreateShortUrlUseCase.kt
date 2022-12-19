@@ -29,7 +29,8 @@ class CreateShortUrlUseCaseImpl(
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
         if (validatorService.isValid(url)) {
             val id: String = hashService.hasUrl(url)
-            val su = ShortUrl(
+
+            val short = ShortUrl(
                 hash = id,
                 redirection = Redirection(target = url),
                 properties = ShortUrlProperties(
@@ -39,7 +40,7 @@ class CreateShortUrlUseCaseImpl(
                     qr = data.qr
                 )
             )
-            shortUrlRepository.save(su)
+            shortUrlRepository.save(short)
         } else {
             throw InvalidUrlException(url)
         }
