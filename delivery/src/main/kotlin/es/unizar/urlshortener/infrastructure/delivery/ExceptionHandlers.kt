@@ -1,5 +1,6 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
+import es.unizar.urlshortener.core.InfoNotAvailable
 import es.unizar.urlshortener.core.InvalidUrlException
 import es.unizar.urlshortener.core.RedirectionNotFound
 import es.unizar.urlshortener.core.WebUnreachable
@@ -29,6 +30,11 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(value = [WebUnreachable::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun unreachableWeb(ex: WebUnreachable) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+
+    @ResponseBody
+    @ExceptionHandler(value = [InfoNotAvailable::class])
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun unreachableWeb(ex: InfoNotAvailable) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 }
 
 data class ErrorMessage(

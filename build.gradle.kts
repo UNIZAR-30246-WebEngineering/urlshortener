@@ -50,7 +50,11 @@ subprojects {
     }
 }
 
-project(":core") {}
+project(":core") {
+    dependencies{
+        "implementation"("io.github.microutils:kotlin-logging-jvm:2.0.11")
+    }
+}
 
 project(":repositories") {
     apply(plugin = "org.springframework.boot")
@@ -77,7 +81,8 @@ project(":delivery") {
         "implementation"("commons-validator:commons-validator:$commonsValidatorVersion")
         "implementation"("com.google.guava:guava:$guavaVersion")
         "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
-
+        "implementation"("org.springframework.retry:spring-retry")
+        "implementation"("org.springframework:spring-aspects")
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
     }

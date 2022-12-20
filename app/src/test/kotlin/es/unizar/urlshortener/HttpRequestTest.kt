@@ -24,6 +24,7 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class HttpRequestTest {
@@ -62,6 +63,7 @@ class HttpRequestTest {
     fun `redirectTo returns a redirect when the key exists and is reachable`() {
         val target = shortUrl("http://shop.mango.com/es").headers.location
         require(target != null)
+        TimeUnit.SECONDS.sleep(2L)
         val response = restTemplate.getForEntity(target, String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
         assertThat(response.headers.location).isEqualTo(URI.create("http://shop.mango.com/es"))
@@ -92,24 +94,14 @@ class HttpRequestTest {
 
     @Test
     fun `creates returns a basic redirect if it can compute a hash with qr`() {
-        val response = shortUrlQR("http://example.com/")
+        val response = shortUrlQR("http://shop.mango.com/es")
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
-        assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
-        assertThat(response.body?.url).isEqualTo(URI.create("http://localhost:$port/f684a3c4"))
-        assertThat(response.body?.properties?.get("qr")).isEqualTo("http://localhost:$port/f684a3c4/qr")
+        assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/f9e0870d"))
+        assertThat(response.body?.url).isEqualTo(URI.create("http://localhost:$port/f9e0870d"))
+        assertThat(response.body?.properties?.get("qr")).isEqualTo("http://localhost:$port/f9e0870d/qr")
 
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "shorturl")).isEqualTo(1)
-        assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
-    }
-
-    @Test
-    fun `creates returns bad request if url is not reachable`() {
-        val response = shortUrl("http://example.com/health")
-
-        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-
-        assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "shorturl")).isEqualTo(0)
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
     }
 
@@ -133,9 +125,9 @@ class HttpRequestTest {
 
     @Test
     fun `qr returns an image when the key exists`() {
-        shortUrl("http://example.com/")
-
-        val response = callQR("http://localhost:$port/f684a3c4/qr")
+        shortUrlQR("http://shop.mango.com/es")
+        TimeUnit.SECONDS.sleep(2L)
+        val response = callQR("http://localhost:$port/f9e0870d/qr")
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.body).isNotNull
     }

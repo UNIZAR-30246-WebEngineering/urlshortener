@@ -15,12 +15,16 @@ import es.unizar.urlshortener.infrastructure.repositories.ShortUrlRepositoryServ
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.time.OffsetDateTime
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
  *
  * **Note**: Spring Boot is able to discover this [Configuration] without further configuration.
  */
+@Suppress("TooManyFunctions")
 @Configuration
 class ApplicationConfiguration(
     @Autowired val shortUrlEntityRepository: ShortUrlEntityRepository,
@@ -53,8 +57,20 @@ class ApplicationConfiguration(
 
     @Bean
     fun qrCodeUseCase() =
-        QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService())
+        QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService(), qrMap())
 
     @Bean
-    fun reachableWebUseCase() = ReachableWebUseCaseImpl()
+    fun reachableWebUseCase() = ReachableWebUseCaseImpl(reachableMap(), reachableQueue())
+
+    @Bean
+    fun qrQueue(): BlockingQueue<Pair<String, String>> = LinkedBlockingQueue()
+
+    @Bean
+    fun reachableQueue(): BlockingQueue<String> = LinkedBlockingQueue()
+
+    @Bean
+    fun qrMap(): HashMap<String, ByteArray> = HashMap()
+
+    @Bean
+    fun reachableMap(): HashMap<String, Pair<Boolean, OffsetDateTime>> = HashMap()
 }
