@@ -59,8 +59,6 @@ paths:
               description: Absolute path to the created trimmed URI
           schema:
             type: object
-            required:
-              - url
             properties:
               url:
                 type: string
@@ -83,7 +81,11 @@ paths:
                 description: "Whether a QR has to be created or not"
                 example: true
               properties:
-                type: json
+                type: object
+                properties: 
+                  error:
+                    type: string
+                    description: Description of what has happened
                 example: {"error": "URI de destino no validada todavía"}
         "400":
           description: URI cannot be created
@@ -222,12 +224,12 @@ paths:
               description: time in seconds until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error400-not-validated'
         "403":
           description: Trimmed URI exists and cannot be used for redirections
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error403'
         "429":
           description: Shortened URI exists and too many requests have been sent during a given amount of time
           headers:
@@ -236,7 +238,7 @@ paths:
               description: Time in second to wait until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error429'
       x-codeSamples:
         - lang: 'Curl'
           source: |
@@ -277,9 +279,6 @@ paths:
               enum: 
                 - image/png
               description: The format used by the QR code is PNG
-          schema:
-            type: object
-            $ref: '#/definitions/Error' 
         "400":
           description: Trimmed URI exists and it has not yet been confirmed whether or not the redirection can be made
           headers: 
@@ -288,12 +287,12 @@ paths:
               description: Time in seconds until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error400-not-validated'
         "403":
           description: Trimmed URI exists and cannot be used for redirections
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error403'
         "429":
           description: Shortened URI exists and too many requests have been sent during a given amount of time
           headers:
@@ -302,7 +301,7 @@ paths:
               description: time in second to wait until next request
           schema: 
             type: object
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/Error429'
       x-codeSamples:
         - lang: 'Curl'
           source: |
@@ -359,7 +358,7 @@ definitions:
     properties:
       statusCode:
         type: integer
-        description: "Http status"
+        description: "Protocol status code"
         example: "400"
       message:
         type: string
@@ -373,7 +372,7 @@ definitions:
     properties:
       statusCode:
         type: integer
-        description: "Http status"
+        description: "Protocol status code"
         example: "400"
       message:
         type: string
@@ -387,7 +386,7 @@ definitions:
     properties:
       statusCode:
         type: integer
-        description: "Http status"
+        description: "Protocol status code"
         example: "403"
       message:
         type: string
@@ -401,7 +400,7 @@ definitions:
     properties:
       statusCode:
         type: integer
-        description: "Http status"
+        description: "Protocol status code"
         example: "429"
       message:
         type: string

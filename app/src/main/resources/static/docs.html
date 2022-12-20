@@ -7,7 +7,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet" />
-
+  <link rel="preload" href="css/style.css" as="style" />
+  <link rel="stylesheet" href="css/style.css" data-n-g="" />
   <!--  Redoc doesn't change outer page styles  -->
   <style>
     body {
@@ -18,6 +19,24 @@
 </head>
 
 <body>
+  <div class="px-4 w-full flex h-16 items-center justify-between border-b">
+    <div class="flex items-center">
+      <a href="/">
+        <img alt="Dub.sh logo" srcSet="images/logotype.svg 1x, images/logotype.svg 2x" src="images/logotype.svg"
+          width="160" height="236" decoding="async" data-nimg="1" loading="lazy" style="color:transparent" />
+      </a>
+    </div>
+    <div class="flex">
+      <a href="/index.html"
+        class="rounded-full border border-black bg-black py-1.5 px-3 text-xs md:text-sm text-white transition-all hover:bg-white hover:text-black"
+        style="margin-right: 5px">Home</a>
+      <a href="http://localhost:15672"
+        class="rounded-full border border-black bg-black py-1.5 px-3 text-xs md:text-sm text-white transition-all hover:bg-white hover:text-black"
+        style="margin-right: 5px">Rabbit</a>
+      <a href="http://localhost:9000"
+        class="rounded-full border border-black bg-black py-1.5 px-3 text-xs md:text-sm text-white transition-all hover:bg-white hover:text-black">Sonar</a>
+    </div>
+  </div>
   <!--  Redoc element with link to your OpenAPI definition  -->
   <redoc spec-url="./openapi.yaml"></redoc>
   <!--  Link to Redoc JavaScript on CDN for rendering standalone element  -->
