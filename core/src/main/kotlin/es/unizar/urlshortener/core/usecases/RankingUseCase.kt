@@ -63,5 +63,4 @@ class RankingUseCaseImpl(
         System.out.println(mylist)
         return mylist
     }
-
 }

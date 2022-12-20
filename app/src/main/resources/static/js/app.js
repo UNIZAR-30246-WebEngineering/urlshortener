@@ -25,7 +25,11 @@ function getURL(url, qr){
         })
         .then(response => {
             if (response.properties.qr) {
-                getQR(response.url, response.properties.qr)
+                document.getElementById('result').innerHTML =
+                    `<div class='alert alert-success lead'>
+                    <a target='_blank' href="${response.url}">${response.url}</a>
+                    <a target='_blank' href="${response.properties.qr}">${response.properties.qr}</a>
+                    </div>`;
             }
             else {
                 document.getElementById('result').innerHTML =
@@ -40,32 +44,16 @@ function getURL(url, qr){
         );
 }
 
-function getQR(url, qr){
-    var widthProp = "-webkit-fill-available"
+document
+    .getElementById('shortener')
+    .addEventListener('submit', getData);
 
-    fetch(qr)
-        .then(response => {
-            if(!response.ok) {
-                throw Error(response.status)
-            }
-            return response.blob()
-        })
-        .then(blob => {
-            var image = URL.createObjectURL(blob);
-            document.getElementById('result').innerHTML =
-                `<div class='alert alert-success lead'>
-                    <a target='_blank' href="${url}">${url}</a>
-                    <br>
-                    <img src="${image}" style="width: ${widthProp};margin: 1rem 0; border-radius: 5%; border: 15px solid white"/>
-                </div>`;
-        })
-        .catch(() =>
-            document.getElementById('result').innerHTML =
-                `<div class='alert alert-danger lead'>ERROR</div>`
-        );
-}
+document
+    .getElementById('ranking')
+    .addEventListener('submit', getRanking);
 
-function ranking(){
+function getRanking(){
+    event.preventDefault();
     fetch('http://localhost:8080/api/link')
         .then(response => {
             if(!response.ok) {
@@ -74,18 +62,12 @@ function ranking(){
             return response.json()
         })
         .then(response => {
-            document.getElementById('list').innerHTML =
-                `<div class='alert alert-success lead'>
-
-                </div>`;
-            }
+            response.list.forEach(e => {
+                document.getElementById('list').innerHTML += `<li>${e.hash}     ${e.sum}</li>`
+            })
         })
         .catch(() =>
-            document.getElementById('result').innerHTML =
+            document.getElementById('result-list').innerHTML =
                 `<div class='alert alert-danger lead'>ERROR</div>`
         );
 }
-
-document
-    .getElementById('shortener')
-    .addEventListener('submit', getData);
