@@ -1,24 +1,49 @@
-$(document).ready(
-    function () {
-        $("#shortener").submit(
-            function (event) {
-                event.preventDefault();
-                $.ajax({
-                    type: "POST",
-                    url: "/api/link",
-                    data: $(this).serialize(),
-                    success: function (msg, status, request) {
-                        $("#result").html(
-                            "<div class='alert alert-success lead'><a target='_blank' href='"
-                            + request.getResponseHeader('Location')
-                            + "'>"
-                            + request.getResponseHeader('Location')
-                            + "</a></div>");
-                    },
-                    error: function () {
-                        $("#result").html(
-                            "<div class='alert alert-danger lead'>ERROR</div>");
-                    }
-                });
-            });
-    });
+function getData(event) {
+    event.preventDefault();
+    getURL(document.getElementsByName('url').item(0).value,
+        document.getElementsByName('qr').item(0).checked);
+}
+
+function getURL(url, qr){
+    let encodedBody = new URLSearchParams();
+    encodedBody.append('url', url);
+    encodedBody.append('qr', qr ? "true" : "false");
+
+    const options = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: encodedBody
+
+    };
+      
+    fetch('http://localhost:8080/api/link', options)
+        .then(response => {
+            if(!response.ok) {
+                throw Error(response.status)
+            } 
+            return response.json()
+        })
+        .then(response => {
+            if (response.properties.qr) {
+                document.getElementById('result').innerHTML =
+                    `<div class='alert alert-success lead'>
+                    <a target='_blank' href="${response.url}">${response.url}</a>
+                    <a target='_blank' href="${response.properties.qr}">${response.properties.qr}</a>
+                    </div>`;
+            }
+            else {
+                document.getElementById('result').innerHTML =
+                    `<div class='alert alert-success lead'>
+                    <a target='_blank' href="${response.url}">${response.url}</a>
+                    </div>`;
+            }
+        })
+        .catch(() =>
+            document.getElementById('result').innerHTML =
+                `<div class='alert alert-danger lead'>ERROR</div>`
+        );
+}
+
+document
+    .getElementById('shortener')
+    .addEventListener('submit', getData);

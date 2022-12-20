@@ -2,8 +2,11 @@ package es.unizar.urlshortener
 
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCaseImpl
 import es.unizar.urlshortener.core.usecases.LogClickUseCaseImpl
+import es.unizar.urlshortener.core.usecases.QrCodeUseCaseImpl
+import es.unizar.urlshortener.core.usecases.ReachableWebUseCaseImpl
 import es.unizar.urlshortener.core.usecases.RedirectUseCaseImpl
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
+import es.unizar.urlshortener.infrastructure.delivery.QrServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.RabbitmqImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
 import es.unizar.urlshortener.infrastructure.repositories.ClickEntityRepository
@@ -20,6 +23,9 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.time.OffsetDateTime
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
@@ -45,6 +51,9 @@ class ApplicationConfiguration(
     fun hashService() = HashServiceImpl()
 
     @Bean
+    fun qrService() = QrServiceImpl()
+
+    @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
@@ -53,6 +62,25 @@ class ApplicationConfiguration(
     @Bean
     fun createShortUrlUseCase() =
         CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(), hashService())
+
+    @Bean
+    fun qrCodeUseCase() =
+        QrCodeUseCaseImpl(shortUrlRepositoryService(), qrService(), qrMap())
+
+    @Bean
+    fun reachableWebUseCase() = ReachableWebUseCaseImpl(reachableMap(), reachableQueue())
+
+    @Bean
+    fun qrQueue(): BlockingQueue<Pair<String, String>> = LinkedBlockingQueue()
+
+    @Bean
+    fun reachableQueue(): BlockingQueue<String> = LinkedBlockingQueue()
+
+    @Bean
+    fun qrMap(): HashMap<String, ByteArray> = HashMap()
+
+    @Bean
+    fun reachableMap(): HashMap<String, Pair<Boolean, OffsetDateTime>> = HashMap()
 
     companion object {
         const val topicExchangeName: String = "rabbitmq-exchange"

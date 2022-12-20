@@ -2,10 +2,13 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.google.common.hash.Hashing
 import es.unizar.urlshortener.core.HashService
+import es.unizar.urlshortener.core.QrService
 import es.unizar.urlshortener.core.ValidatorService
+import io.github.g0dkar.qrcode.QRCode
 import org.apache.commons.validator.routines.UrlValidator
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
+import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -75,4 +78,12 @@ fun googleSafeBrowsing(url: String): Boolean {
         .build()
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
     return response.toString().contains("200") && response.body().length <= N_GOOGLE_GOOD_RESPONSE
+}
+
+class QrServiceImpl : QrService {
+    override fun getQr(url: String): ByteArray =
+        ByteArrayOutputStream().let {
+            QRCode(url).render().writeImage(it)
+            it.toByteArray()
+        }
 }

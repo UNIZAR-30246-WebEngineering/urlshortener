@@ -24,22 +24,24 @@ interface CreateShortUrlUseCase {
 class CreateShortUrlUseCaseImpl(
     private val shortUrlRepository: ShortUrlRepositoryService,
     private val validatorService: ValidatorService,
-    private val hashService: HashService,
+    private val hashService: HashService
 ) : CreateShortUrlUseCase {
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
         if (validatorService.isValid(url)) {
             val id: String = hashService.hasUrl(url)
-            val su = ShortUrl(
+
+            val short = ShortUrl(
                 hash = id,
                 redirection = Redirection(target = url),
                 properties = ShortUrlProperties(
                     ip = data.ip,
-                    sponsor = data.sponsor
+                    sponsor = data.sponsor,
+                    qr = data.qr
                 )
             )
             validatorService.sendToRabbit(url, id)
 
-            shortUrlRepository.save(su)
+            shortUrlRepository.save(short)
         } else {
             throw InvalidUrlException(url)
         }

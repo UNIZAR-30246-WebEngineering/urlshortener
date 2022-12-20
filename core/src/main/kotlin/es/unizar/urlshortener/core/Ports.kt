@@ -36,3 +36,7 @@ interface ValidatorService {
 interface HashService {
     fun hasUrl(url: String): String
 }
+
+interface QrService {
+    fun getQr(url: String): ByteArray
+}
