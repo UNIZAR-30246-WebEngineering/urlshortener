@@ -62,8 +62,12 @@ class HttpRequestTest {
         val target = shortUrl(
             url = "http://example.com/",
             limit = 0,
+            lat = 42.223,
+            lon = 1.223,
             qr = false
         ).headers.location
+        Thread.sleep(1000)
+
         require(target != null)
         val response = restTemplate.getForEntity(target, String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
@@ -84,7 +88,9 @@ class HttpRequestTest {
     fun `creates returns a basic redirect if it can compute a hash`() {
         val response = shortUrl(
             url = "http://example.com/",
-            limit = 0,
+            limit = 5,
+            lat = 42.2234,
+            lon = 1.2234,
             qr = true
         )
 
@@ -115,7 +121,8 @@ class HttpRequestTest {
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
     }
 
-    private fun shortUrl(url: String, limit: Int, qr: Boolean): ResponseEntity<ShortUrlDataOut> {
+    private fun shortUrl(url: String, limit: Int, lat: Double, lon: Double, qr: Boolean):
+            ResponseEntity<ShortUrlDataOut> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
@@ -123,6 +130,8 @@ class HttpRequestTest {
         data["url"] = url
         data["limit"] = limit.toString()
         data["static/qr"] = qr.toString()
+        data["lat"] = lat.toString()
+        data["lon"] = lon.toString()
 
         return restTemplate.postForEntity(
             "http://localhost:$port/api/link",

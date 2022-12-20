@@ -40,8 +40,8 @@ class QRCodeUseCaseImpl(
                     }
                 }
             // No ha sido validada safe es null
-            } ?: throw RedirectionNotValidatedException(5)
+            } ?: throw RedirectionNotValidatedException(RETRY_AFTER)
         // No existe la URL es null
-        } ?: throw RedirectionNotValidatedException(5)
+        } ?: throw RedirectionNotValidatedException(RETRY_AFTER)
     }
 }

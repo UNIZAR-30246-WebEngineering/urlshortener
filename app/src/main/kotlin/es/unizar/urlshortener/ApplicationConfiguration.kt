@@ -1,3 +1,4 @@
+@file:Suppress("WildcardImport")
 package es.unizar.urlshortener
 
 import es.unizar.urlshortener.core.usecases.*
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.rsocket.RSocketRequester
 
+const val PORT_NUM = 8888
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
@@ -58,7 +60,7 @@ class ApplicationConfiguration(
     fun qrCodeUseCase() = QRCodeUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
-    fun InfoUseCase() = InfoUseCaseImpl(shortUrlRepositoryService(), redirectionLimitService())
+    fun infoUseCase() = InfoUseCaseImpl(shortUrlRepositoryService(), redirectionLimitService())
 
     @Bean
     fun createShortUrlUseCase() =
@@ -93,6 +95,6 @@ class ApplicationConfiguration(
     @Bean
     fun rsocketRequester(): RSocketRequester {
         val builder = RSocketRequester.builder()
-        return builder.tcp("localhost", 8888)
+        return builder.tcp("localhost", PORT_NUM)
     }
 }

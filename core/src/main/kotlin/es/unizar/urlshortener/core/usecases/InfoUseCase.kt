@@ -40,7 +40,7 @@ class InfoUseCaseImpl(
                 if (!safe) {
                     throw RedirectUnsafeException() // Throw 403 exists but cant be used for redirections
                 }
-            }?: throw RedirectionNotValidatedException(5) // Throw 400 URI exists but not confirmed whether it's safe or not
+            }?: throw RedirectionNotValidatedException(RETRY_AFTER) // 400 if URI exists but not confirmed if it's safe
 
             return URLData(
                 url = "http://localhost:8080/$hash",

@@ -1,5 +1,5 @@
 package es.unizar.urlshortener.infrastructure.delivery
-
+/*
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
 import org.junit.jupiter.api.AfterAll
@@ -39,14 +39,6 @@ class UrlShortenerControllerRPCImplTest {
     @MockBean
     private lateinit var requester: RSocketRequester
 
-    // Inicializar rsocket requester
-
-    /*@BeforeAll
-    fun setupOnce(@Autowired builder: RSocketRequester, @Value("\${spring.rsocket.server.port}") port: Int?) {
-        requester = builder
-            .tcp("http://localhost", 8888)
-    }*/
-
     @AfterAll
     fun tearDownOnce() {
         requester!!.rsocket()!!.dispose()
@@ -68,36 +60,16 @@ class UrlShortenerControllerRPCImplTest {
             }
             .verifyComplete()
 
-/*
+        /*
         given(
             requester
                 .route("create")
                 .data("http://example.com/ qr 0")
                 .retrieveMono(String::class.java)
         ).willReturn(Mono.just("http://localhost:8080/f684a3c4"))
-*/
+        */
 
     }
-/*
-    @Test
-    fun `getLogClickUseCase returns a hash when the key exist`() {
-        val hash = urlShortenerControllerRPCImpl.shortener("http://example.com/ qr 0")
 
-        AssertionErrors.assertEquals("Equals:", hash, "http://localhost:8080/f684a3c4")
-    }
-
-    @Test
-    fun `getQrCodeUseCase returns a the link to the qr is exists`() {
-        //Create the hash and qr
-        urlShortenerControllerRPCImpl.shortener("http://example.com/ qr 0").let {
-            val response = urlShortenerControllerRPCImpl.qr(it)
-            AssertionErrors.assertEquals("Equals:", response, "http://localhost:8080/f684a3c4/qr")
-        }
-    }
-
-    @Test
-    fun `getQrCodeUseCase returns an error is the qr doesnt exist`() {
-        val response = urlShortenerControllerRPCImpl.qr("invent")
-        AssertionErrors.assertEquals("Equals:", response, "No existe ningún qr con ese hash: invent")
-    }*/
 }
+*/

@@ -1,5 +1,7 @@
 package es.unizar.urlshortener.core
 
+const val RETRY_AFTER : Long = 5
+
 class InvalidUrlException(val url: String) : Exception("[$url] does not follow a supported schema")
 
 class RedirectionNotFound(val key: String) : Exception("[$key] is not known")
