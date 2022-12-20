@@ -12,7 +12,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
-
 const val N_GOOGLE_GOOD_RESPONSE = 3
 
 /**
@@ -26,18 +25,16 @@ class ValidatorServiceImpl : ValidatorService {
     /**
      *   Send the message to Rabbitmq
      */
-    override fun sendToRabbit(url:String, id: String) {
+    override fun sendToRabbit(url: String, id: String) {
 
         rabbitTemplate.convertAndSend(
             "urlshort",
             "$url-$id"
         )
-
     }
     companion object {
         val urlValidator = UrlValidator(arrayOf("http", "https"))
     }
-
 }
 
 /**

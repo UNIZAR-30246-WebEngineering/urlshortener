@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
  * Component Rabbitmq
  */
 @Component
-class RabbitmqImpl (private val shortUrl: ShortUrlRepositoryService)
-    : Rabbitmq {
+class RabbitmqImpl(private val shortUrl: ShortUrlRepositoryService) :
+    Rabbitmq {
 
     /**
      * Call the function [googleSafeBrowsing] to prove if the url is secure
@@ -21,10 +21,9 @@ class RabbitmqImpl (private val shortUrl: ShortUrlRepositoryService)
         val url = message.substringBefore('-')
         val id = message.substringAfter('-')
 
-        if(!googleSafeBrowsing(url)){
+        if (!googleSafeBrowsing(url)) {
             shortUrl.changeSecurityGoogle(id)
-        }
-        else{
+        } else {
             shortUrl.updateSecuritySecure(id)
         }
     }

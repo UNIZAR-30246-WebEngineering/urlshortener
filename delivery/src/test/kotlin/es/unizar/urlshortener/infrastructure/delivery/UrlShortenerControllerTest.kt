@@ -1,7 +1,6 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.InvalidUrlException
 import es.unizar.urlshortener.core.Redirection
 import es.unizar.urlshortener.core.RedirectionNotFound
 import es.unizar.urlshortener.core.ShortUrl
@@ -89,23 +88,5 @@ class UrlShortenerControllerTest {
             .andExpect(status().isCreated)
             .andExpect(redirectedUrl("http://localhost/f684a3c4"))
             .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
-    }
-
-    @Test
-    fun `creates returns bad request if it can compute a hash`() {
-        given(
-            createShortUrlUseCase.create(
-                url = "ftp://example.com/",
-                data = ShortUrlProperties(ip = "127.0.0.1")
-            )
-        ).willAnswer { throw InvalidUrlException("ftp://example.com/") }
-
-        mockMvc.perform(
-            post("/api/link")
-                .param("url", "ftp://example.com/")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-        )
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.statusCode").value(400))
     }
 }

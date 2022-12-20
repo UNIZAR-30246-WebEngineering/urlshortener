@@ -48,6 +48,7 @@ subprojects {
     detekt {
         autoCorrect = true
     }
+
 }
 
 project(":core") {}
@@ -111,26 +112,3 @@ project(":app") {
     }
 }
 
-project(":rabbitmq") {
-    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
-    apply(plugin = "org.springframework.boot")
-    apply(plugin = "io.spring.dependency-management")
-    dependencies {
-        "implementation"(project(":core"))
-        "implementation"(project(":delivery"))
-        "implementation"(project(":repositories"))
-        "implementation"("org.springframework.boot:spring-boot-starter")
-        "implementation"( "org.webjars:bootstrap:$bootstrapVersion")
-        "implementation"("org.webjars:jquery:$jqueryVersion")
-        "implementation"("org.springframework.amqp:spring-rabbit:3.0.0")
-
-        "runtimeOnly"("org.hsqldb:hsqldb")
-
-        "testImplementation"("org.springframework.boot:spring-boot-starter-test")
-        "testImplementation"("org.springframework.boot:spring-boot-starter-web")
-        "testImplementation"("org.springframework.boot:spring-boot-starter-jdbc")
-        "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
-        "testImplementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
-        "testImplementation"("org.apache.httpcomponents:httpclient")
-    }
-}
