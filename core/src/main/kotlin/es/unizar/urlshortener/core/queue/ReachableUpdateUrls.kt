@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 open class ReachableUpdateUrls(
     private val reachableWebUseCase: ReachableWebUseCase
 ) {
-    @Async("executorConfig")
+    @Async("executorQueueConfig")
     @Scheduled(fixedDelay = 5000L)
     open
     fun executor() {

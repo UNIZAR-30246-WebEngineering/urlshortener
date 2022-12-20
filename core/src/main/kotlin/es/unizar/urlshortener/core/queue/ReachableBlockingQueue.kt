@@ -11,7 +11,7 @@ open class ReachableBlockingQueue(
     private val reachableQueue: BlockingQueue<String>,
     private val reachableWebUseCase: ReachableWebUseCase
 ) {
-    @Async("executorConfig")
+    @Async("executorQueueConfig")
     @Scheduled(fixedDelay = 500L)
     open
     fun executor() {

@@ -11,7 +11,7 @@ open class QRBlockingQueue(
     private val qrQueue: BlockingQueue<Pair<String, String>>,
     private val qrCodeUseCase: QrCodeUseCase
 ) {
-    @Async("executorConfig")
+    @Async("executorQueueConfig")
     @Scheduled(fixedDelay = 500L)
     open
     fun executor() {

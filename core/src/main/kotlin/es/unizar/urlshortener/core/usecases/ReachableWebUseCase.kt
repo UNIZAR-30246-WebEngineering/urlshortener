@@ -60,10 +60,8 @@ class ReachableWebUseCaseImpl(
 
     override fun updateReachableUrl() {
         reachableMap.map { i ->
-            {
-                if (i.value.second.until(OffsetDateTime.now(), ChronoUnit.SECONDS) > UPDATE_REACHABILITY_TIMEOUT) {
-                    reachableQueue.put(i.key)
-                }
+            if (i.value.second.until(OffsetDateTime.now(), ChronoUnit.SECONDS) > UPDATE_REACHABILITY_TIMEOUT) {
+                reachableQueue.put(i.key)
             }
         }
     }

@@ -15,7 +15,7 @@ private const val QUEUE_CAPACITY = 1000
 @EnableAsync
 @EnableScheduling
 open class UrlShortenerBlockingQueueConfig {
-    @Bean("executorConfig")
+    @Bean("executorQueueConfig")
     open fun executor(): Executor {
         val executor = ThreadPoolTaskExecutor()
         executor.maxPoolSize = POOL_SIZE
