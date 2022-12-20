@@ -4,6 +4,7 @@ import es.unizar.urlshortener.core.usecases.ClickSum
 import es.unizar.urlshortener.core.usecases.ClickUserSum
 import es.unizar.urlshortener.core.usecases.UrlSum
 import es.unizar.urlshortener.core.usecases.UserSum
+import org.springframework.core.io.ByteArrayResource
 
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
@@ -38,4 +39,8 @@ interface ValidatorService {
  */
 interface HashService {
     fun hasUrl(url: String): String
+}
+
+interface QrService {
+    fun getQr(url: String): ByteArrayResource
 }

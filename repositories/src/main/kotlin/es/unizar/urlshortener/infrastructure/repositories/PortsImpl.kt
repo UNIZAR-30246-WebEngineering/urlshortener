@@ -31,4 +31,3 @@ class ShortUrlRepositoryServiceImpl(
 
     override fun computeUserClicks(): List<ClickUserSum> = shortUrlEntityRepository.computeUserClicks()
 }
-

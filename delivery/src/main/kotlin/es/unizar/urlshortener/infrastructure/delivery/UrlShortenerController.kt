@@ -3,6 +3,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.*
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -37,6 +38,9 @@ interface UrlShortenerController {
     fun ranking(request: HttpServletRequest): ResponseEntity<RankingDataOut>
 
     fun users(request: HttpServletRequest): ResponseEntity<UserDataOut>
+
+    fun generateQrCode(id: String, request: HttpServletRequest): ResponseEntity<ByteArrayResource>
+
 }
 
 /**
@@ -44,7 +48,8 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
-    val sponsor: String? = null
+    val sponsor: String? = null,
+    val qr: Boolean
 )
 
 /**
@@ -73,40 +78,69 @@ data class UserDataOut(
  */
 @RestController
 class UrlShortenerControllerImpl(
-        val redirectUseCase: RedirectUseCase,
-        val logClickUseCase: LogClickUseCase,
-        val rankingUseCase: RankingUseCase,
-        val createShortUrlUseCase: CreateShortUrlUseCase
+    val redirectUseCase: RedirectUseCase,
+    val logClickUseCase: LogClickUseCase,
+    val createShortUrlUseCase: CreateShortUrlUseCase,
+    val qrCodeUseCase: QrCodeUseCase,
+    val rankingUseCase: RankingUseCase,
+    val reachableWebUseCase: ReachableWebUseCase
 ) : UrlShortenerController {
 
     @GetMapping("/{id:(?!api|index).*}")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
-        redirectUseCase.redirectTo(id).let {
-            logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
-            val h = HttpHeaders()
-            h.location = URI.create(it.target)
-            ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
+
+        redirectUseCase.redirectTo(id).let { redirect ->
+            reachableWebUseCase.reachable(redirect.target).let {
+                logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
+                val h = HttpHeaders()
+                h.location = URI.create(redirect.target)
+                ResponseEntity<Void>(h, HttpStatus.valueOf(redirect.mode))
+            }
         }
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-        createShortUrlUseCase.create(
-            url = data.url,
-            data = ShortUrlProperties(
-                ip = request.remoteAddr,
-                sponsor = data.sponsor
-            )
-        ).let {
-            val h = HttpHeaders()
-            val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-            h.location = url
-            val response = ShortUrlDataOut(
-                url = url,
-                properties = mapOf(
-                    "safe" to it.properties.safe
+        reachableWebUseCase.reachable(data.url).let {
+            createShortUrlUseCase.create(
+                url = data.url,
+                data = ShortUrlProperties(
+                    ip = request.remoteAddr,
+                    sponsor = data.sponsor
                 )
-            )
-            ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+            ).let {
+                val h = HttpHeaders()
+                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+                h.location = url
+
+                val response = ShortUrlDataOut(
+                    url = url,
+                    properties = when (data.qr) {
+                        false -> mapOf(
+                            "safe" to it.properties.safe
+                        )
+                        true -> mapOf(
+                            "safe" to it.properties.safe,
+                            "qr" to linkTo<UrlShortenerControllerImpl> { generateQrCode(it.hash, request) }.toUri()
+                        )
+                    }
+                )
+                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+            }
+        }
+
+    @GetMapping("/{id:(?!api|index).*}/qr")
+    override fun generateQrCode(
+        @PathVariable id: String,
+        request: HttpServletRequest
+    ): ResponseEntity<ByteArrayResource> =
+
+        qrCodeUseCase.generateQR(
+            id,
+            linkTo<UrlShortenerControllerImpl> { redirectTo(id, request) }.toString()
+        ).let {
+            val headers = HttpHeaders()
+            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE)
+            ResponseEntity<ByteArrayResource>(it, headers, HttpStatus.OK)
         }
 
     @GetMapping("/api/link")

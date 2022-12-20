@@ -12,6 +12,6 @@ class UrlShortenerApplication
 /**
  * The main entry point.
  */
-fun main(args: Array<String>) {
+fun main(vararg args: String) {
     runApplication<UrlShortenerApplication>(*args)
 }

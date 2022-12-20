@@ -1,13 +1,18 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
 import java.time.OffsetDateTime
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.Table
 
 /**
  * The [ClickEntity] entity logs clicks.
  */
 @Entity
 @Table(name = "click")
+@Suppress("LongParameterList")
 class ClickEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +31,7 @@ class ClickEntity(
  */
 @Entity
 @Table(name = "shorturl")
+@Suppress("LongParameterList")
 class ShortUrlEntity(
     @Id
     val hash: String,

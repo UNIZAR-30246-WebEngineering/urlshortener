@@ -1,6 +1,10 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
-import es.unizar.urlshortener.core.*
+import es.unizar.urlshortener.core.Click
+import es.unizar.urlshortener.core.ClickProperties
+import es.unizar.urlshortener.core.Redirection
+import es.unizar.urlshortener.core.ShortUrl
+import es.unizar.urlshortener.core.ShortUrlProperties
 
 /**
  * Extension method to convert a [ClickEntity] into a domain [Click].
@@ -64,4 +68,3 @@ fun ShortUrl.toEntity() = ShortUrlEntity(
     ip = properties.ip,
     country = properties.country
 )
-
