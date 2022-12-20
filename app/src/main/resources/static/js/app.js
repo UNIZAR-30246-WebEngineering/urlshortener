@@ -73,6 +73,30 @@ function getRanking(){
         );
 }
 
+document
+    .getElementById('ranking-users')
+    .addEventListener('submit', getUsers);
+
+function getUsers(){
+    event.preventDefault();
+    fetch('http://localhost:8080/api/link/{id}')
+        .then(response => {
+            if(!response.ok) {
+               throw Error(response.status)
+            }
+            return response.json()
+        })
+        .then(response => {
+            response.list.forEach(e => {
+                document.getElementById('users').innerHTML += `<li>${e.ip}     ${e.sum}</li>`
+            })
+        })
+        .catch(() =>
+            document.getElementById('result-list-users').innerHTML =
+                `<div class='alert alert-danger lead'>ERROR</div>`
+        );
+}
+
 function getQR(url, qr){
     var widthProp = "-webkit-fill-available"
 

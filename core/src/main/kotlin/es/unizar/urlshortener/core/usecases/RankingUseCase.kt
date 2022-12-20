@@ -34,8 +34,7 @@ class RankingUseCaseImpl(
     private val shortUrlRepositoryService: ShortUrlRepositoryService,
     private val clickRepositoryService: ClickRepositoryService
 ) : RankingUseCase {
-    override fun ranking(): List<UrlSum> {
-        val mylist  =
+    override fun ranking(): List<UrlSum> =
             clickRepositoryService.computeClickSum().map { case ->
                 shortUrlRepositoryService.findByKey(case.getHash()).let { shortUrl ->
                     if (shortUrl != null) {
@@ -45,12 +44,9 @@ class RankingUseCaseImpl(
                 }
             }.filterNotNull()
 
-        System.out.println("RankingUseCaseImpl.ranking():")
-        System.out.println(mylist)
-        return mylist
-    }
 
-    override fun user(): List<UserSum> =
+    override fun user(): List<UserSum> {
+        val mylist  =
                 shortUrlRepositoryService.computeUserClicks().map { case ->
                 shortUrlRepositoryService.findByKey(case.getIp()).let { shortUrl ->
                     if (shortUrl != null) {
@@ -58,4 +54,9 @@ class RankingUseCaseImpl(
                     } else null
                 }
             }.filterNotNull()
+
+        System.out.println("RankingUseCaseImpl.ranking():")
+        System.out.println(mylist)
+        return mylist
+    }
 }
