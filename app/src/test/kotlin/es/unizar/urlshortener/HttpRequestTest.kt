@@ -61,17 +61,24 @@ class HttpRequestTest {
     fun `redirectTo returns a redirect when the key exists`() {
         val target = shortUrl(
             url = "http://example.com/",
-            limit = 0,
-            lat = 42.223,
-            lon = 1.223,
+            limit = 1,
             qr = false
         ).headers.location
-        Thread.sleep(1000)
-
         require(target != null)
+
+        Thread.sleep(1000);
+
         val response = restTemplate.getForEntity(target, String::class.java)
+
+        println(response)
+
         assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
         assertThat(response.headers.location).isEqualTo(URI.create("http://example.com/"))
+
+        val response2 = restTemplate.getForEntity(target, String::class.java)
+
+        assertThat(response2.statusCode).isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
+        assertThat(response2.headers["Retry-After"]).isNotNull
 
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(1)
     }
@@ -88,9 +95,7 @@ class HttpRequestTest {
     fun `creates returns a basic redirect if it can compute a hash`() {
         val response = shortUrl(
             url = "http://example.com/",
-            limit = 5,
-            lat = 42.2234,
-            lon = 1.2234,
+            limit = 0,
             qr = true
         )
 
@@ -121,17 +126,18 @@ class HttpRequestTest {
         assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "click")).isEqualTo(0)
     }
 
-    private fun shortUrl(url: String, limit: Int, lat: Double, lon: Double, qr: Boolean):
-            ResponseEntity<ShortUrlDataOut> {
+    private fun shortUrl(url: String, limit: Int, qr: Boolean): ResponseEntity<ShortUrlDataOut> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
         val data: MultiValueMap<String, String> = LinkedMultiValueMap()
         data["url"] = url
         data["limit"] = limit.toString()
+        data["lat"] = "42.123"
+        data["lon"] = "1.12"
         data["static/qr"] = qr.toString()
-        data["lat"] = lat.toString()
-        data["lon"] = lon.toString()
+
+        println("Sending request with limit = ${limit.toString()}")
 
         return restTemplate.postForEntity(
             "http://localhost:$port/api/link",

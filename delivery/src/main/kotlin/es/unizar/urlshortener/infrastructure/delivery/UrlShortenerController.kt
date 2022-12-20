@@ -86,7 +86,7 @@ class UrlShortenerControllerImpl(
 
     @GetMapping("/{id:(?!api|index|docs|openapi).*}")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> {
-        redirectUseCase.redirectTo(id).let {
+        redirectUseCase.redirectTo(id, request.getHeader("Special-User") != null ).let {
             logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
             val h = HttpHeaders()
             h.location = URI.create(it.target)

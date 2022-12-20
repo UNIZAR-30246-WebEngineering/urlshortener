@@ -1,3 +1,5 @@
+@file:Suppress("LongParameterList")
+
 package es.unizar.urlshortener.infrastructure.repositories
 
 import java.time.OffsetDateTime

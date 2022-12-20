@@ -40,7 +40,6 @@ class CreateShortUrlUseCaseImpl(
             }
             return it
         } ?: run {
-            println("No existe")
             // Short URL does not exist
             if (validatorService.isValid(url) && validatorService.isReachable(url)) {
                 val su = ShortUrl(

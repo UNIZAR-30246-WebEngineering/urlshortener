@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
 
 const val REFILL_RATE = 60L
+const val SPECIAL_LIMIT = 5000L
 
 /**
  * Implementation of the port [ValidatorService].
@@ -268,15 +269,20 @@ class QRServiceImpl : QRService {
 class RedirectionLimitServiceImpl : RedirectionLimitService {
 
     private val buckets : ConcurrentHashMap<String, Bucket> = ConcurrentHashMap()
+    private val specialBuckets : ConcurrentHashMap<String, Bucket> = ConcurrentHashMap()
+
     override fun addLimit(hash: String, limit: Int) {
-        // Creating bucket with limit $limit for URL with hash $hash
-        val bLim = Bandwidth.classic(limit.toLong(), Refill.intervally(limit.toLong(), Duration.ofMinutes(REFILL_RATE)))
-        buckets[hash] = Bucket.builder()
-            .addLimit(bLim)
-            .build()
+        val bLim = Bandwidth.classic(
+            limit.toLong(), Refill.intervally(limit.toLong(), Duration.ofMinutes(REFILL_RATE)))
+        val specialLim = Bandwidth.classic(
+            SPECIAL_LIMIT, Refill.intervally(limit.toLong(), Duration.ofMinutes(REFILL_RATE)))
+
+        specialBuckets[hash] = Bucket.builder().addLimit(specialLim).build()
+        buckets[hash] = Bucket.builder().addLimit(bLim).build();
     }
-    override fun checkLimit(hash: String) {
-        val bucket = buckets[hash]
+
+    override fun checkLimit(hash: String, special: Boolean) {
+        val bucket = if ( special ) { specialBuckets[hash] } else { buckets[hash] }
         if (bucket != null) {
             val probe = bucket.tryConsumeAndReturnRemaining(1)
             if ( !probe.isConsumed ) {

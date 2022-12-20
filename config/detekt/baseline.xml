@@ -6,9 +6,8 @@
     <ID>WildcardImport</ID>
     <ID>TooManyFunctions:ApplicationConfiguration.kt$ApplicationConfiguration</ID>
     <ID>WildcardImport:ApplicationConfiguration.kt$import es.unizar.urlshortener.infrastructure.delivery.*</ID>
+    <ID>TooManyFunctions:ApplicationConfiguration.kt$ApplicationConfiguration</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>TooManyFunctions:ApplicationConfiguration.kt$ApplicationConfiguration</ID>
-    <ID>WildcardImport:ApplicationConfiguration.kt$import es.unizar.urlshortener.infrastructure.delivery.*</ID>
   </CurrentIssues>
 </SmellBaseline>

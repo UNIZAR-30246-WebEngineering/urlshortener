@@ -33,7 +33,8 @@ class InfoUseCaseImpl(
     override fun getInfo(hash: String): URLData {
         shortUrlRepository.findByKey(hash)?.let {
             // This throws 429 only if redirection exists but rate limit has been reached
-            redirectionLimitService.checkLimit(hash)
+            // add special parameter here too
+            redirectionLimitService.checkLimit(hash, false)
 
             // Been validated but it's not safe
             it.properties.safe?.let { safe ->

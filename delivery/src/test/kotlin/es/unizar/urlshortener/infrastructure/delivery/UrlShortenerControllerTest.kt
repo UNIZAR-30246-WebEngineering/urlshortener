@@ -46,7 +46,7 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
-        given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
+        given(redirectUseCase.redirectTo("key", false)).willReturn(Redirection("http://example.com/"))
 
         mockMvc.perform(get("/{id}", "key"))
             .andExpect(status().isTemporaryRedirect)
@@ -57,7 +57,7 @@ class UrlShortenerControllerTest {
 
     @Test
     fun `redirectTo returns a not found when the key does not exist`() {
-        given(redirectUseCase.redirectTo("key"))
+        given(redirectUseCase.redirectTo("key", false))
             .willAnswer { throw RedirectionNotFound("key") }
 
         mockMvc.perform(get("/{id}", "key"))
@@ -135,7 +135,7 @@ class UrlShortenerControllerTest {
         ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
 
         given(
-            redirectUseCase.redirectTo("f684a3c4")
+            redirectUseCase.redirectTo("f684a3c4", false)
         ).willReturn(
             Redirection("http://www.example.com/")
         ).willAnswer { throw TooManyRedirectionsException("key", 100L) }
@@ -161,6 +161,59 @@ class UrlShortenerControllerTest {
         mockMvc.perform(get("/{id}", "f684a3c4"))
             .andExpect(status().isTooManyRequests)
             .andExpect(header().exists("Retry-After"))
+    }
+
+    @Test
+    fun `redirectTo returns ok only if user is special`() {
+
+        given(
+            createShortUrlUseCase.create(
+                url = "http://www.example.com/",
+                data = ShortUrlProperties(
+                    ip = "127.0.0.1",
+                    lat = 42.223,
+                    lon = 1.223,
+                    limit = 1,
+                    qr = false
+                )
+            )
+        ).willReturn(ShortUrl("f684a3c4", Redirection("http://www.example.com/")))
+
+        given(
+            redirectUseCase.redirectTo("f684a3c4", true)
+        ).willReturn(
+            Redirection("http://www.example.com/")
+        ).willReturn(
+            Redirection("http://www.example.com/")
+        )
+
+        mockMvc.perform(
+            post("/api/link")
+                .param("url", "http://www.example.com/")
+                .param("lat", "42.223")
+                .param("lon", "1.223")
+                .param("limit", "1")
+                .param("qr", "false")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        )
+            .andDo(print())
+            .andExpect(status().isCreated)
+            .andExpect(redirectedUrl("http://localhost/f684a3c4"))
+            .andExpect(jsonPath("$.url").value("http://localhost/f684a3c4"))
+
+        mockMvc.perform(
+            get("/{id}", "f684a3c4")
+                .header("Special-User", "example")
+        )
+            .andExpect(status().isTemporaryRedirect)
+            .andExpect(redirectedUrl("http://www.example.com/"))
+
+        mockMvc.perform(
+            get("/{id}", "f684a3c4")
+                .header("Special-User", "example")
+        )
+            .andExpect(status().isTemporaryRedirect)
+            .andExpect(redirectedUrl("http://www.example.com/"))
     }
 
     @Test
@@ -212,13 +265,13 @@ class UrlShortenerControllerTest {
             qrCodeUseCase.getQR(
                 hash = "qwerty"
             )
-        ).willAnswer { throw RedirectionNotValidatedException(5) }
+        ).willAnswer { throw RedirectUnsafeException() }
 
         mockMvc.perform(
             get("http://localhost/{hash}/qr", "qwerty")
         )
             .andDo(print())
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isForbidden)
     }
 
     @Test

@@ -47,7 +47,8 @@ class UrlShortenerControllerRPCImpl (
 
     @MessageMapping("redirect")
     override fun redirectTo(@Payload id: String): String {
-        redirectUseCase.redirectTo(id).let {
+        // add parameter to request for special users
+        redirectUseCase.redirectTo(id, false).let {
             return it.target
         }
     }

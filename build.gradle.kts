@@ -71,8 +71,6 @@ subprojects {
         "implementation"("org.springdoc:springdoc-openapi-kotlin:1.6.0")
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib")
         "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-        "implementation"("com.squareup.retrofit2:retrofit:2.9.0")
-        "implementation"("com.squareup.retrofit2:converter-gson:2.9.0")
         "implementation"("io.projectreactor:reactor-core:3.5.1")
     }
 
@@ -235,6 +233,10 @@ project(":rabbitQueue") {
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
         "testImplementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "testImplementation"("org.apache.httpcomponents:httpclient")
+    }
+
+    tasks.getByName<BootJar>("bootJar") {
+        enabled = false
     }
 }
 

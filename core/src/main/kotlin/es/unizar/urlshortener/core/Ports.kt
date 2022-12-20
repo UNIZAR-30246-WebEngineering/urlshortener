@@ -65,5 +65,5 @@ interface HashService {
  */
 interface RedirectionLimitService {
     fun addLimit(hash : String, limit : Int)
-    fun checkLimit(hash : String)
+    fun checkLimit(hash : String, special: Boolean)
 }
