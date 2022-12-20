@@ -1,31 +1,34 @@
+@file:Suppress("WildcardImport")
 package es.unizar.urlshortener
 
 import es.unizar.urlshortener.infrastructure.delivery.ShortUrlDataOut
 import org.apache.http.impl.client.HttpClientBuilder
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.ClassRule
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
+import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpEntity
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.context.ApplicationContextInitializer
+import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.http.*
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.RabbitMQContainer
 import java.net.URI
 
-
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class HttpRequestTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class HttpRequestTest {
     @LocalServerPort
     private val port = 0
 
@@ -34,6 +37,22 @@ class HttpRequestTest {
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
+
+    companion object {
+        var rabbit: RabbitMQContainer = RabbitMQContainer("rabbitmq:3-management")
+            .withExposedPorts(5672)
+        @JvmStatic
+        @DynamicPropertySource
+        fun properties(registry: DynamicPropertyRegistry) {
+
+            println("Starting testcontainer...")
+            rabbit.start()
+            println("done.")
+
+            registry.add("spring.rabbitmq.port") { -> rabbit.getMappedPort(5672) };
+            registry.add("spring.rabbitmq.host") { -> rabbit.host };
+        }
+    }
 
     @BeforeEach
     fun setup() {
@@ -48,6 +67,11 @@ class HttpRequestTest {
     @AfterEach
     fun tearDowns() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "shorturl", "click")
+    }
+
+    @AfterAll
+    fun tearDownEnv() {
+        rabbit.stop()
     }
 
     @Test

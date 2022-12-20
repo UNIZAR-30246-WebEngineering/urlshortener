@@ -185,6 +185,7 @@ project(":app") {
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
         "testImplementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "testImplementation"("org.apache.httpcomponents:httpclient")
+        "testImplementation"("org.testcontainers:rabbitmq:1.17.6")
     }
 
     //docker services for starting/stopping rabbitmq
