@@ -50,8 +50,7 @@ class RankingUseCaseImpl(
         return mylist
     }
 
-    override fun user(): List<UserSum> {
-        val mylist =
+    override fun user(): List<UserSum> =
                 shortUrlRepositoryService.computeUserClicks().map { case ->
                 shortUrlRepositoryService.findByKey(case.getIp()).let { shortUrl ->
                     if (shortUrl != null) {
@@ -59,8 +58,4 @@ class RankingUseCaseImpl(
                     } else null
                 }
             }.filterNotNull()
-        System.out.println("RankingUseCaseImpl.user():")
-        System.out.println(mylist)
-        return mylist
-    }
 }
