@@ -54,7 +54,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity<ErrorMessage>(
             ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message),
             h,
-            HttpStatus.TOO_MANY_REQUESTS
+            HttpStatus.BAD_REQUEST
         )
     }
 
