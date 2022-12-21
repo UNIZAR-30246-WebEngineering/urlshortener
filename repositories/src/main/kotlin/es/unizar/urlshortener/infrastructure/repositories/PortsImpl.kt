@@ -17,6 +17,7 @@ class ClickRepositoryServiceImpl(
     override fun save(cl: Click): Click = clickEntityRepository.save(cl.toEntity()).toDomain()
 
     override fun computeClickSum(): List<ClickSum> = clickEntityRepository.computeClickSum()
+
 }
 
 /**
@@ -29,5 +30,5 @@ class ShortUrlRepositoryServiceImpl(
 
     override fun save(su: ShortUrl): ShortUrl = shortUrlEntityRepository.save(su.toEntity()).toDomain()
 
-    override fun computeUserClicks(): List<ClickUserSum> = shortUrlEntityRepository.computeUserClicks()
+    override fun computeUserClicks(): List<ClickUserSum>  = shortUrlEntityRepository.computeUserClicks()
 }

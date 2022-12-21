@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Query
 interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
     fun findByHash(hash: String): ShortUrlEntity?
 
+
     @Query("SELECT ip AS ip, COUNT(ip) AS sum FROM ShortUrlEntity GROUP BY ip ORDER BY ip DESC")
     fun computeUserClicks(): List<ClickUserSum>
 }
@@ -27,4 +28,5 @@ interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
 interface ClickEntityRepository : JpaRepository<ClickEntity, Long> {
     @Query("SELECT hash AS hash, COUNT(hash) AS sum FROM ClickEntity GROUP BY hash ORDER BY hash DESC")
     fun computeClickSum(): List<ClickSum>
+
 }

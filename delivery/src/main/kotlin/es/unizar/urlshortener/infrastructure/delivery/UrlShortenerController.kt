@@ -72,7 +72,7 @@ data class RankingDataOut(
 )
 
 data class UserDataOut(
-        val list: List<UserSum> = emptyList()
+    val list: List<UserSum> = emptyList()
 )
 
 /**
@@ -113,7 +113,8 @@ class UrlShortenerControllerImpl(
 
     @PostMapping("/api/link", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-        createShortUrlUseCase.create(
+
+            createShortUrlUseCase.create(
             url = data.url,
             data = ShortUrlProperties(
                 ip = request.remoteAddr,
@@ -121,6 +122,7 @@ class UrlShortenerControllerImpl(
                 qr = data.qr
             )
         ).let {
+                println(request.remoteAddr)
             val h = HttpHeaders()
             val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
             h.location = url
