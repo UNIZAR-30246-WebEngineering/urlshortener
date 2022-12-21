@@ -27,6 +27,7 @@ interface RankingUseCase {
     fun user(): List<UserSum>
 }
 
+
 /**
  * Implementation of [RankingUseCase].
  */
@@ -45,14 +46,8 @@ class RankingUseCaseImpl(
             }.filterNotNull()
 
 
-    override fun user(): List<UserSum> {
-        val mylist  =
-                shortUrlRepositoryService.computeUserClicks().map { case ->
-                    UserSum(case.getIp(), case.getSum())
-            }
-
-        System.out.println("RankingUseCaseImpl.ranking():")
-        System.out.println(mylist)
-        return mylist
-    }
+    override fun user(): List<UserSum> =
+        shortUrlRepositoryService.computeUserClicks().map { case ->
+            UserSum(case.getIp(), case.getSum())
+        }
 }

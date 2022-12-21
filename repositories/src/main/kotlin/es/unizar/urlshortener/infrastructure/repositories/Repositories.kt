@@ -28,5 +28,4 @@ interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
 interface ClickEntityRepository : JpaRepository<ClickEntity, Long> {
     @Query("SELECT hash AS hash, COUNT(hash) AS sum FROM ClickEntity GROUP BY hash ORDER BY hash DESC")
     fun computeClickSum(): List<ClickSum>
-
 }
