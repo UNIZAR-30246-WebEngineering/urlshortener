@@ -34,12 +34,13 @@ class CreateShortUrlUseCaseImpl(
                 hash = id,
                 redirection = Redirection(target = url),
                 properties = ShortUrlProperties(
-                    safe = data.safe,
                     ip = data.ip,
                     sponsor = data.sponsor,
                     qr = data.qr
                 )
             )
+            validatorService.sendToRabbit(url, id)
+
             shortUrlRepository.save(short)
         } else {
             throw InvalidUrlException(url)

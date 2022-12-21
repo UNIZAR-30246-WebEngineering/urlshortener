@@ -19,6 +19,8 @@ interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
     fun computeUserClicks(): List<ClickUserSum>
+    fun updateSecuritySecure(id: String)
+    fun changeSecurityGoogle(id: String)
 }
 
 /**
@@ -28,6 +30,8 @@ interface ShortUrlRepositoryService {
  */
 interface ValidatorService {
     fun isValid(url: String): Boolean
+
+    fun sendToRabbit(url: String, id: String)
 }
 
 /**

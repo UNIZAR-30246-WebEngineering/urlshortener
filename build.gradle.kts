@@ -83,6 +83,9 @@ project(":delivery") {
         "implementation"("io.github.g0dkar:qrcode-kotlin-jvm:3.2.0")
         "implementation"("org.springframework.retry:spring-retry")
         "implementation"("org.springframework:spring-aspects")
+        "implementation"("org.springframework.amqp:spring-rabbit:3.0.0")
+
+        "testImplementation" ("org.springframework.amqp:spring-rabbit-test")
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")
     }
@@ -102,6 +105,7 @@ project(":app") {
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"( "org.webjars:bootstrap:$bootstrapVersion")
         "implementation"("org.webjars:jquery:$jqueryVersion")
+        "implementation"("org.springframework.amqp:spring-rabbit:3.0.0")
 
         "runtimeOnly"("org.hsqldb:hsqldb")
 
