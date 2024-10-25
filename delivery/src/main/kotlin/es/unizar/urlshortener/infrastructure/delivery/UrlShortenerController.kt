@@ -19,6 +19,9 @@ import java.net.URI
 import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
+import java.net.MalformedURLException
+import java.io.IOException
+import org.slf4j.LoggerFactory
 
 /**
  * The specification of the controller.
@@ -67,6 +70,8 @@ class UrlShortenerControllerImpl(
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase
 ) : UrlShortenerController {
+    private val logger = LoggerFactory.getLogger(UrlShortenerControllerImpl::class.java)
+
     fun determinePlatform(userAgent: String?): String {
         return when {
             userAgent == null -> "Unknown"
@@ -81,14 +86,15 @@ class UrlShortenerControllerImpl(
         return when {
             userAgent.contains("Chrome", ignoreCase = true) -> "Chrome"
             userAgent.contains("Firefox", ignoreCase = true) -> "Firefox"
-            userAgent.contains("Safari", ignoreCase = true) && !userAgent.contains("Chrome", ignoreCase = true) -> "Safari"
+            userAgent.contains("Safari", ignoreCase = true) &&
+                !userAgent.contains("Chrome", ignoreCase = true) -> "Safari"
             userAgent.contains("Edge", ignoreCase = true) -> "Edge"
-            userAgent.contains("Opera", ignoreCase = true) || userAgent.contains("OPR", ignoreCase = true) -> "Opera"
+            userAgent.contains("Opera", ignoreCase = true) ||
+                    userAgent.contains("OPR", ignoreCase = true) -> "Opera"
             userAgent.contains("Trident", ignoreCase = true) -> "Internet Explorer"
             else -> "Unknown"
         }
     }
-
 
     fun getCountryFromIp(ip: String): String? {
         //Uses https://ip-api.com/ as an external service to get the location
@@ -114,8 +120,11 @@ class UrlShortenerControllerImpl(
                 println("Error: ${connection.responseCode} ${connection.responseMessage}")
                 null
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: MalformedURLException) {
+            logger.error("MalformedURL Exception: ${e.localizedMessage}")
+            null
+        } catch (e: IOException) {
+            logger.error("IO Exception: ${e.localizedMessage}")
             null
         } finally {
             connection?.disconnect() // Asegúrate de desconectar la conexión
@@ -137,7 +146,7 @@ class UrlShortenerControllerImpl(
                 referrer = request.getHeader("Referer"),
                 browser = simplifyBrowserName(request.getHeader("User-Agent")),
                 platform = determinePlatform(request.getHeader("User-Agent")),
-                country = getCountryFromIp(request.remoteAddr) // Aquí obtienes el país
+                country = getCountryFromIp(request.remoteAddr)
             ))
             val h = HttpHeaders()
             h.location = URI.create(target)

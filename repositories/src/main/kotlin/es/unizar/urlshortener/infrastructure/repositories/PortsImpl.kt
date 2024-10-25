@@ -4,7 +4,7 @@ import es.unizar.urlshortener.core.Click
 import es.unizar.urlshortener.core.ClickRepositoryService
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
-import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl
+import es.unizar.urlshortener.core.usecases.TimeFrame
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -23,15 +23,11 @@ class ClickRepositoryServiceImpl(
      */
     override fun save(cl: Click): Click = clickEntityRepository.save(cl.toEntity()).toDomain()
     /**
-     * Recovers clics based on timeframe and returns them as domain objects
+     * Recovers clicks based on timeframe and returns them as domain objects
      */
-    override fun findClicksByTimeFrame(frame: GetClickAnalyticsUseCaseImpl.TimeFrame): List<Click> {
-        // Convert Long (millis) to OffsetDateTime
-        val start = OffsetDateTime.ofInstant(Instant.ofEpochMilli(frame.start), ZoneOffset.UTC)
-        val end = OffsetDateTime.ofInstant(Instant.ofEpochMilli(frame.end), ZoneOffset.UTC)
-
+    override fun findClicksByTimeFrame(frame: TimeFrame): List<Click> {
         // Call repository with converted times
-        val clickEntities = clickEntityRepository.findClicksByTimeFrame(start, end)
+        val clickEntities = clickEntityRepository.findClicksByTimeFrame(frame.start, frame.end)
         return clickEntities.map { it.toDomain() }
     }
 }
