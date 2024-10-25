@@ -5,6 +5,9 @@ import es.unizar.urlshortener.core.ClickRepositoryService
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
 import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -21,9 +24,20 @@ class ClickRepositoryServiceImpl(
      * @param cl The [Click] entity to be saved.
      * @return The saved [Click] entity.
      */
-    override fun save(cl: Click): Click = clickEntityRepository.save(cl.toEntity()).toDomain()
+    override fun save(cl: Click): Click {
+        // Check if IP is not null and retrieve the country
+        val country = cl.properties.ip?.let { getCountryByIp(it) }
+
+        // Add country to ClickProperties
+        val updatedClick = cl.copy(properties = cl.properties.copy(country = country))
+
+        println("IP: ${cl.properties.ip}, Country: $country") // Log IP and Country
+
+        return clickEntityRepository.save(updatedClick.toEntity()).toDomain()
+    }
+
     /**
-     * Recovers clics based on timeframe and returns them as domain objects
+     * Recovers clicks based on timeframe and returns them as domain objects
      */
     override fun findClicksByTimeFrame(frame: GetClickAnalyticsUseCaseImpl.TimeFrame): List<Click> {
         // Convert Long (millis) to OffsetDateTime
@@ -33,6 +47,35 @@ class ClickRepositoryServiceImpl(
         // Call repository with converted times
         val clickEntities = clickEntityRepository.findClicksByTimeFrame(start, end)
         return clickEntities.map { it.toDomain() }
+    }
+
+    /**
+     * Retrieves the country of origin for an IP address using the ip-api.com external service.
+     *
+     * @param ipAddress The IP address to get the country of origin from.
+     * @return The country name or null if information couldn't be retrieved.
+     */
+    fun getCountryByIp(ipAddress: String): String? {
+        val url = URL("http://ip-api.com/json/$ipAddress")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+
+        return try {
+            connection.inputStream.bufferedReader().use { reader ->
+                val response = reader.readText()
+                val json = JSONObject(response)
+                if (json.getString("status") == "success") {
+                    json.getString("country")
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            connection.disconnect()
+        }
     }
 }
 
