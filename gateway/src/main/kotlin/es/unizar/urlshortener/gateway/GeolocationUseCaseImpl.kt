@@ -1,5 +1,6 @@
 package es.unizar.urlshortener.gateway
 
+import com.google.gson.annotations.SerializedName
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import es.unizar.urlshortener.core.GeolocationData
@@ -56,9 +57,9 @@ class GeolocationUseCaseImpl : GeolocationUseCase {
  * Clase interna para mapear la respuesta de la API.
  */
 data class GeolocationApiResponse(
-    val countryName: String? = null,
-    val city: String? = null,
-    val stateProv: String? = null
+    @SerializedName("country_name") val countryName: String? = null,
+    @SerializedName("city") val city: String? = null,
+    @SerializedName("state_prov") val stateProv: String? = null
 )
 
 class GeolocationServiceException(message: String, cause: Throwable? = null) : Exception(message, cause)

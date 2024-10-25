@@ -28,7 +28,7 @@ class GeolocationControllerTest {
         given(geolocationUseCase.getGeolocation("8.8.8.8"))
             .willReturn(GeolocationData("United States", "Mountain View", "California"))
 
-        mockMvc.perform(get("/api/geolocation/8.8.8.8"))
+        mockMvc.perform(get("/geolocation/8.8.8.8"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.country").value("United States"))
             .andExpect(jsonPath("$.city").value("Mountain View"))
@@ -39,7 +39,7 @@ class GeolocationControllerTest {
     fun `returns 404 for an invalid IP`() {
         given(geolocationUseCase.getGeolocation("127.0.0.1")).willReturn(null)
 
-        mockMvc.perform(get("/api/geolocation/127.0.0.1"))
+        mockMvc.perform(get("/geolocation/127.0.0.1"))
             .andExpect(status().isNotFound)
     }
 }
