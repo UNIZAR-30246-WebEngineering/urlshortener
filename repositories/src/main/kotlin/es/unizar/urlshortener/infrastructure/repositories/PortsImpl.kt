@@ -45,6 +45,34 @@ class ClickRepositoryServiceImpl(
         val clickEntities = clickEntityRepository.findClicksByTimeFrame(frame.start, frame.end)
         return clickEntities.map { it.toDomain() }
     }
+
+    /**
+     * Retrieves the country of origin for an IP address using the ip-api.com external service.
+     *
+     * @param ipAddress The IP address to get the country of origin from.
+     * @return The country name or null if information couldn't be retrieved.
+     */
+    fun getCountryByIp(ipAddress: String): String? {
+        val url = URL("http://ip-api.com/json/$ipAddress")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        return try {
+            connection.inputStream.bufferedReader().use { reader ->
+                val response = reader.readText()
+                val json = JSONObject(response)
+                if (json.getString("status") == "success") {
+                    json.getString("country")
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            connection.disconnect()
+        }
+    }
 }
 
 
