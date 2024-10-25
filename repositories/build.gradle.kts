@@ -18,6 +18,12 @@ dependencies {
 
     // Add the Spring Boot Starter Data JPA library as an implementation dependency
     implementation(libs.spring.boot.starter.data.jpa)
+
+    // Add dependencies for testing
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockito.kotlin) // Mockito Kotlin extensions
+    testImplementation(libs.junit.jupiter) // JUnit 5
+    testRuntimeOnly(libs.junit.platform.launcher) // JUnit Platform Launcher
 }
 
 dependencyManagement {

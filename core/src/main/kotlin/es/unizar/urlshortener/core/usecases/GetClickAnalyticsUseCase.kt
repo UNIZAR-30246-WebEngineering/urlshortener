@@ -6,7 +6,6 @@ import es.unizar.urlshortener.core.*
 import java.time.OffsetDateTime
 import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl.ClickAnalytics
 import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl.ClickFilters
-import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl.TimeFrame
 
 /**
  * Provides consolidated click data over a specified time frame.
@@ -21,7 +20,8 @@ interface GetClickAnalyticsUseCase {
      * @param filters Optional filters such as Browser, Referrer, Country, or Platform.
      * @return A list of [ClickAnalytics] entities.
      */
-    fun getClicks(timeFrame: es.unizar.urlshortener.core.usecases.TimeFrame, filters: ClickFilters): List<ClickAnalytics>
+    fun getClicks(timeFrame: es.unizar.urlshortener.core.usecases.TimeFrame, filters: ClickFilters):
+            List<ClickAnalytics>
 }
 
 data class TimeFrame(
@@ -42,7 +42,8 @@ class GetClickAnalyticsUseCaseImpl(
      * @param filters Optional filters such as Browser, Referrer, Country, or Platform.
      * @return A list of [ClickAnalytics] entities.
      */
-    override fun getClicks(timeFrame: es.unizar.urlshortener.core.usecases.TimeFrame, filters: ClickFilters): List<ClickAnalytics> {
+    override fun getClicks(timeFrame: es.unizar.urlshortener.core.usecases.TimeFrame, filters: ClickFilters):
+            List<ClickAnalytics> {
         // Retrieve the clicks from the repository for the given time frame
         val clicks = clickRepository.findClicksByTimeFrame(timeFrame)
 
