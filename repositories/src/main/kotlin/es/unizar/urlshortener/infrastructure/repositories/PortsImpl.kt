@@ -5,9 +5,12 @@ import es.unizar.urlshortener.core.ClickRepositoryService
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlRepositoryService
 import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl
+import java.net.HttpURLConnection
+import java.net.URL
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import org.json.JSONObject
 
 /**
  * Implementation of the port [ClickRepositoryService].
