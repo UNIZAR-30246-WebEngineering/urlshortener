@@ -1,0 +1,65 @@
+@file:Suppress("WildcardImport")
+
+package es.unizar.urlshortener.core.usecases
+
+import es.unizar.urlshortener.core.*
+
+/**
+ * Provides consolidated click data over a specified time frame.
+ * Includes information about the Browser, Referrer, Country, and Platform.
+ * Allows filtering clicks by any of these parameters.
+ */
+interface GetClickAnalyticsUseCase {
+    /**
+     * Retrieves click data within a specified time frame.
+     *
+     * @param timeFrame The range of time (minute, hour, or day).
+     * @param filters Optional filters such as Browser, Referrer, Country, or Platform.
+     * @return A list of [ClickAnalytics] entities.
+     */
+    fun getClicks(timeFrame: TimeFrame, filters: ClickFilters):
+            List<ClickAnalytics>
+}
+
+/**
+ * Implementation of [GetClickAnalyticsUseCase].
+ */
+class GetClickAnalyticsUseCaseImpl(
+    private val clickRepository: ClickRepositoryService
+    ) : GetClickAnalyticsUseCase {
+    /**
+     * Retrieves click data within a specified time frame, applying the given filters.
+     *
+     * @param timeFrame The range of time (minute, hour, or day).
+     * @param filters Optional filters such as Browser, Referrer, Country, or Platform.
+     * @return A list of [ClickAnalytics] entities.
+     */
+    override fun getClicks(timeFrame: TimeFrame, filters: ClickFilters):
+            List<ClickAnalytics> {
+        // Retrieve the clicks from the repository for the given time frame
+        val clicks = clickRepository.findClicksByTimeFrame(timeFrame)
+
+        // Apply filters to the result set
+        val filteredClicks = clicks.filter {
+            (filters.browser == null || it.properties.browser == filters.browser) &&
+                    (filters.referrer == null || it.properties.referrer == filters.referrer) &&
+                    (filters.country == null || it.properties.country == filters.country) &&
+                    (filters.platform == null || it.properties.platform == filters.platform)
+        }
+
+        // Convert Click to ClickAnalytics
+        return filteredClicks.map { click ->
+            ClickAnalytics(
+                timestamp = click.created.toEpochSecond(),
+                browser = click.properties.browser.toString(),
+                referrer = click.properties.referrer.toString(),
+                country = click.properties.country.toString(),
+                platform = click.properties.platform.toString()
+            )
+        }
+    }
+
+
+
+
+}

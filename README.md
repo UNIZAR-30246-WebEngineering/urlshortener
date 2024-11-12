@@ -2,6 +2,7 @@
 
 2024-08-31
 
+## [Github repo for aqualink](https://github.com/JuanjoUnizar756640/Aqualink)
 ## System requirements
 
 This application leverages cutting-edge technologies to deliver a robust

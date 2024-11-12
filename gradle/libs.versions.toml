@@ -10,6 +10,7 @@ detekt = "1.23.6"  # Detekt version
 jquery = "3.6.1"  # jQuery version
 commonsValidator = "1.6"  # Apache Commons Validator version
 guava = "31.1-jre"  # Google Guava version
+json = "20240303"  # cogido de https://mvnrepository.com/artifact/org.json/json en la v mas reciente a dia 23-10-2024
 
 # Define plugins with their respective IDs and version references
 [plugins]
@@ -46,3 +47,4 @@ jquery = { module = "org.webjars:jquery", version.ref = "jquery" }  # jQuery
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }  # Apache Commons Validator
 guava = { module = "com.google.guava:guava", version.ref = "guava" }  # Google Guava
 mockito-kotlin =  { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }  # Mockito Kotlin
+json = { module = "org.json:json", version.ref = "json" }

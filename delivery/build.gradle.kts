@@ -31,7 +31,10 @@ dependencies {
     // Include Google Guava as an implementation dependency
     implementation(libs.guava)
 
-    // Include Kotlin Test as a test implementation dependency
+    //Include support for JSON object processing in the logic module
+    implementation(libs.json) // La versión más reciente (verifica si hay una nueva)
+
+            // Include Kotlin Test as a test implementation dependency
     testImplementation(libs.kotlin.test)
 
     // Include Mockito Kotlin as a test implementation dependency

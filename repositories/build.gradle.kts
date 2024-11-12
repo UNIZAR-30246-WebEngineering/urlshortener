@@ -18,6 +18,19 @@ dependencies {
 
     // Add the Spring Boot Starter Data JPA library as an implementation dependency
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // Add dependencies for testing
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockito.kotlin) // Mockito Kotlin extensions
+    testImplementation(libs.junit.jupiter) // JUnit 5
+    testRuntimeOnly(libs.junit.platform.launcher) // JUnit Platform Launcher
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    testImplementation("com.h2database:h2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 dependencyManagement {

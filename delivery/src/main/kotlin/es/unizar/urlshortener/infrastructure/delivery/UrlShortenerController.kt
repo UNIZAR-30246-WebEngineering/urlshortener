@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
+import java.net.MalformedURLException
+import java.io.IOException
+import org.slf4j.LoggerFactory
 
 /**
  * The specification of the controller.
@@ -64,6 +70,66 @@ class UrlShortenerControllerImpl(
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase
 ) : UrlShortenerController {
+    private val logger = LoggerFactory.getLogger(UrlShortenerControllerImpl::class.java)
+
+    fun determinePlatform(userAgent: String?): String {
+        return when {
+            userAgent == null -> "Unknown"
+            userAgent.contains("Windows", true) -> "Windows"
+            userAgent.contains("Mac", true) -> "MacOS"
+            userAgent.contains("Linux", true) -> "Linux"
+            else -> "Other"
+        }
+    }
+
+    fun simplifyBrowserName(userAgent: String): String {
+        return when {
+            userAgent.contains("Chrome", ignoreCase = true) -> "Chrome"
+            userAgent.contains("Firefox", ignoreCase = true) -> "Firefox"
+            userAgent.contains("Safari", ignoreCase = true) &&
+                !userAgent.contains("Chrome", ignoreCase = true) -> "Safari"
+            userAgent.contains("Edge", ignoreCase = true) -> "Edge"
+            userAgent.contains("Opera", ignoreCase = true) ||
+                    userAgent.contains("OPR", ignoreCase = true) -> "Opera"
+            userAgent.contains("Trident", ignoreCase = true) -> "Internet Explorer"
+            else -> "Unknown"
+        }
+    }
+
+    fun getCountryFromIp(ip: String): String? {
+        //Uses https://ip-api.com/ as an external service to get the location
+        // if you are on private ip, try out 24.48.0.1 in request to check functionality
+        val url = "http://ip-api.com/json/$ip"
+        var connection: HttpURLConnection? = null
+
+        return try {
+            // Create HTTP conn
+            val urlObj = URL(url)
+            connection = urlObj.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET" // GET request type
+
+            // Verify reques code first
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                // Read repsonse
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                // Parse JSON to get "Country"... change for more things if required
+                val json = JSONObject(response)
+                json.optString("country")
+            } else {
+                // Maneja el error según el código de respuesta
+                println("Error: ${connection.responseCode} ${connection.responseMessage}")
+                null
+            }
+        } catch (e: MalformedURLException) {
+            logger.error("MalformedURL Exception: ${e.localizedMessage}")
+            null
+        } catch (e: IOException) {
+            logger.error("IO Exception: ${e.localizedMessage}")
+            null
+        } finally {
+            connection?.disconnect() // Asegúrate de desconectar la conexión
+        }
+    }
 
     /**
      * Redirects and logs a short url identified by its [id].
@@ -75,7 +141,13 @@ class UrlShortenerControllerImpl(
     @GetMapping("/{id:(?!api|index).*}")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Unit> =
         redirectUseCase.redirectTo(id).run {
-            logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
+            logClickUseCase.logClick(id, ClickProperties(
+                ip = request.remoteAddr,
+                referrer = request.getHeader("Referer"),
+                browser = simplifyBrowserName(request.getHeader("User-Agent")),
+                platform = determinePlatform(request.getHeader("User-Agent")),
+                country = getCountryFromIp(request.remoteAddr)
+            ))
             val h = HttpHeaders()
             h.location = URI.create(target)
             ResponseEntity<Unit>(h, HttpStatus.valueOf(mode))
