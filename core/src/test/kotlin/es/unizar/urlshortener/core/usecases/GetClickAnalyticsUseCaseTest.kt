@@ -1,9 +1,10 @@
 package es.unizar.urlshortener.core.usecases
 
 import es.unizar.urlshortener.core.Click
+import es.unizar.urlshortener.core.ClickFilters
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ClickRepositoryService
-import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl.ClickFilters
+import es.unizar.urlshortener.core.TimeFrame
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
@@ -20,8 +21,9 @@ class GetClickAnalyticsUseCaseTest {
         val useCase = GetClickAnalyticsUseCaseImpl(repository)
 
         // Prepare test data
-        val startTime = OffsetDateTime.now().minusDays(1)
-        val endTime = OffsetDateTime.now()
+        // We generate offsetDatetime with the furst 2 functions, and then convert it to a long data with the last 2
+        val startTime = OffsetDateTime.now().minusDays(1).toInstant().toEpochMilli()
+        val endTime = OffsetDateTime.now().toInstant().toEpochMilli()
         val timeFrame = TimeFrame(startTime, endTime)
 
         // Create mock Click data

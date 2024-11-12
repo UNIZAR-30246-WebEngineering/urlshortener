@@ -2,6 +2,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.Click
 import es.unizar.urlshortener.core.ClickRepositoryService
+import es.unizar.urlshortener.core.TimeFrame
 import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,8 +11,14 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import kotlin.test.Test
 import java.time.OffsetDateTime
+
+
 
 @WebMvcTest
 @ContextConfiguration(
@@ -33,7 +40,7 @@ class ClickAnalyticsControllerTest {
         // Configura los datos de prueba
         val start = 1609459200000L // Ejemplo de timestamp de inicio (1 enero 2021)
         val end = 1612137600000L   // Ejemplo de timestamp de fin (31 enero 2021)
-        val timeFrame = GetClickAnalyticsUseCaseImpl.TimeFrame(start, end)
+        val timeFrame = TimeFrame(start, end)
 
         // Define algunos clicks de ejemplo
         val clicks = listOf(
@@ -58,7 +65,7 @@ class ClickAnalyticsControllerTest {
         // Configura los datos de prueba
         val start = 1609459200000L
         val end = 1612137600000L
-        val timeFrame = GetClickAnalyticsUseCaseImpl.TimeFrame(start, end)
+        val timeFrame = TimeFrame(start, end)
 
         // Configura el mock para devolver una lista vacía
         given(clickRepositoryService.findClicksByTimeFrame(timeFrame)).willReturn(emptyList())

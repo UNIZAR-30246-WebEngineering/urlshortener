@@ -1,7 +1,5 @@
 package es.unizar.urlshortener.core
 
-import es.unizar.urlshortener.core.usecases.TimeFrame
-
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */

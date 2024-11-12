@@ -30,6 +30,13 @@ class InvalidUrlException(url: String) : DomainException("[$url] does not follow
 class RedirectionNotFound(key: String) : DomainException("[$key] is not known")
 
 /**
+ * An exception inidcating that the application could not connect to the external service providing location based on
+ * the IP
+ * @param ip The IP of which location was being queryed.
+ */
+class IPLocationNotFound(ip: Int) : DomainException("[$ip] is not known")
+
+/**
  * An exception indicating an internal error within the application.
  * This exception can be used to represent unexpected issues that occur within the application,
  * providing both a message and a cause for the error.

@@ -1,5 +1,6 @@
 package es.unizar.urlshortener.core
 
+import java.time.Instant
 import java.time.OffsetDateTime
 
 /**
@@ -9,6 +10,39 @@ data class Click(
     val hash: String,
     val properties: ClickProperties = ClickProperties(),
     val created: OffsetDateTime = OffsetDateTime.now()
+)
+
+/**
+ * Represents a time frame for retrieving click data.
+ */
+data class TimeFrame(
+    val start: Long,
+    val end: Long
+) {
+    init {
+        require(end >= start) { "Start time must be before or equal to end time" }
+    }
+}
+
+/**
+ * Represents filters for click analytics.
+ */
+data class ClickFilters(
+    val browser: String? = null,
+    val referrer: String? = null,
+    val country: String? = null,
+    val platform: String? = null
+)
+
+/**
+ * Represents click analytics data.
+ */
+data class ClickAnalytics(
+    val timestamp: Long,
+    val browser: String,
+    val referrer: String,
+    val country: String,
+    val platform: String
 )
 
 /**

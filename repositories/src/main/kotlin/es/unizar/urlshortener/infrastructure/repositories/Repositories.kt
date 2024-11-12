@@ -3,6 +3,7 @@ package es.unizar.urlshortener.infrastructure.repositories
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
 
 /**
@@ -25,6 +26,7 @@ interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
  *
  * **Note**: Spring Boot is able to discover this [JpaRepository] without further configuration.
  */
+@Repository
 interface ClickEntityRepository : JpaRepository<ClickEntity, Long> {
     /**
      * Finds all [ClickEntity] records within the specified time frame.

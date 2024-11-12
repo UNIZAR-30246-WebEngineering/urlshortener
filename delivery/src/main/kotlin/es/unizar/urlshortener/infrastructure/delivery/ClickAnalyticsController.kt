@@ -2,7 +2,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.Click
 import es.unizar.urlshortener.core.ClickRepositoryService
-import es.unizar.urlshortener.core.usecases.GetClickAnalyticsUseCaseImpl
+import es.unizar.urlshortener.core.TimeFrame
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,7 +26,7 @@ class ClickAnalyticsControllerImpl(
         @PathVariable start: Long,
         @PathVariable end: Long
     ): ResponseEntity<List<Click>> {
-        val timeFrame = GetClickAnalyticsUseCaseImpl.TimeFrame(start, end)
+        val timeFrame = TimeFrame(start, end)
         val clicks = clickRepositoryService.findClicksByTimeFrame(timeFrame)
         return if (clicks.isNotEmpty()) {
             ResponseEntity.ok(clicks)
