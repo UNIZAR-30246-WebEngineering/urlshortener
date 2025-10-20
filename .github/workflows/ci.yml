@@ -22,26 +22,25 @@ jobs:
           distribution: 'temurin'
           
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
         
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: wrapper
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           
       - name: Run Detekt static analysis
         run: ./gradlew detekt --no-daemon
         
-      - name: Build with Gradle
-        run: ./gradlew build --no-daemon
-        
-      - name: Test with Gradle
-        run: ./gradlew check --no-daemon
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+      - name: Assemble
+        run: ./gradlew assemble --no-daemon
         
       - name: Generate test report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: always()
         with:
           name: Gradle Tests
           path: '**/build/test-results/test/TEST-*.xml'
