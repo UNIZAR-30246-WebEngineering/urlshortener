@@ -24,7 +24,7 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
-          version: stable
+          version: release
 
       - name: Render README
         run: quarto render README.qmd -o README.md
