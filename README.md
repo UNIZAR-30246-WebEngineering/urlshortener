@@ -1,49 +1,48 @@
 # URL Shortener - Web Engineering Project
 
-2025-09-08
+[![CI](https://github.com/UNIZAR-30246-WebEngineering/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/UNIZAR-30246-WebEngineering/urlshortener/actions/workflows/ci.yml)
 
-[![](https://github.com/UNIZAR-30246-WebEngineering/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/UNIZAR-30246-WebEngineering/urlshortener/actions/workflows/ci.yml/badge.svg)
+A Modern Clean Architecture Implementation with Kotlin, Spring Boot, and Value Objects.
 
 ## 🎯 Learning Objectives
 
-This project demonstrates modern web engineering practices and serves as
-an educational example for:
+This project demonstrates modern web engineering practices and serves as an educational example for:
 
-- **Clean Architecture** implementation with clear separation of
-  concerns
+- **Clean Architecture** implementation with clear separation of concerns
 - **Domain-Driven Design** with value objects and sealed classes
 - **Modern Kotlin** features including value classes and sealed classes
 - **Spring Boot** best practices and dependency injection
 - **RESTful API** design with OpenAPI documentation
-- **Frontend development** with modern HTML5, CSS3, and vanilla
-  JavaScript
-- **Testing strategies** including unit, integration, and end-to-end
-  tests
+- **Frontend development** with modern HTML5, CSS3, and vanilla JavaScript
+- **Testing strategies** including unit, integration, and end-to-end tests
 - **Build automation** with Gradle and modern tooling
 
 ## 🛠️ Technology Stack
 
-This application showcases modern web engineering technologies and best
-practices:
+This application showcases modern web engineering technologies and best practices:
 
 ### Core Technologies
 
-1.  **Programming Language**: [Kotlin 2.2.10](https://kotlinlang.org/)
-    - Statically-typed, concise, and expressive language
-    - Excellent interoperability with Java
-    - Modern features: value classes, sealed classes, coroutines
-    - Used for both backend and Android development
-2.  **Build System**: [Gradle 9.0](https://gradle.org/)
-    - Modern build automation tool
-    - Multi-module project support
-    - Version catalogs for dependency management
-    - Precompiled script plugins for code reuse
-3.  **Framework**: [Spring Boot
-    3.5.4](https://docs.spring.io/spring-boot/)
-    - Production-ready framework for Java/Kotlin applications
-    - Auto-configuration and opinionated defaults
-    - Embedded web server (Tomcat)
-    - Comprehensive ecosystem (Security, Data, Web, etc.)
+1. **Programming Language**: [Kotlin 2.2.10](https://kotlinlang.org/)
+
+   - Statically-typed, concise, and expressive language
+   - Excellent interoperability with Java
+   - Modern features: value classes, sealed classes, coroutines
+   - Used for both backend and Android development
+
+2. **Build System**: [Gradle 9.0](https://gradle.org/)
+
+   - Modern build automation tool
+   - Multi-module project support
+   - Version catalogs for dependency management
+   - Precompiled script plugins for code reuse
+
+3. **Framework**: [Spring Boot 3.5.4](https://docs.spring.io/spring-boot/)
+
+   - Production-ready framework for Java/Kotlin applications
+   - Auto-configuration and opinionated defaults
+   - Embedded web server (Tomcat)
+   - Comprehensive ecosystem (Security, Data, Web, etc.)
 
 ### Additional Technologies
 
@@ -57,30 +56,31 @@ practices:
 
 ## 🏗️ Clean Architecture Implementation
 
-This project follows [Clean
-Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-principles, specifically implementing the [Hexagonal
-Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-pattern (also known as Ports and Adapters). This approach ensures
-maintainability, testability, and independence from external frameworks.
+This project follows [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) principles, specifically implementing the [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) pattern (also known as Ports and Adapters). This approach ensures maintainability, testability, and independence from external frameworks.
 
 ### Module Structure
 
-- **`core`** - Domain layer containing business logic, entities, and use
-  cases
+- **`core`** - Domain layer containing business logic, entities, and use cases
+
   - Domain entities with value objects and sealed classes
   - Use cases (business rules and application logic)
   - Ports (interfaces) for external dependencies
   - No knowledge of web frameworks or databases
+
 - **`repositories`** - Infrastructure layer for data persistence
+
   - JPA entities and repositories
   - Database converters (domain ↔ persistence)
   - Implementation of core ports
+
 - **`delivery`** - Interface layer for web exposure
+
   - REST controllers with OpenAPI documentation
   - Exception handlers and HTTP mapping
   - DTOs for API communication
+
 - **`app`** - Application layer and configuration
+
   - Spring Boot configuration and dependency injection
   - Static web assets (HTML, CSS, JavaScript)
   - Application startup and module wiring
@@ -110,22 +110,29 @@ flowchart LR;
 
 When adding new features, follow this clean architecture approach:
 
-1.  **Domain First**: Start in the `core` module
-    - Define domain entities with value objects
-    - Create use cases (business logic)
-    - Define ports (interfaces) for external dependencies
-2.  **Infrastructure**: Implement in `repositories` module
-    - Create JPA entities if needed
-    - Implement port interfaces
-    - Add database converters
-3.  **Interface**: Expose in `delivery` module
-    - Create REST controllers
-    - Add OpenAPI documentation
-    - Handle HTTP-specific concerns
-4.  **Configuration**: Wire everything in `app` module
-    - Configure Spring beans
-    - Set up dependency injection
-    - Add any necessary configuration
+1. **Domain First**: Start in the `core` module
+
+   - Define domain entities with value objects
+   - Create use cases (business logic)
+   - Define ports (interfaces) for external dependencies
+
+2. **Infrastructure**: Implement in `repositories` module
+
+   - Create JPA entities if needed
+   - Implement port interfaces
+   - Add database converters
+
+3. **Interface**: Expose in `delivery` module
+
+   - Create REST controllers
+   - Add OpenAPI documentation
+   - Handle HTTP-specific concerns
+
+4. **Configuration**: Wire everything in `app` module
+
+   - Configure Spring beans
+   - Set up dependency injection
+   - Add any necessary configuration
 
 ### Advanced Features
 
@@ -135,8 +142,7 @@ For more complex scenarios, consider:
 - Additional `app` modules for microservices architecture
 - **`shared`** module for common utilities across modules
 
-Features involving external integrations or multiple applications
-demonstrate advanced architectural understanding.
+Features involving external integrations or multiple applications demonstrate advanced architectural understanding.
 
 ## 🎨 Modern Domain Modeling
 
@@ -144,8 +150,7 @@ This project showcases advanced Kotlin features for domain modeling:
 
 ### Value Objects
 
-The domain uses `@JvmInline value class` for type safety without runtime
-overhead:
+The domain uses `@JvmInline value class` for type safety without runtime overhead:
 
 ```kotlin
 @JvmInline
@@ -159,10 +164,12 @@ value class UrlHash(val value: String) {
 }
 ```
 
-**Benefits**: - **Type Safety**: Prevents mixing different string
-types - **Zero Runtime Cost**: Compiled away to underlying type -
-**Validation**: Input validation at creation time - **Immutability**:
-Cannot be modified after creation
+**Benefits**:
+
+- **Type Safety**: Prevents mixing different string types
+- **Zero Runtime Cost**: Compiled away to underlying type
+- **Validation**: Input validation at creation time
+- **Immutability**: Cannot be modified after creation
 
 ### Sealed Classes
 
@@ -181,10 +188,12 @@ sealed class RedirectionType(val statusCode: Int) {
 }
 ```
 
-**Benefits**: - **Exhaustive Pattern Matching**: Compiler ensures all
-cases are handled - **Type Safety**: Cannot create invalid states -
-**Extensibility**: Easy to add new states - **Performance**: No runtime
-overhead
+**Benefits**:
+
+- **Exhaustive Pattern Matching**: Compiler ensures all cases are handled
+- **Type Safety**: Cannot create invalid states
+- **Extensibility**: Easy to add new states
+- **Performance**: No runtime overhead
 
 ## 🚀 Getting Started
 
@@ -194,8 +203,7 @@ The application can be run as follows:
 ./gradlew bootRun
 ```
 
-Now you have a shortener service running at port 8080. You can test that
-it works as follows:
+Now you have a shortener service running at port 8080. You can test that it works as follows:
 
 ```bash
 $ curl -v -d "url=http://www.unizar.es/" http://localhost:8080/api/link
@@ -281,20 +289,15 @@ The application provides three main business capabilities:
 
 The domain model uses modern Kotlin features:
 
-- **`ShortUrl`**: Core entity with `UrlHash`, `Redirection`, and
-  `ShortUrlProperties`
-- **`Redirection`**: Contains `Url` target and `RedirectionType`
-  (Temporary/Permanent)
+- **`ShortUrl`**: Core entity with `UrlHash`, `Redirection`, and `ShortUrlProperties`
+- **`Redirection`**: Contains `Url` target and `RedirectionType` (Temporary/Permanent)
 - **`Click`**: Analytics entity with `UrlHash` and `ClickProperties`
-- **`ShortUrlProperties`**: Metadata using value objects (`IpAddress`,
-  `Sponsor`, `Owner`, etc.)
-- **`ClickProperties`**: Analytics data using value objects (`Browser`,
-  `Platform`, `CountryCode`, etc.)
+- **`ShortUrlProperties`**: Metadata using value objects (`IpAddress`, `Sponsor`, `Owner`, etc.)
+- **`ClickProperties`**: Analytics data using value objects (`Browser`, `Platform`, `CountryCode`, etc.)
 
 ## 🌐 REST API Design
 
-The application exposes a clean, RESTful API with comprehensive OpenAPI
-documentation:
+The application exposes a clean, RESTful API with comprehensive OpenAPI documentation:
 
 ### API Endpoints
 
@@ -336,8 +339,8 @@ GET /
 
 ### API Documentation
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: <http://localhost:8080/swagger-ui.html>
+- **OpenAPI Spec**: <http://localhost:8080/v3/api-docs>
 - **Features**: Interactive testing, schema validation, example requests
 
 ### Content Types Supported
@@ -348,19 +351,15 @@ GET /
 
 ## 📊 Monitoring and Health Checks
 
-The application includes Spring Boot Actuator for production-ready
-monitoring and management:
+The application includes Spring Boot Actuator for production-ready monitoring and management:
 
 ### Available Actuator Endpoints
 
 The application exposes these actuator endpoints:
 
-- **Health Check**: `GET /actuator/health` - Detailed application health
-  status
-- **Application Info**: `GET /actuator/info` - Application metadata
-  (empty by default)
-- **Actuator Discovery**: `GET /actuator` - Lists all available actuator
-  endpoints
+- **Health Check**: `GET /actuator/health` - Detailed application health status
+- **Application Info**: `GET /actuator/info` - Application metadata (empty by default)
+- **Actuator Discovery**: `GET /actuator` - Lists all available actuator endpoints
 
 ### Health Indicators (Verified)
 
@@ -416,16 +415,13 @@ management:
 ### Production Considerations
 
 - **Security**: Actuator endpoints should be secured in production
-- **Exposure**: Configure which endpoints are exposed via
-  `management.endpoints.web.exposure.include`
+- **Exposure**: Configure which endpoints are exposed via `management.endpoints.web.exposure.include`
 - **Custom Health**: Add custom health indicators for business logic
-- **Info Endpoint**: Configure `management.info.*` properties to
-  populate application metadata
+- **Info Endpoint**: Configure `management.info.*` properties to populate application metadata
 
 ## 🗄️ Data Persistence
 
-The application uses JPA/Hibernate for data persistence with clean
-architecture principles:
+The application uses JPA/Hibernate for data persistence with clean architecture principles:
 
 ### Database Schema
 
@@ -464,21 +460,16 @@ CREATE TABLE click (
 
 The project implements the Repository pattern with clean separation:
 
-1.  **Domain Ports** (`core/Ports.kt`): Interfaces defining data access
-    contracts
-2.  **Infrastructure Implementation** (`repositories/PortsImpl.kt`):
-    JPA-based implementations
-3.  **Entity Converters** (`repositories/Converters.kt`): Domain ↔
-    Persistence mapping
+1. **Domain Ports** (`core/Ports.kt`): Interfaces defining data access contracts
+2. **Infrastructure Implementation** (`repositories/PortsImpl.kt`): JPA-based implementations
+3. **Entity Converters** (`repositories/Converters.kt`): Domain ↔ Persistence mapping
 
 ### Key Features
 
 - **Type Safety**: Value objects ensure data integrity
-- **Clean Mapping**: Converters handle domain ↔ persistence
-  transformation
+- **Clean Mapping**: Converters handle domain ↔ persistence transformation
 - **Testability**: Repository interfaces enable easy mocking
-- **Flexibility**: Easy to switch between different persistence
-  technologies
+- **Flexibility**: Easy to switch between different persistence technologies
 
 ## 🧪 Testing Strategy
 
@@ -531,45 +522,32 @@ The project implements comprehensive testing at multiple levels:
 
 ### Core Concepts
 
-- **Clean Architecture**: [Uncle Bob’s Clean
-  Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- **Domain-Driven Design**: [DDD
-  Reference](https://domainlanguage.com/ddd/reference/)
-- **SOLID Principles**: [SOLID Principles in
-  Kotlin](https://kotlinlang.org/docs/object-oriented-programming.html)
+- **Clean Architecture**: [Uncle Bob's Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- **Domain-Driven Design**: [DDD Reference](https://domainlanguage.com/ddd/reference/)
+- **SOLID Principles**: [SOLID Principles in Kotlin](https://kotlinlang.org/docs/object-oriented-programming.html)
 
 ### Technology Documentation
 
-- **Kotlin**: [Official Kotlin
-  Documentation](https://kotlinlang.org/docs/)
-- **Spring Boot**: [Spring Boot
-  Reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-- **Gradle**: [Gradle User
-  Manual](https://docs.gradle.org/current/userguide/userguide.html)
-- **OpenAPI**: [OpenAPI
-  Specification](https://swagger.io/specification/)
+- **Kotlin**: [Official Kotlin Documentation](https://kotlinlang.org/docs/)
+- **Spring Boot**: [Spring Boot Reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- **Gradle**: [Gradle User Manual](https://docs.gradle.org/current/userguide/userguide.html)
+- **OpenAPI**: [OpenAPI Specification](https://swagger.io/specification/)
 
 ### Learning Guides
 
-- [Building a RESTful Web Service with Spring
-  Boot](https://spring.io/guides/gs/rest-service/)
-- [Serving Web Content with Spring
-  MVC](https://spring.io/guides/gs/serving-web-content/)
-- [Accessing Data with
-  JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-- [Testing Spring Boot
-  Applications](https://spring.io/guides/gs/testing-web/)
+- [Building a RESTful Web Service with Spring Boot](https://spring.io/guides/gs/rest-service/)
+- [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+- [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+- [Testing Spring Boot Applications](https://spring.io/guides/gs/testing-web/)
 
 ## 🚀 Next Steps
 
 ### For Students
 
-1.  **Explore the Code**: Start with the `core` module to understand
-    domain logic
-2.  **Run Tests**: Execute tests to see expected behavior
-3.  **Add Features**: Implement new use cases following clean
-    architecture
-4.  **Experiment**: Try different approaches and learn from the codebase
+1. **Explore the Code**: Start with the `core` module to understand domain logic
+2. **Run Tests**: Execute tests to see expected behavior
+3. **Add Features**: Implement new use cases following clean architecture
+4. **Experiment**: Try different approaches and learn from the codebase
 
 ### Potential Extensions
 
@@ -579,3 +557,16 @@ The project implements comprehensive testing at multiple levels:
 - **Rate Limiting**: Implement API rate limiting
 - **Caching**: Add Redis for improved performance
 - **Microservices**: Split into separate services
+
+## 🧰 Tooling & CI
+
+- **CI**: GitHub Actions workflow `ci.yml`
+  - JDK 17 (Temurin) with modern Gradle actions
+  - Steps: `detekt`, `test`, `assemble`
+  - Test reports uploaded on all outcomes
+- **Static analysis**: Detekt wired into `check` with HTML, XML, TXT, and SARIF reports
+- **Build performance**: configuration cache, build cache, and parallel enabled via `gradle.properties`
+
+## 📝 Changelog
+
+- 2025-10-20: CI updated to Gradle actions v3; detekt reports configured; tests run via `test` and artifacts via `assemble`; added Quarto-based README auto-render workflow; Gradle configuration cache and parallelism enabled. Removed Quarto automation and `README.qmd`; README is now maintained directly in `README.md`.
