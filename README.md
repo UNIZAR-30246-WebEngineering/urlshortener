@@ -569,4 +569,4 @@ The project implements comprehensive testing at multiple levels:
 
 ## 📝 Changelog
 
-- 2025-10-20: CI updated to Gradle actions v3; detekt reports configured; tests run via `test` and artifacts via `assemble`; added Quarto-based README auto-render workflow; Gradle configuration cache and parallelism enabled. Removed Quarto automation and `README.qmd`; README is now maintained directly in `README.md`.
+- 2025-10-20: CI updated to Gradle actions v3; detekt reports configured; tests run via `test` and artifacts via `assemble`; Gradle configuration cache and parallelism enabled; removed `README.qmd`; README is now maintained directly in `README.md`.
