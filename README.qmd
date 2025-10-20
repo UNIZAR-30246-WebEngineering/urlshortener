@@ -535,3 +535,17 @@ The project implements comprehensive testing at multiple levels:
 - **Rate Limiting**: Implement API rate limiting
 - **Caching**: Add Redis for improved performance
 - **Microservices**: Split into separate services
+
+## 🧰 Tooling & CI
+
+- **CI**: GitHub Actions workflow `ci.yml`
+  - JDK 17 (Temurin) with modern Gradle actions
+  - Steps: `detekt`, `test`, `assemble`
+  - Test reports uploaded on all outcomes
+- **Static analysis**: Detekt wired into `check` with HTML, XML, TXT, and SARIF reports
+- **Build performance**: configuration cache, build cache, and parallel enabled via `gradle.properties`
+- **README automation**: `readme.yml` renders `README.qmd` ➜ `README.md` with Quarto and commits changes on `main`
+
+## 📝 Changelog
+
+- 2025-10-20: CI updated to Gradle actions v3; detekt reports configured; tests run via `test` and artifacts via `assemble`; added Quarto-based README auto-render workflow; Gradle configuration cache and parallelism enabled.
