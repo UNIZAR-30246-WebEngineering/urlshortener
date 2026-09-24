@@ -4,11 +4,11 @@
 
 **Owner module**: `links` | **Event-coupled**: Y (`ShortUrlCreatedEvent`)
 
-Accept a target URL, validate it, hash it, persist a `ShortUrl`, and publish `ShortUrlCreatedEvent` so other modules can react.
+Accept a target URL, validate it, mint a new base62 code from `short_url_seq`, persist a `ShortUrl`, and publish `ShortUrlCreatedEvent` so other modules can react.
 
-**Traps**: invalid URLs must be rejected before hashing; hash collisions need a retry strategy; duplicate URLs should return the existing hash, not a new one.
+**Traps**: invalid URLs must be rejected before minting; the same URL gets a new code on every create; the sequence must live in the database so restarts and both app replicas do not repeat codes.
 
-**Technology hints**: `CommonsUrlValidator`; `MurmurHashGenerator`; atomic HQL insert-if-absent on `short_url` (see ADR 0002); Spring Modulith application event.
+**Technology hints**: `CommonsUrlValidator`; `short_url_seq` starting at `62^3` (4-character codes); `Base62`; Spring Modulith application event. See [ADR 0003](../adr/0003-sequence-short-codes.md).
 
 ---
 
@@ -19,15 +19,14 @@ Accept a target URL, validate it, hash it, persist a `ShortUrl`, and publish `Sh
 
 ## Later
 
-- **ADR:** [`docs/adr/0001-modulith-and-hexagon.md`](../adr/0001-modulith-and-hexagon.md), [`docs/adr/0002-atomic-upserts.md`](../adr/0002-atomic-upserts.md)
+- **ADR:** [`docs/adr/0001-modulith-and-hexagon.md`](../adr/0001-modulith-and-hexagon.md), [`docs/adr/0002-atomic-upserts.md`](../adr/0002-atomic-upserts.md), [`docs/adr/0003-sequence-short-codes.md`](../adr/0003-sequence-short-codes.md)
 
 ### Acceptance criteria
 
 - [x] `POST /api/link` with form `url=` returns **201** and JSON `hash` + location — covered by `LinkFlowTests`
 - [ ] Invalid URL → **400**
 - [x] Publishes `ShortUrlCreatedEvent` — implied by stats bootstrap in `LinkFlowTests` + `LinkStatsListener`
-- [x] Same URL (also concurrently) returns the existing hash — `CreateShortUrlConcurrencyTests`
-- [x] Hash collision → retried with salted rehash (`hash("$url#n")`, 3 attempts), stable on repeat; all taken → **409**, target never overwritten — `CreateShortUrlConcurrencyTests`
+- [x] Same URL (also concurrently) mints a distinct code of at least 4 characters — `CreateShortUrlConcurrencyTests`
 
 ### Scale evidence
 
@@ -49,5 +48,5 @@ Accept a target URL, validate it, hash it, persist a `ShortUrl`, and publish `Sh
 
 - **Tools / skills:** Model selected by Cursor Auto.
 - **Used for:** Adapting the seed feature from 25-26 course code to the 26-27 course code.
-- **Cursor agent (Claude):** atomic insert-if-absent, salted-rehash collision retry with 409 on exhaustion, `CreateShortUrlConcurrencyTests` (shown to fail against the previous `save`).
+- **Cursor agent (Grok):** sequence-backed base62 codes (`short_url_seq` from `62^3`), one new code per create, Guava removed.
 - **Human-reviewed:** The instructor reviewed the code and verified the correctness of the adaptation.

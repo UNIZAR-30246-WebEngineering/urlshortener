@@ -1,7 +1,6 @@
 package es.unizar.urlshortener.links.adapters.web
 
 import es.unizar.urlshortener.links.application.CreateShortUrl
-import es.unizar.urlshortener.links.application.HashCollisionException
 import es.unizar.urlshortener.links.application.InvalidUrlException
 import es.unizar.urlshortener.links.application.LinkNotFoundException
 import es.unizar.urlshortener.links.application.RedirectShortUrl
@@ -61,10 +60,6 @@ class LinkController(
     @ExceptionHandler(InvalidUrlException::class)
     fun invalidUrl(ex: InvalidUrlException): ResponseEntity<Map<String, String>> =
         ResponseEntity.badRequest().body(mapOf("error" to (ex.message ?: "invalid url")))
-
-    @ExceptionHandler(HashCollisionException::class)
-    fun hashCollision(ex: HashCollisionException): ResponseEntity<Map<String, String>> =
-        ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to (ex.message ?: "hash collision")))
 
     @ExceptionHandler(LinkNotFoundException::class)
     fun notFound(ex: LinkNotFoundException): ResponseEntity<Map<String, String>> =

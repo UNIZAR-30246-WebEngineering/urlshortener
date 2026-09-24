@@ -3,9 +3,7 @@ kotlin = "2.4.0"
 springBoot = "4.1.0"
 springModulith = "2.0.7"
 commonsValidator = "1.9.0"
-guava = "33.4.8-jre"
 kotlinLogging = "7.0.3"
-openapi = "3.0.3"
 archunit = "1.5.0"
 jmolecules = "2025.0.2"
 detekt = "1.23.8"
@@ -31,9 +29,7 @@ jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" 
 hsqldb = { module = "org.hsqldb:hsqldb" }
 postgresql = { module = "org.postgresql:postgresql" }
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlinLogging" }
-springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "openapi" }
 modulith-bom = { module = "org.springframework.modulith:spring-modulith-bom", version.ref = "springModulith" }
 modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
 modulith-starter-jdbc = { module = "org.springframework.modulith:spring-modulith-starter-jdbc" }

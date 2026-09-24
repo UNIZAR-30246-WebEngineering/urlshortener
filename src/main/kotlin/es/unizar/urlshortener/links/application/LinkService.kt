@@ -12,7 +12,7 @@ import java.time.Instant
 class LinkService(
     private val store: ShortUrlStore,
     private val validator: UrlValidator,
-    private val hashGenerator: HashGenerator,
+    private val codes: ShortCodeSource,
     private val events: ApplicationEventPublisher,
 ) : CreateShortUrl,
     RedirectShortUrl {
@@ -23,25 +23,9 @@ class LinkService(
         if (!validator.isValid(trimmed)) {
             throw InvalidUrlException(trimmed)
         }
-        return candidateHashes(trimmed)
-            .firstNotNullOfOrNull { hash -> claim(hash, trimmed) }
-            ?: throw HashCollisionException(trimmed, MAX_HASH_ATTEMPTS)
-    }
-
-    private fun candidateHashes(url: String): Sequence<String> =
-        (0 until MAX_HASH_ATTEMPTS).asSequence().map { attempt ->
-            hashGenerator.hash(if (attempt == 0) url else "$url#$attempt")
-        }
-
-    private fun claim(
-        hash: String,
-        url: String,
-    ): CreatedShortUrl? {
-        val existing = store.findByHash(hash).orElse(null)
-        val stored = existing ?: store.saveIfAbsent(ShortUrl(hash = hash, target = url))
-        if (stored.target != url) return null
-        if (existing == null) events.publishEvent(ShortUrlCreatedEvent(hash = hash, target = url))
-        return CreatedShortUrl(hash = hash, target = url)
+        val stored = store.insert(ShortUrl(hash = codes.next(), target = trimmed))
+        events.publishEvent(ShortUrlCreatedEvent(hash = stored.hash, target = stored.target))
+        return CreatedShortUrl(hash = stored.hash, target = stored.target)
     }
 
     @Transactional
@@ -49,9 +33,5 @@ class LinkService(
         val shortUrl = store.findByHash(hash).orElseThrow { LinkNotFoundException(hash) }
         events.publishEvent(ClickLoggedEvent(hash = hash, occurredAt = Instant.now()))
         return Redirection(target = shortUrl.target)
-    }
-
-    companion object {
-        const val MAX_HASH_ATTEMPTS = 3
     }
 }

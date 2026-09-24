@@ -19,7 +19,7 @@ Spring Modulith delivers at least once: its completion interceptor (`HIGHEST_PRE
 3. Increment: `values (:hash, 1) … do update set totalClicks = totalClicks + 1`.
 4. `insertIfAbsent`: `values (:hash, 0)` with a no-op `do update set totalClicks = totalClicks`, never overwriting clicks. `do nothing` is not used: on HSQLDB Hibernate renders it as a plain `insert`, which fails on concurrent creation.
 5. `LinkStatsListener` keeps `@ApplicationModuleListener`; `LinkStatsService` update methods stay `@Transactional`.
-6. `ShortUrlStore.save` becomes `saveIfAbsent`: the same no-op-update HQL upsert on `ShortUrlEntity`, then a read of the stored row. `LinkService` tries a deterministic sequence of `MAX_HASH_ATTEMPTS` (3) candidates, `hash(url)` then `hash("$url#n")`, and takes the first that is free or already holds this URL; the same URL always lands on the same hash. When all are held by other URLs it throws `HashCollisionException` (**409**). `ShortUrlCreatedEvent` is published only when the hash was not found first; a concurrent create may publish twice, harmless given item 4.
+6. Superseded for minting by [ADR 0003](0003-sequence-short-codes.md). `ShortUrl` rows are inserted with a fresh code; the target is not unique.
 7. `ClickLoggedEvent` gains `eventId` (random UUID, set when `links` publishes). Consumers skip ids already processed, in the same transaction as their write:
    - `analytics`: `processed_click_event(event_id PK)`; `incrementClicks` checks the id, inserts it, then upserts.
    - `clicks`: unique `click.event_id`; `RecordClickService` checks the id, then saves.
@@ -35,7 +35,7 @@ Spring Modulith delivers at least once: its completion interceptor (`HIGHEST_PRE
 - `click.event_id` is a nullable column (`UUID?`). New writes always set it. Nulls are only expected on rows logged before this change (`ddl-auto: update`).
 - Depends on Hibernate HQL `on conflict` (6.5+), not portable JPQL.
 - The no-op updates still write (and lock) an existing row.
-- A collided URL gets a salted hash, so its hash is no longer `hash(url)`. Only `create` walks `hash(url)`, then `hash("$url#1")` and `hash("$url#2")`. `redirect` loads the hash it was given. A create costs one lookup per candidate tried (up to 3), plus an upsert and a read whenever a candidate looks free.
+- Short-code minting moved to [ADR 0003](0003-sequence-short-codes.md). `redirect` still loads the code it was given.
 
 ## Alternatives considered
 
@@ -55,7 +55,7 @@ Spring Modulith delivers at least once: its completion interceptor (`HIGHEST_PRE
 
 - [x] `LinkStatsConcurrencyTests`: 16 concurrent first clicks → 16; created event racing 16 clicks → 16; same event 3× → 1; 16 concurrent copies of one event → 1
 - [x] `RecordClickIdempotencyTests`: same event 3× → one `click` row; 3 distinct events → 3 rows
-- [x] `CreateShortUrlConcurrencyTests`: 16 concurrent creates of one URL → same hash (fails with a primary-key violation against the old `save`); colliding URL → next salted hash, stable on repeat and under concurrency; all candidates taken → `HashCollisionException`
+- [x] `CreateShortUrlConcurrencyTests`: covered minting collisions until [ADR 0003](0003-sequence-short-codes.md); that ADR replaces this case
 - [x] `ProcessedClickEventPruneTests`: ids younger than the retention are kept; older ids are removed
 - [x] Same cases on Postgres 16 (Testcontainers): `*PostgresTests` rerun the cases above and are skipped when Docker is unavailable. They do not capture SQL. Hibernate renders the hash upserts as `insert … on conflict(hash) do update …`. The processed-id write is a plain `insert`, not `on conflict`.
 - [x] Completion ordering read from `spring-modulith-events-core` 2.0.7 `CompletionRegisteringAdvisor`
