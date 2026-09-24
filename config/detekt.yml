@@ -1,0 +1,30 @@
+# Detekt configuration — seed defaults (students may tune)
+# Docs: https://detekt.dev/docs/rules/
+
+build:
+  maxIssues: 0  # fail on any issue
+
+complexity:
+  LongMethod:
+    threshold: 30
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+  TooManyFunctions:
+    thresholdInFiles: 15
+    thresholdInClasses: 15
+
+style:
+  MagicNumber:
+    active: false  # too noisy for a seed
+  WildcardImport:
+    active: true
+  MaxLineLength:
+    maxLineLength: 140
+
+naming:
+  FunctionNaming:
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*|`.*`'  # allow backtick test names
+
+potential-bugs:
+  active: true
