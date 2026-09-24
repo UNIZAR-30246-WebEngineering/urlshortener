@@ -7,7 +7,7 @@ import java.util.Optional
 
 @SecondaryPort
 interface ShortUrlStore {
-    fun save(shortUrl: ShortUrl): ShortUrl
+    fun saveIfAbsent(shortUrl: ShortUrl): ShortUrl
 
     fun findByHash(hash: String): Optional<ShortUrl>
 }
@@ -35,22 +35,21 @@ class InvalidUrlException(
     url: String,
 ) : RuntimeException("[$url] is not a supported URL")
 
+class HashCollisionException(
+    url: String,
+    attempts: Int,
+) : RuntimeException("[$url] collides with other URLs on all $attempts candidate hashes")
+
 class LinkNotFoundException(
     hash: String,
 ) : RuntimeException("[$hash] is not known")
 
 @PrimaryPort
 fun interface CreateShortUrl {
-    fun create(
-        url: String,
-        creatorIp: String?,
-    ): CreatedShortUrl
+    fun create(url: String): CreatedShortUrl
 }
 
 @PrimaryPort
 fun interface RedirectShortUrl {
-    fun redirect(
-        hash: String,
-        clientIp: String?,
-    ): Redirection
+    fun redirect(hash: String): Redirection
 }

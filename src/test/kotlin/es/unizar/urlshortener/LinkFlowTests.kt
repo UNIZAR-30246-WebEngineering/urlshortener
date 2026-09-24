@@ -1,10 +1,11 @@
 package es.unizar.urlshortener
 
+import com.jayway.jsonpath.JsonPath.read
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -25,15 +26,13 @@ class LinkFlowTests {
             mockMvc
                 .perform(
                     post("/api/link")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .contentType(APPLICATION_FORM_URLENCODED)
                         .param("url", "https://example.com/seed"),
                 ).andExpect(status().isCreated)
                 .andExpect(jsonPath("$.hash").isString)
                 .andReturn()
 
-        val hash =
-            com.jayway.jsonpath.JsonPath
-                .read<String>(create.response.contentAsString, "$.hash")
+        val hash = read<String>(create.response.contentAsString, "$.hash")
 
         mockMvc
             .perform(get("/$hash"))

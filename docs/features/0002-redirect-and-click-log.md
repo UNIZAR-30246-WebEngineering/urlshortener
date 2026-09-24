@@ -2,11 +2,11 @@
 
 ## Decision
 
-**Owner module**: `links` (redirect) + `clicks` (log) | **Event-coupled**: Y (`ClickLogged`)
+**Owner module**: `links` (redirect) + `clicks` (log) | **Event-coupled**: Y (`ClickLoggedEvent`)
 
-Look up a short URL by hash, return **307** to the target, and append a permanent click-log row via `ClickLogged` → `ClickRecorder`. Unknown hashes return **404**.
+Look up a short URL by hash, return **307** to the target, and append a permanent click-log row via `ClickLoggedEvent` → `ClickRecorder`. Unknown hashes return **404**.
 
-**Traps**: stateless redirect (no `HttpSession`); click logging must not block the redirect path; `ClickLogged` is an in-process event — cross-replica delivery requires Level 4.
+**Traps**: stateless redirect (no `HttpSession`); click logging must not block the redirect path; `ClickLoggedEvent` is an in-process event — cross-replica delivery requires Level 4.
 
 **Technology hints**: `ClickRecorder` as `@ApplicationModuleListener`; `307 Temporary Redirect` with `Location` header; Spring Modulith event in `clicks` base package.
 
@@ -19,17 +19,18 @@ Look up a short URL by hash, return **307** to the target, and append a permanen
 
 ## Later
 
-- **ADR:** [`docs/adr/0001-modulith-and-hexagon.md`](../adr/0001-modulith-and-hexagon.md)
+- **ADR:** [`docs/adr/0001-modulith-and-hexagon.md`](../adr/0001-modulith-and-hexagon.md), [`docs/adr/0002-atomic-upserts.md`](../adr/0002-atomic-upserts.md)
 
 ### Acceptance criteria
 
 - [x] `GET /{hash}` → **307** with `Location` = target — `LinkFlowTests`
 - [ ] Unknown hash → **404** — handler exists; **no automated test yet**
 - [x] Successful redirect leads to click side-effect — `LinkFlowTests` reaches `totalClicks=1` (via analytics)
+- [x] A redelivered `ClickLoggedEvent` (same `eventId`) is logged once — `RecordClickIdempotency(Postgres)Tests`
 
 ### Scale evidence
 
-- [x] Level 3 — in-process `ClickLogged` event
+- [x] Level 3 — in-process `ClickLoggedEvent` event
 - [ ] Redirect via product LB with scale evidence
 
 ### Qualities (self-assessed)
@@ -44,5 +45,6 @@ Look up a short URL by hash, return **307** to the target, and append a permanen
 
 ### AI disclosure
 
-- **No AI assistance** was used to implement this seed feature in the provided baseline.
-- Card text may be maintained with instructor tooling; any later student edits must update this section.
+- **Used for:** Adapting the seed feature from 25-26 course code to the 26-27 course code.
+- **Human-reviewed:** The instructor reviewed the code and verified the correctness of the adaptation.
+- **Cursor agent (Claude):** `eventId` on `ClickLoggedEvent`, idempotent `RecordClickService` (unique `click.event_id`), `RecordClickIdempotency(Postgres)Tests`.

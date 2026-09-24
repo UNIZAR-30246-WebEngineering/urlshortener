@@ -16,6 +16,11 @@ spring:
         schema-initialization:
           enabled: true
 
+urlshortener:
+  analytics:
+    processed-click-retention: 7d
+    processed-click-prune-cron: "0 0 3 * * *"
+
 management:
   endpoint:
     health:

@@ -9,26 +9,10 @@ import java.util.Optional
 class JpaShortUrlStore(
     private val repository: JpaShortUrlRepository,
 ) : ShortUrlStore {
-    override fun save(shortUrl: ShortUrl): ShortUrl {
-        val saved = repository.save(shortUrl.toEntity())
-        return saved.toDomain()
+    override fun saveIfAbsent(shortUrl: ShortUrl): ShortUrl {
+        repository.insertIfAbsent(shortUrl.hash, shortUrl.target, shortUrl.createdAt)
+        return repository.findById(shortUrl.hash).orElseThrow().toDomain()
     }
 
     override fun findByHash(hash: String): Optional<ShortUrl> = repository.findById(hash).map { it.toDomain() }
-
-    private fun ShortUrl.toEntity() =
-        ShortUrlEntity(
-            hash = hash,
-            target = target,
-            createdAt = createdAt,
-            creatorIp = creatorIp,
-        )
-
-    private fun ShortUrlEntity.toDomain() =
-        ShortUrl(
-            hash = hash,
-            target = target,
-            createdAt = createdAt,
-            creatorIp = creatorIp,
-        )
 }

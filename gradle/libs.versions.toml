@@ -39,6 +39,9 @@ modulith-starter-core = { module = "org.springframework.modulith:spring-modulith
 modulith-starter-jdbc = { module = "org.springframework.modulith:spring-modulith-starter-jdbc" }
 modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 jmolecules-bom = { module = "org.jmolecules:jmolecules-bom", version.ref = "jmolecules" }
 jmolecules-hexagonal = { module = "org.jmolecules:jmolecules-hexagonal-architecture" }
 jmolecules-archunit = { module = "org.jmolecules.integrations:jmolecules-archunit" }

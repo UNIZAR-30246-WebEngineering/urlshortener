@@ -1,7 +1,7 @@
 package es.unizar.urlshortener.links.application
 
-import es.unizar.urlshortener.clicks.ClickLogged
-import es.unizar.urlshortener.links.ShortUrlCreated
+import es.unizar.urlshortener.clicks.ClickLoggedEvent
+import es.unizar.urlshortener.links.ShortUrlCreatedEvent
 import es.unizar.urlshortener.links.domain.ShortUrl
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
@@ -17,33 +17,41 @@ class LinkService(
 ) : CreateShortUrl,
     RedirectShortUrl {
     @Transactional
-    override fun create(
-        url: String,
-        creatorIp: String?,
-    ): CreatedShortUrl {
+    override fun create(url: String): CreatedShortUrl {
         val trimmed = url.trim()
         require(trimmed.isNotEmpty()) { "url must not be blank" }
         if (!validator.isValid(trimmed)) {
             throw InvalidUrlException(trimmed)
         }
-        val hash = hashGenerator.hash(trimmed)
-        store.save(ShortUrl(hash = hash, target = trimmed, creatorIp = creatorIp))
-        events.publishEvent(ShortUrlCreated(hash = hash, target = trimmed))
-        return CreatedShortUrl(hash = hash, target = trimmed)
+        return candidateHashes(trimmed)
+            .firstNotNullOfOrNull { hash -> claim(hash, trimmed) }
+            ?: throw HashCollisionException(trimmed, MAX_HASH_ATTEMPTS)
     }
 
-    /**
-     * Stateless redirect: lookup + publish [ClickLogged].
-     */
-    @Transactional
-    override fun redirect(
+    private fun candidateHashes(url: String): Sequence<String> =
+        (0 until MAX_HASH_ATTEMPTS).asSequence().map { attempt ->
+            hashGenerator.hash(if (attempt == 0) url else "$url#$attempt")
+        }
+
+    private fun claim(
         hash: String,
-        clientIp: String?,
-    ): Redirection {
+        url: String,
+    ): CreatedShortUrl? {
+        val existing = store.findByHash(hash).orElse(null)
+        val stored = existing ?: store.saveIfAbsent(ShortUrl(hash = hash, target = url))
+        if (stored.target != url) return null
+        if (existing == null) events.publishEvent(ShortUrlCreatedEvent(hash = hash, target = url))
+        return CreatedShortUrl(hash = hash, target = url)
+    }
+
+    @Transactional
+    override fun redirect(hash: String): Redirection {
         val shortUrl = store.findByHash(hash).orElseThrow { LinkNotFoundException(hash) }
-        events.publishEvent(
-            ClickLogged(hash = hash, clientIp = clientIp, occurredAt = Instant.now()),
-        )
+        events.publishEvent(ClickLoggedEvent(hash = hash, occurredAt = Instant.now()))
         return Redirection(target = shortUrl.target)
+    }
+
+    companion object {
+        const val MAX_HASH_ATTEMPTS = 3
     }
 }

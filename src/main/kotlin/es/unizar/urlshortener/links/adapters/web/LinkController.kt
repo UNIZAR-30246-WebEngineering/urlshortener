@@ -1,10 +1,10 @@
 package es.unizar.urlshortener.links.adapters.web
 
 import es.unizar.urlshortener.links.application.CreateShortUrl
+import es.unizar.urlshortener.links.application.HashCollisionException
 import es.unizar.urlshortener.links.application.InvalidUrlException
 import es.unizar.urlshortener.links.application.LinkNotFoundException
 import es.unizar.urlshortener.links.application.RedirectShortUrl
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -35,9 +35,8 @@ class LinkController(
     )
     fun create(
         @RequestParam url: String,
-        request: HttpServletRequest,
     ): ResponseEntity<ShortUrlResponse> {
-        val created = createShortUrl.create(url, request.remoteAddr)
+        val created = createShortUrl.create(url)
         val location =
             ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -52,9 +51,8 @@ class LinkController(
     @GetMapping("/{hash}")
     fun redirect(
         @PathVariable hash: String,
-        request: HttpServletRequest,
     ): ResponseEntity<Void> {
-        val redirection = redirectShortUrl.redirect(hash, request.remoteAddr)
+        val redirection = redirectShortUrl.redirect(hash)
         val headers = HttpHeaders()
         headers.location = URI.create(redirection.target)
         return ResponseEntity(headers, HttpStatus.TEMPORARY_REDIRECT)
@@ -63,6 +61,10 @@ class LinkController(
     @ExceptionHandler(InvalidUrlException::class)
     fun invalidUrl(ex: InvalidUrlException): ResponseEntity<Map<String, String>> =
         ResponseEntity.badRequest().body(mapOf("error" to (ex.message ?: "invalid url")))
+
+    @ExceptionHandler(HashCollisionException::class)
+    fun hashCollision(ex: HashCollisionException): ResponseEntity<Map<String, String>> =
+        ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to (ex.message ?: "hash collision")))
 
     @ExceptionHandler(LinkNotFoundException::class)
     fun notFound(ex: LinkNotFoundException): ResponseEntity<Map<String, String>> =

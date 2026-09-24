@@ -1,19 +1,19 @@
 package es.unizar.urlshortener
 
-import org.jmolecules.archunit.JMoleculesArchitectureRules
-import org.jmolecules.archunit.JMoleculesArchitectureRules.VerificationDepth
+import org.jmolecules.archunit.JMoleculesArchitectureRules.VerificationDepth.SEMI_STRICT
+import org.jmolecules.archunit.JMoleculesArchitectureRules.ensureHexagonal
 import org.junit.jupiter.api.Test
-import org.springframework.modulith.core.ApplicationModules
-import org.springframework.modulith.core.VerificationOptions
+import org.springframework.modulith.core.ApplicationModules.of
+import org.springframework.modulith.core.VerificationOptions.defaults
 import org.springframework.modulith.docs.Documenter
 
 class ModularityTests {
-    private val modules = ApplicationModules.of(Application::class.java)
+    private val modules = of(Application::class.java)
 
     @Test
     fun `verifies module structure and hexagonal stereotypes`() {
-        val hexagonal = JMoleculesArchitectureRules.ensureHexagonal(VerificationDepth.SEMI_STRICT)
-        modules.verify(VerificationOptions.defaults().withAdditionalVerifications(hexagonal))
+        val hexagonal = ensureHexagonal(SEMI_STRICT)
+        modules.verify(defaults().withAdditionalVerifications(hexagonal))
     }
 
     @Test

@@ -26,9 +26,9 @@ Personal names and ownership belong in your local `TEAM.md` (git-ignored), not i
 
 | ID | Feature | Owner | Event-coupled | Tests |
 | --- | --- | --- | --- | --- |
-| [0001](0001-create-short-url.md) | Create short URL | `links` | `ShortUrlCreated` | `POST /api/link`, `LinkFlowTests` |
-| [0002](0002-redirect-and-click-log.md) | Redirect and click log | `links` + `clicks` | `ClickLogged` | `GET /{hash}`, `LinkFlowTests` |
-| [0003](0003-link-stats.md) | Link stats | `analytics` | `ShortUrlCreated`, `ClickLogged` | `GET /api/stats/{hash}`, `LinkFlowTests` |
+| [0001](0001-create-short-url.md) | Create short URL | `links` | `ShortUrlCreatedEvent` | `POST /api/link`, `LinkFlowTests`, `CreateShortUrlConcurrency(Postgres)Tests` |
+| [0002](0002-redirect-and-click-log.md) | Redirect and click log | `links` + `clicks` | `ClickLoggedEvent` | `GET /{hash}`, `LinkFlowTests`, `RecordClickIdempotency(Postgres)Tests` |
+| [0003](0003-link-stats.md) | Link stats | `analytics` | `ShortUrlCreatedEvent`, `ClickLoggedEvent` | `GET /api/stats/{hash}`, `LinkFlowTests`, `LinkStatsConcurrency(Postgres)Tests`, `ProcessedClickEventPrune(Postgres)Tests` |
 
 ## Grown (index)
 

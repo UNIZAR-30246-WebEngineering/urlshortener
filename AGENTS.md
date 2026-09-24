@@ -9,6 +9,7 @@
 ```bash
 ./gradlew check                # All gates: ktlint + detekt + test + JaCoCo (60%)
 ./gradlew test                 # Modulith verify + hexagonal ArchUnit + flow test; JaCoCo per module under build/reports/jacoco/<module>/html
+./gradlew test --tests '*PostgresTests'  # Concurrency cases on Postgres via Testcontainers (needs Docker; skipped without it)
 ./gradlew ktlintFormat         # Auto-fix style issues
 ./gradlew bootJar
 docker compose up --build      # Postgres + app1 + app2 + nginx LB on :8080
@@ -27,7 +28,7 @@ Each package below is a **Modulith application module**. Own your feature in one
 | Module      | Own                                                                                 | Do not                       |
 |-------------|-------------------------------------------------------------------------------------|------------------------------|
 | `links`     | Create/store/redirect short URLs (`ShortUrl`, `CreateShortUrl`, `RedirectShortUrl`) | Click history or `LinkStats` |
-| `clicks`    | Append-only click log (`Click`, event type `ClickLogged`)                           | Totals / `/api/stats`        |
+| `clicks`    | Append-only click log (`Click`, event type `ClickLoggedEvent`)                           | Totals / `/api/stats`        |
 | `analytics` | Per-hash counters (`LinkStats`, `UpdateLinkStats`, `GetLinkStats`)                  | Raw click rows               |
 
 ### HTTP API
@@ -42,20 +43,20 @@ Each package below is a **Modulith application module**. Own your feature in one
 
 | Event | Owner module | When | Payload |
 | --- | --- | --- | --- |
-| `ShortUrlCreated` | `links` | After a short URL is persisted | `hash`, `target`, `createdAt` |
-| `ClickLogged` | `clicks` | After a successful redirect lookup | `hash`, `clientIp`, `occurredAt` |
+| `ShortUrlCreatedEvent` | `links` | After a short URL is persisted | `hash`, `target`, `createdAt` |
+| `ClickLoggedEvent` | `clicks` | After a successful redirect lookup | `hash`, `occurredAt`, `eventId` (consumers ignore repeats; [ADR 0002](docs/adr/0002-atomic-upserts.md)) |
 
 | Module | Publishes | Consumes |
 | --- | --- | --- |
-| `links` | `ShortUrlCreated`, `ClickLogged` | — |
-| `clicks` | — | `ClickLogged` consumed by `ClickRecorder` |
-| `analytics` | — | `ShortUrlCreated`, `ClickLogged` consumed by `LinkStatsListener` |
+| `links` | `ShortUrlCreatedEvent`, `ClickLoggedEvent` | — |
+| `clicks` | — | `ClickLoggedEvent` consumed by `ClickRecorder` |
+| `analytics` | — | `ShortUrlCreatedEvent`, `ClickLoggedEvent` consumed by `LinkStatsListener` |
 
-**Do not confuse:** `clicks` = permanent log (many rows per hash); `analytics` = one `LinkStats` row per hash. Growing a feature? Put it in the module that owns that data, or add a new module + ADR.
+**Do not confuse:** `clicks` = permanent log (many rows per hash); `analytics` = one `LinkStats` row per hash. Sole exception: `analytics` keeps processed `ClickLoggedEvent` ids (no hash) for deduplication, pruned after `urlshortener.analytics.processed-click-retention` ([ADR 0002](docs/adr/0002-atomic-upserts.md)). Growing a feature? Put it in the module that owns that data, or add a new module + ADR.
 
 Each Modulith module is a **closed** application module with an internal hexagon:
 
-- **Public API** = base package only (integration events such as `ShortUrlCreated`, `ClickLogged`)
+- **Public API** = base package only (integration events such as `ShortUrlCreatedEvent`, `ClickLoggedEvent`)
 - **Internal** = `domain` (where present), `application` (use cases + jMolecules ports), `adapters.*` (web, persistence, events, tech)
 - **Hexagon** = jMolecules stereotypes; verified via `ensureHexagonal(SEMI_STRICT)` in `ModularityTests`
 
@@ -84,7 +85,7 @@ Web UI, specialised tech, Level-4 broker path (`--profile broker` stub), **featu
 | Exactly one of those two | **0.75** |
 | Neither | **0** |
 
-3. **ADR with events** — decision recorded before/with code; events documented  
+3. **ADR with events** — decision recorded before/with code; events documented
 4. **Package + verify green** — `ApplicationModules.verify()` + `ensureHexagonal(SEMI_STRICT)` in `ModularityTests`
 
 ## Feature cards

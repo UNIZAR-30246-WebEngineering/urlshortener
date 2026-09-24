@@ -52,12 +52,27 @@ dependencies {
     testImplementation(libs.spring.boot.starter.webmvc.test)
     testImplementation(libs.modulith.starter.test)
     testImplementation(libs.archunit.junit5)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.jmolecules.archunit)
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
+    // JDK 21+ warns on dynamic agent attach; a future JDK will disallow it.
+    jvmArgumentProviders.add(
+        CommandLineArgumentProvider {
+            val mockitoAgent =
+                classpath.files.single { it.name.startsWith("mockito-core-") && it.extension == "jar" }
+            listOf(
+                "-javaagent:${mockitoAgent.absolutePath}",
+                // The agent appends the bootstrap classpath, which disables CDS for app classes.
+                "-Xshare:off",
+            )
+        },
+    )
 }
 
 val modulithModules = listOf("links", "clicks", "analytics")
