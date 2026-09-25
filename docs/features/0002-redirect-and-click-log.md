@@ -31,7 +31,7 @@ Look up a short URL by hash, return **307** to the target, and append a permanen
 ### Scale evidence
 
 - [x] Level 3 — in-process `ClickLoggedEvent` event
-- [ ] Redirect via product LB with scale evidence
+- [ ] `docker compose --profile load run --rm k6` not run yet — concurrent `POST /api/link` and `GET /{hash}` through the load balancer. A failed run may lower the scalability score of every grown feature
 
 ### Qualities (self-assessed)
 

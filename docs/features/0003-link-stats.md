@@ -33,14 +33,14 @@ Maintain per-hash `LinkStats` (not the raw click log; the only other table is a 
 ### Scale evidence
 
 - [x] Level 3 — in-process events from `links` and `clicks`
-- [ ] Stats under load/failover not measured
+- [ ] `docker compose --profile load run --rm k6` not run yet — concurrent `POST /api/link` and `GET /{hash}` through the load balancer. A failed run may lower the scalability score of every grown feature
 
 ### Qualities (self-assessed)
 
 | Quality | Assessed | How to test |
 | --- | --- | --- |
 | **Correctness** | **0** | Happy path stats=1 automated; claimed **404** untested → **0**. Re-test: `GET /api/stats/missing` → 404; then **5**. |
-| **Scalability** | **0** | No scale run data. Confirm only via Compose scale evidence when claimed. |
+| **Scalability** | **0** | No k6 run yet. Every project is tested with `docker compose --profile load run --rm k6`. |
 | **Engineering** | **1.5** | ADR `0001` + `ModularityTests` green; `./gradlew check` green; AI disclosure present. |
 
 **Indicative total:** 0 + 0 + 1.5 = **1.5 / 10**.

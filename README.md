@@ -6,7 +6,7 @@
 
 **Graded deliverable:** Boot jar(s) **plus** this Compose stack (Postgres + 2 app replicas + LB) — not “jar on localhost only.”
 
-Day-to-day coding uses `./gradlew bootRun` (in-memory HSQLDB). Demo, scale evidence, and grading use Compose:
+Day-to-day coding uses `./gradlew bootRun` (in-memory HSQLDB). Demo and grading use Compose:
 
 | Layer | Command |
 | --- | --- |
@@ -27,17 +27,17 @@ Day-to-day coding uses `./gradlew bootRun` (in-memory HSQLDB). Demo, scale evide
 - Compose product stack.
 - ADRs under `docs/adr/`.
 - `AGENTS.md`.
-- k6 load script + replica-failover smoke (`scripts/scale-baseline.sh`).
 
 **Grown (students):**
 
-- New feature cards from [`0004-…`](docs/features/README.md) (Σ weights = 84; ≥4 features; ≥2 event-coupled). The three seed features are ignored when counting.
+- New feature cards from [`0004-…`](docs/features/README.md). Weights **5 · 8 · 13 · 21** (ExpectedLevel 1–4). **Σ = 84**. **≥ 4** grown features (one per member). **≥ 2** event-coupled. Seed cards weigh 0 and are ignored in those counts.
+- **Event-coupled Y** means the feature publishes or consumes a domain event. Reaching Level 3 (weight **13**) or Level 4 (weight **21**) needs a **new** event type. Reusing `ShortUrlCreatedEvent` or `ClickLoggedEvent` does not reach those levels. A card may still say **N**; that delivery scores as Level 2.
 - Code in owner modules (`links` / `clicks` / `analytics` or a new module) — keep hexagon + `ApplicationModules.verify()` green.
-- Scale evidence as claimed on cards: [`replica-failover`](scripts/scale-baseline.sh), [`load-compare`](scripts/load.k6.js), `cross-instance` (`--profile broker`). Architecture verify (`ModularityTests`) counts toward **engineering / ADR**, not scale.
-- ADRs under [`docs/adr/`](docs/adr/README.md) when a choice locks modules, events, Level 4, or tech ([`0000-TEMPLATE.md`](docs/adr/0000-TEMPLATE.md); seed [`0001`](docs/adr/0001-modulith-and-hexagon.md)).
-- Specialised technologies (≥2) and optional Web UI / module extraction.
-- Defence packet: cite feature cards, ADRs, and the commands/tests that prove them.
-- Personal names, ownership, and integrator role are in **`TEAM.md`** (see `TEAM.md.example`). That file is git-ignored and must not be committed, but must be included in the zip submission.
+- Weight **21** (Level 4) needs an external broker. `docker compose --profile broker up` only starts the stub; the apps are not wired to it. Students wire externalization.
+- ADRs under [`docs/adr/`](docs/adr/README.md) when a choice locks a module, the broker, or a library ([`0000-TEMPLATE.md`](docs/adr/0000-TEMPLATE.md); seed [`0001`](docs/adr/0001-modulith-and-hexagon.md)).
+- Technologies beyond baseline HTTP, in distinct grown features: Call-Return, Event-Based, and Data Flow. Modulith events and the broker count toward architecture, not this slice. Web UI is not graded.
+- Defence packet: filled feature cards, ADR log, and a live Compose demo (create, redirect, stats).
+- Personal names, ownership, and the integration owner are in **`TEAM.md`** (see `TEAM.md.example`). That file is git-ignored and must not be committed, but must be included in the zip.
 
 ## Local dev (no Docker)
 
@@ -64,7 +64,7 @@ Modulith modules are the **bounded contexts**. Inside each module, use a small h
 | Layer | Role |
 | --- | --- |
 | base package | Public API (events other modules may import) |
-| `domain` | Framework-free model (`@Application`) |
+| `domain` (where present) | Framework-free model (`@Application`). Only `links` has one |
 | `application` | Use cases + `@PrimaryPort` / `@SecondaryPort` |
 | `adapters.*` | `@PrimaryAdapter` / `@SecondaryAdapter` (web, JPA, events, tech) |
 
@@ -88,33 +88,23 @@ Defence packet: list ADRs + the command/test that proves each decision.
 - `links.ShortUrlCreatedEvent` (published by `links`) → `analytics` creates zeroed `LinkStats`
 - `clicks.ClickLoggedEvent` (type in `clicks`; published by `links` on redirect) → `clicks` appends a log row; `analytics` increments `LinkStats`
 
-In-process events do **not** cross replicas. Level 4 = externalize via broker (`--profile broker`).
+In-process events do **not** cross replicas. The seed `--profile broker` only starts the broker; it does not externalise events.
 
 ```mermaid
 flowchart LR
   subgraph links [links module]
     LC[LinkController] --> LS[LinkService]
     LS -->|publish| SUC((ShortUrlCreatedEvent))
-    LS -->|publish| CL((ClickLoggedEvent))
   end
   subgraph clicks [clicks module]
-    CL --> CR[ClickRecorder]
+    CL((ClickLoggedEvent)) --> CR[ClickRecorder]
   end
   subgraph analytics [analytics module]
     SUC --> LSL[LinkStatsListener]
     CL --> LSL
   end
+  LS -->|publish| CL
 ```
-
-## Scale evidence
-
-| Evidence | When required | Artifact | Command |
-| --- | --- | --- | --- |
-| `replica-failover` | Horizontal claimed | Create/redirect via LB; kill one replica; shared DB still serves | `./scripts/scale-baseline.sh` then `docker compose stop app2` |
-| `load-compare` | Horizontal **or** weight ≥13 | Same script N=1 vs N=2; RPS + p95 + error rate + interpretation | `docker compose --profile load run --rm k6` |
-| `cross-instance` | Level 4 claimed | Side-effect across instances + idempotency | Broker integration + test |
-
-Architecture gates (`ModularityTests`, `ensureHexagonal`) belong in **engineering / ADRs**, not in this table.
 
 ## First 30 minutes
 
@@ -129,24 +119,31 @@ cd <your-repo>
 # 3. Run locally (HSQLDB in-memory)
 ./gradlew bootRun        # → http://localhost:8080
 
-# 4. Try the three seed endpoints
+# 4. Try the three seed endpoints (create takes form or multipart `url`, not JSON)
 http POST localhost:8080/api/link url=https://example.com
 http GET  localhost:8080/<hash>    --follow
 http GET  localhost:8080/api/stats/<hash>
 
-# 5. Bring up the full product stack (Postgres + 2 replicas + LB)
-docker compose up --build   # → LB on http://localhost:8080
-
-# 6. Run the load profile (optional, produces load-compare evidence)
-docker compose --profile load run --rm k6
+# 5. Stop bootRun (same port), then bring up the product stack
+docker compose up --build   # Postgres + 2 replicas + LB → http://localhost:8080
 ```
 
 Once the stack is up and you can create, redirect, and fetch stats, you are ready to fill your agreement.
 
 ## Project Agreement (October 2)
 
-1. **Budget**: Σ weights = 84; ≥ 4 grown features (one per member); ≥ 2 event-coupled. Weights: 5 · 8 · 13 · 21 (= ExpectedLevel 1–4). The three seed features do not count. Full rules: [`project.pdf`](https://unizar-30246-webengineering.github.io/web-engineering/assets/assignments/project.pdf).
-2. **Feature cards**: for each grown feature, copy [`docs/features/0000-TEMPLATE.md`](https://github.com/UNIZAR-30246-WebEngineering/UrlShortener/blob/main/docs/features/0000-TEMPLATE.md) → `0004-….md`. Paste the catalogue entry from `guidance.pdf` into `## Decision` and choose a weight. Leave `## Later` empty.
-3. **Cover sheet**: fill [`AGREEMENT.md`](https://github.com/UNIZAR-30246-WebEngineering/UrlShortener/blob/main/AGREEMENT.md) — feature rows (no personal names), budget totals.
-4. **TEAM.md**: copy `TEAM.md.example` → `TEAM.md` on one member's machine. Fill in personal names, UNIZAR emails, git identity, owned features, and integrator. Do not commit it — include it in the zip.
-5. **Submit**: upload a zip of the git repository via Moodle.
+Full rules: [Group Project](https://moodle.unizar.es/add/course/section.php?id=1702745). Catalogue: [Feature Catalogue](https://moodle.unizar.es/add/mod/resource/view.php?id=12167300). Keep the repository **private**.
+
+| Weight | ExpectedLevel | Required approach |
+| --- | --- | --- |
+| **5** | 1 | Synchronous Spring MVC |
+| **8** | 2 | Async threads, coroutines, or `@Async` |
+| **13** | 3 | In-process Modulith events (`@ApplicationModuleListener`). A **new** event type is required to reach this level; the card may still say N |
+| **21** | 4 | External broker. A **new** event type is required to reach this level. `--profile broker` only starts the stub |
+
+1. **Feature cards**: copy [`docs/features/0000-TEMPLATE.md`](docs/features/0000-TEMPLATE.md) → `0004-….md`. Paste the catalogue entry into `## Decision` and choose a weight. Leave `## Later` empty. No personal names.
+2. **Cover sheet**: fill [`AGREEMENT.md`](AGREEMENT.md) — grown feature rows (owner module, weight, event-coupled) and budget totals (Σ = 84, grown ≥ 4, event-coupled ≥ 2). No personal names.
+3. **TEAM.md**: copy `TEAM.md.example` → `TEAM.md`. Personal names, UNIZAR emails, git identity, owned features, and the integration owner. Do not commit it.
+4. **Submit**: upload a zip of the working directory via Moodle by **2 October** (the zip includes `TEAM.md`).
+
+Fill `## Later` after the agreement, when a choice locks an ADR. By **23 October** (proof of concept): one grown event end to end, and `docker compose up` starts cleanly. By **27 November** (prototype): one grown feature at Level 3 or higher (weight ≥ 13), its acceptance criteria, and CI green. By the defence (**17–18 December**): qualities self-assessment and AI disclosure.

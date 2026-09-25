@@ -69,7 +69,7 @@ Grown changes that affect modules, hexagon enforcement, events, or specialised t
 
 ## Grown (students)
 
-Web UI, specialised tech, Level-4 broker path (`--profile broker` stub), **feature cards** under [`docs/features/`](docs/features/README.md), defence packet (cite ADRs + evidence commands).
+Technologies beyond baseline HTTP (Call-Return, Event-Based, Data Flow), each in a distinct grown feature. Web UI is not graded. Level-4 broker path (`--profile broker` starts the stub only; apps are not wired to it). **Feature cards** under [`docs/features/`](docs/features/README.md). Defence packet: filled feature cards, ADR log, and a live Compose demo.
 
 ## Engineering quality ticks
 

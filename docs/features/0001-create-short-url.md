@@ -31,8 +31,7 @@ Accept a target URL, validate it, mint a new base62 code from `short_url_seq`, p
 ### Scale evidence
 
 - [x] Level 3 — in-process events via `ShortUrlCreatedEvent`
-- [ ] Run data of failure scenarios
-- [ ] Run data of load scenarios
+- [ ] `docker compose --profile load run --rm k6` not run yet — concurrent `POST /api/link` and `GET /{hash}` through the load balancer. A failed run may lower the scalability score of every grown feature
 
 ### Qualities (self-assessed)
 

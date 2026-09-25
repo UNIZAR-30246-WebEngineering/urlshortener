@@ -4,7 +4,7 @@ Seed cards `0001`–`0003` are provided and ignored in the agreement. Teams add 
 
 ## How to create a card (October 2)
 
-1. Pick a feature from `guidance.pdf`, or write a new catalogue entry in the same shape.
+1. Pick a feature from the [Feature Catalogue](https://moodle.unizar.es/add/mod/resource/view.php?id=12167300), or write a new catalogue entry in the same shape.
 2. Copy [`0000-TEMPLATE.md`](0000-TEMPLATE.md) → `NNNN-short-title.md`.
 3. Paste the catalogue entry into `## Decision` and choose a **weight** (5, 8, 13, or 21).
 4. Leave `## Later` empty — fill it before the feature is graded.

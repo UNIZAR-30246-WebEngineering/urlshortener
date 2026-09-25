@@ -2,7 +2,7 @@
 
 ## Decision (required by 2 October)
 
-Paste the catalogue entry here (from `guidance.pdf`), or write one in the same shape if the idea is your own:
+Paste the catalogue entry here (from the [Feature Catalogue](https://moodle.unizar.es/add/mod/resource/view.php?id=12167300)), or write one in the same shape if the idea is your own:
 
 **Owner module**: links | clicks | analytics | \<new\> | **Event-coupled**: Y | N (\<reason\>)
 
@@ -19,9 +19,9 @@ Paste the catalogue entry here (from `guidance.pdf`), or write one in the same s
 
 ---
 
-## Later (fill before the feature is graded, not for the agreement)
+## Later (after the 2 October agreement)
 
-- **ADR:** none | docs/adr/NNNN-….md *(add when a choice locks a module, the broker, or a library)*
+- **ADR:** none | docs/adr/NNNN-….md *(by when a choice locks a module, the broker, or a library)*
 
 ### Acceptance criteria
 
@@ -30,13 +30,9 @@ Paste the catalogue entry here (from `guidance.pdf`), or write one in the same s
 
 ### Scale evidence
 
-| Evidence | Required |
-| --- | --- |
-| `replica-failover` | Horizontal scale claimed |
-| `load-compare` | Weight ≥ 13 or horizontal scale |
-| `cross-instance` | Level 4 claimed |
+Fill this section with the evidence of the scalability of the feature.
 
-### Qualities (self-assessed)
+### Qualities
 
 Fill **Assessed** with the grade you claim; **How to test** must falsify that number if it failed.
 
