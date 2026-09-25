@@ -7,12 +7,13 @@
 ## Commands
 
 ```bash
+./gradlew bootRun              # Day-to-day: in-memory HSQLDB on :8080 (stop before Compose; same port)
 ./gradlew check                # All gates: ktlint + detekt + test + JaCoCo (60%)
 ./gradlew test                 # Modulith verify + hexagonal ArchUnit + flow test; JaCoCo per module under build/reports/jacoco/<module>/html
 ./gradlew test --tests '*PostgresTests'  # Concurrency cases on Postgres via Testcontainers (needs Docker; skipped without it)
 ./gradlew ktlintFormat         # Auto-fix style issues
 ./gradlew bootJar
-docker compose up --build      # Postgres + app1 + app2 + nginx LB on :8080
+docker compose up --build      # Graded product: Postgres + app1 + app2 + nginx LB on :8080
 docker compose --profile load run --rm k6
 # or from host:
 BASE_URL=http://localhost:8080 k6 run scripts/load.k6.js
@@ -28,29 +29,29 @@ Each package below is a **Modulith application module**. Own your feature in one
 | Module      | Own                                                                                 | Do not                       |
 |-------------|-------------------------------------------------------------------------------------|------------------------------|
 | `links`     | Create/store/redirect short URLs (`ShortUrl`, `CreateShortUrl`, `RedirectShortUrl`) | Click history or `LinkStats` |
-| `clicks`    | Append-only click log (`Click`, event type `ClickLoggedEvent`)                           | Totals / `/api/stats`        |
+| `clicks`    | Append-only click log (`Click`); type `ClickLoggedEvent` lives here                  | Totals / `/api/stats`; publishing the click event |
 | `analytics` | Per-hash counters (`LinkStats`, `UpdateLinkStats`, `GetLinkStats`)                  | Raw click rows               |
 
 ### HTTP API
 
 | Module      | Endpoints                       |
 |-------------|---------------------------------|
-| `links`     | `POST /api/link`, `GET /{hash}` |
+| `links`     | `POST /api/link` (form or multipart `url`, not JSON), `GET /{hash}` |
 | `analytics` | `GET /api/stats/{hash}`         |
 | `clicks`    | —           |
 
 ### Events
 
-| Event | Owner module | When | Payload |
-| --- | --- | --- | --- |
-| `ShortUrlCreatedEvent` | `links` | After a short URL is persisted | `hash`, `target`, `createdAt` |
-| `ClickLoggedEvent` | `clicks` | After a successful redirect lookup | `hash`, `occurredAt`, `eventId` (consumers ignore repeats; [ADR 0002](docs/adr/0002-atomic-upserts.md)) |
+| Event | Type package | Publisher | When | Payload |
+| --- | --- | --- | --- | --- |
+| `ShortUrlCreatedEvent` | `links` | `links` (`LinkService.create`) | After a short URL is persisted | `hash`, `target`, `createdAt` |
+| `ClickLoggedEvent` | `clicks` | `links` (`LinkService.redirect`) | After a successful redirect lookup | `hash`, `occurredAt`, `eventId` (consumers ignore repeats; [ADR 0002](docs/adr/0002-atomic-upserts.md)) |
 
 | Module | Publishes | Consumes |
 | --- | --- | --- |
 | `links` | `ShortUrlCreatedEvent`, `ClickLoggedEvent` | — |
-| `clicks` | — | `ClickLoggedEvent` consumed by `ClickRecorder` |
-| `analytics` | — | `ShortUrlCreatedEvent`, `ClickLoggedEvent` consumed by `LinkStatsListener` |
+| `clicks` | — | `ClickLoggedEvent` via `ClickRecorder` |
+| `analytics` | — | `ShortUrlCreatedEvent`, `ClickLoggedEvent` via `LinkStatsListener` |
 
 **Do not confuse:** `clicks` = permanent log (many rows per hash); `analytics` = one `LinkStats` row per hash. Sole exception: `analytics` keeps processed `ClickLoggedEvent` ids (no hash) for deduplication, pruned after `urlshortener.analytics.processed-click-retention` ([ADR 0002](docs/adr/0002-atomic-upserts.md)). Growing a feature? Put it in the module that owns that data, or add a new module + ADR.
 
@@ -60,7 +61,7 @@ Each Modulith module is a **closed** application module with an internal hexagon
 - **Internal** = `domain` (where present), `application` (use cases + jMolecules ports), `adapters.*` (web, persistence, events, tech)
 - **Hexagon** = jMolecules stereotypes; verified via `ensureHexagonal(SEMI_STRICT)` in `ModularityTests`
 
-Do **not** break `ApplicationModules.verify()`. Prefer events over cross-module bean injection. Do not import another module’s `adapters` or `domain` packages.
+Do **not** break `ApplicationModules.verify()`. Prefer events over cross-module bean injection. Do not import another module’s `domain`, `application`, or `adapters` packages.
 
 ## Decisions
 
@@ -77,17 +78,14 @@ Web UI, specialised tech, Level-4 broker path (`--profile broker` stub), **featu
 1. **AI disclosure** — required on the feature card (tools used **or** explicit “no AI assistance”)
 2. **QA gate** — `./gradlew check` green (ktlint + detekt + test + JaCoCo ≥60%); CI must not be red
 
-**With both gates present**, score the architecture ticks:
+**With both gates present**, score the architecture ticks (an ADR records a locked choice — module, event, broker, or tech — not a mandatory new event on every card):
 
-| Architecture ticks green | Engineering |
-| --- | --- |
-| ADR with events **and** `ModularityTests` (verify + hexagon) | **1.5** |
-| Exactly one of those two | **0.75** |
-| Neither | **0** |
-
-3. **ADR with events** — decision recorded before/with code; events documented
-4. **Package + verify green** — `ApplicationModules.verify()` + `ensureHexagonal(SEMI_STRICT)` in `ModularityTests`
+| ADR filed | `ModularityTests` green | Engineering |
+| --- | --- | --- |
+| Yes | Yes (`ApplicationModules.verify()` + `ensureHexagonal(SEMI_STRICT)`) | **1.5** |
+| Exactly one | — | **0.75** |
+| No | No | **0** |
 
 ## Feature cards
 
-Seed (weight 0): [`0001`](docs/features/0001-create-short-url.md)–[`0003`](docs/features/0003-link-stats.md). Grown: copy [`0000-TEMPLATE.md`](docs/features/0000-TEMPLATE.md) → `0004-…`; update [`docs/features/README.md`](docs/features/README.md) index (budget ≤84, max 5 scored).
+Seed (weight 0): [`0001`](docs/features/0001-create-short-url.md)–[`0003`](docs/features/0003-link-stats.md). Grown: copy [`0000-TEMPLATE.md`](docs/features/0000-TEMPLATE.md) → `0004-…`; update [`docs/features/README.md`](docs/features/README.md) index (Σ weights = 84, ≥ 4 grown, ≥ 2 event-coupled).

@@ -85,8 +85,8 @@ Defence packet: list ADRs + the command/test that proves each decision.
 
 ## Events
 
-- `links.ShortUrlCreated` → `analytics` creates zeroed `LinkStats`
-- `clicks.ClickLogged` (published from redirect in `links`) → `clicks` appends log row; `analytics` increments `LinkStats`
+- `links.ShortUrlCreatedEvent` (published by `links`) → `analytics` creates zeroed `LinkStats`
+- `clicks.ClickLoggedEvent` (type in `clicks`; published by `links` on redirect) → `clicks` appends a log row; `analytics` increments `LinkStats`
 
 In-process events do **not** cross replicas. Level 4 = externalize via broker (`--profile broker`).
 
@@ -94,8 +94,8 @@ In-process events do **not** cross replicas. Level 4 = externalize via broker (`
 flowchart LR
   subgraph links [links module]
     LC[LinkController] --> LS[LinkService]
-    LS -->|publish| SUC((ShortUrlCreated))
-    LS -->|publish| CL((ClickLogged))
+    LS -->|publish| SUC((ShortUrlCreatedEvent))
+    LS -->|publish| CL((ClickLoggedEvent))
   end
   subgraph clicks [clicks module]
     CL --> CR[ClickRecorder]

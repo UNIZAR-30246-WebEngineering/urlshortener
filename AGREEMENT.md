@@ -2,7 +2,7 @@
 
 **Due:** 2 October 2026.
 
-> Rules are in [`project.pdf`](https://unizar-30246-webengineering.github.io/web-engineering/assets/assignments/project.pdf).  
+> Rules are in [`Group Project`](https://moodle.unizar.es/add/course/section.php?id=1702745).  
 > Feature cards are in [`docs/features/`](docs/features/).  
 > This file is the cover sheet: one fact, one place.  
 > Personal names, feature ownership, git identity, and the integration owner are in **`TEAM.md`** — git-ignored, must not be committed, but must be included in the zip submission.
@@ -11,7 +11,7 @@
 
 The three seed features (create short URL, redirect and click log, link stats) are provided. Do not list them here.
 
-Each row below is a **grown** feature: a card copied from the catalogue in `guidance.pdf`, or a new card in that same shape, plus a chosen weight. Personal names and ownership belong in `TEAM.md`, not here.
+Each row below is a **grown** feature: a card copied from the Feature Catalogue, or a new card in that same shape, plus a chosen weight. Personal names and ownership belong in `TEAM.md`, not here.
 
 | Feature card | Owner module | Weight | Event-coupled |
 | --- | --- | --- | --- |
