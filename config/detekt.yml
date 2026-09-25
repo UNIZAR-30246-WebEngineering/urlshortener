@@ -1,18 +1,16 @@
 # Detekt configuration — seed defaults (students may tune)
 # Docs: https://detekt.dev/docs/rules/
-
-build:
-  maxIssues: 0  # fail on any issue
+# The Gradle task fails the build on any finding (ignoreFailures = false).
 
 complexity:
   LongMethod:
-    threshold: 30
+    allowedLines: 30
   LongParameterList:
-    functionThreshold: 8
-    constructorThreshold: 10
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 10
   TooManyFunctions:
-    thresholdInFiles: 15
-    thresholdInClasses: 15
+    allowedFunctionsPerFile: 15
+    allowedFunctionsPerClass: 15
 
 style:
   MagicNumber:

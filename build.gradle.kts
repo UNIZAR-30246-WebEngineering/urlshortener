@@ -126,10 +126,6 @@ detekt {
     config.setFrom(files("$projectDir/config/detekt.yml"))
 }
 
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    jvmTarget = "22" // detekt doesn't yet support 25
-}
-
 ktlint {
     version.set("1.5.0")
 }
